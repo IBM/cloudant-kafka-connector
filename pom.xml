@@ -1,0 +1,56 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.ibm.cloudant</groupId>
+  <artifactId>kafka-connect-cloudant</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>kafka-connect-cloudant</name>
+  <description>Kafka Connect Cloudant connector</description>
+  
+  <repositories>
+
+  <repository>
+    <id>confluent</id>
+    <url>http://packages.confluent.io/maven/</url>
+  </repository>
+</repositories>
+  
+  <dependencies>
+  		<dependency>
+    	<groupId>org.apache.kafka</groupId>
+    	<artifactId>kafka_2.10</artifactId>
+    	<version>0.10.0.1-cp1</version>
+ 		</dependency>
+ 		
+  		<dependency>
+    	<groupId>org.apache.kafka</groupId>
+    	<artifactId>connect-api</artifactId>
+   		<version>0.10.0.1-cp1</version>
+  		</dependency>
+  		
+  		<dependency>
+		<groupId>com.cloudant</groupId>
+		<artifactId>cloudant-client</artifactId>
+		<version>2.5.0</version>
+		</dependency>
+		
+		<dependency>
+        <groupId>org.json</groupId>
+        <artifactId>json</artifactId>
+        <version>20160810</version>
+        </dependency>
+        
+		<dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-api-easymock</artifactId>
+        <version>1.6.4</version>
+        </dependency>
+        
+        <dependency>
+        <groupId>org.easymock</groupId>
+        <artifactId>easymock</artifactId>
+        <version>3.4</version>
+        </dependency>
+
+  </dependencies>
+  
+</project>
