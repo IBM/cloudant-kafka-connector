@@ -23,13 +23,13 @@ To read from a Cloudant database as source and write documents to a Kafka topic,
 
 with the following parameters:
 
-Parameter | Type | Required? | Example | Default value
---------- | ---- | --------- | ------- | -------------
-cloudant.db.url | String | YES | "https://<account>.cloudant.com/<database>" | None
-cloudant.db.username | String | YES | "<username>" | None
-cloudant.db.password | String | YES | "<password>" | None
-cloudant.db.since | String | NO | "1-g1AAAAETeJzLYWBgYMlgTmGQT0lKzi9.." | "0"
-kafka.topic | String | YES | "<topic>" | None
+Parameter | Type | Required| Example | Default value
+--- |:---:| ---|:---| ---
+cloudant.db.url|String|YES|https://\<account\>.cloudant.com/\<database\>|None
+cloudant.db.username | String | YES | \<username\> | None
+cloudant.db.password | String | YES | \<password\> | None
+cloudant.db.since | String | NO | 1-g1AAAAETeJzLYWBgYMlgTmGQT0lKzi9.. | 0
+kafka.topic | String | YES | \<topic\> | None
 
 ## Usage
 
