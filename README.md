@@ -23,6 +23,7 @@ To read from a Cloudant database as source and write documents to a Kafka topic,
 
 with the following parameters:
 
+
 Parameter | Type | Required? | Example | Default value
 --------- | ---- | --------- | ------- | -------------
 cloudant.db.url | String | YES | "https://<account>.cloudant.com/<database>" | None
