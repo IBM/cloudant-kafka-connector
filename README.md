@@ -45,7 +45,7 @@ cloudant.db.url|https://\<account\>.cloudant.com/\<database\>|YES|None
 cloudant.db.username|\<username\>|YES|None
 cloudant.db.password|\<password\>|YES|None
 cloudant.db.since|1-g1AAAAETeJzLYWBgYMlgTmGQT0lKzi9..|NO|0
-kafka.topic|\<topic\>|YES|None
+topics|\<topic1\>,\<topic2\>,..|YES|None
 
 
 ### Cloudant as sink
@@ -64,7 +64,7 @@ tasks.max|5|NO|1
 cloudant.db.url|https://\<account\>.cloudant.com/\<database\>|YES|None
 cloudant.db.username|\<username\>|YES|None
 cloudant.db.password|\<password\>|YES|None
-kafka.topic|\<topic\>|YES|None
+topics|\<topic1\>,\<topic2\>,..|YES|None
 
 ## Usage
 
