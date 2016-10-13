@@ -68,6 +68,8 @@ kafka.topic|\<topic\>|YES|None
 
 ## Usage
 
+Kafka will use the $CLASSPATH to locate available connectors. Make sure to add the connector library to your $CLASSPATH first. 
+
 Connector execution in Kafka is available through scripts in the Kafka install path:
 
 `$kafka_home/bin/connect-standalone.sh` or `$kafka_home/bin/connect-distributed.sh`
