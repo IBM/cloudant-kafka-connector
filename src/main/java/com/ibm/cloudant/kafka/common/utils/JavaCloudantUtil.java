@@ -13,6 +13,9 @@ import com.cloudant.client.api.CloudantClient;
 import com.cloudant.client.api.Database;
 import com.cloudant.client.api.model.Response;
 import com.ibm.cloudant.kafka.common.CloudantConst;
+import com.ibm.cloudant.kafka.common.MessageKey;
+
+import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 
 public class JavaCloudantUtil {
 
@@ -26,6 +29,10 @@ public class JavaCloudantUtil {
 		try {
 			// get database object
 			Database cantDB = getDBInst(url, userName, password);
+			if (cantDB == null) {
+				throw new RuntimeException(String.format(ResourceBundleUtil.get(
+						MessageKey.CLOUDANT_DATABASE_ERROR), url));
+			}
 			List<Object> entryObj = new ArrayList<Object>();
 			for(int i=0; i < data.length();i++){
 				entryObj.add(data.get(i));

@@ -109,7 +109,7 @@ public class CloudantSourceTask extends SourceTask {
 					docCounter = 0;
 				}
 				
-				records.add(new SourceRecord(offsetKey(url), offsetValue(latestSequenceNumber), topic, Schema.STRING_SCHEMA, document));
+				records.add(new SourceRecord(offsetKey(url), offsetValue(latestSequenceNumber), topic, Schema.STRING_SCHEMA, document.toString()));
 				LOG.info("Last sequencce " + latestSequenceNumber);
 			}
 		} catch(Exception e){

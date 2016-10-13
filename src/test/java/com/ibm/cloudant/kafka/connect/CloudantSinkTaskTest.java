@@ -80,7 +80,7 @@ public class CloudantSinkTaskTest extends TestCase {
 		
 		task.put(Arrays.asList(
 				new SinkRecord(testProperties.getProperty(InterfaceConst.TOPIC), 0, 
-						null, null, Schema.STRING_SCHEMA, doc1, 1)));
+						null, null, Schema.STRING_SCHEMA, doc1.toString(), 1)));
 		
 		offsets.put(new TopicPartition(testProperties.getProperty(InterfaceConst.TOPIC), 0), 
 				new OffsetAndMetadata(1L));
@@ -95,16 +95,16 @@ public class CloudantSinkTaskTest extends TestCase {
 		
 		task.put(Arrays.asList(
 				new SinkRecord(testProperties.getProperty(InterfaceConst.TOPIC), 
-						0, null, null, Schema.STRING_SCHEMA,doc2, 2),
+						0, null, null, Schema.STRING_SCHEMA,doc2.toString(), 2),
 				
 				new SinkRecord(testProperties.getProperty(InterfaceConst.TOPIC), 
-						0, null, null, Schema.STRING_SCHEMA, doc3, 3)
+						0, null, null, Schema.STRING_SCHEMA, doc3.toString(), 3)
 				));
 		
 		offsets.put(new TopicPartition(testProperties.getProperty(InterfaceConst.TOPIC), 0), 
 				new OffsetAndMetadata(2L));
 		offsets.put(new TopicPartition(testProperties.getProperty(InterfaceConst.TOPIC), 0),
-				new OffsetAndMetadata(3L));
+				new OffsetAndMetadata(2L));
 		task.flush(offsets);
 		
 		// CLOUDANT

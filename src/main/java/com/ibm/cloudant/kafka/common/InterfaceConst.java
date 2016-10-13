@@ -8,6 +8,6 @@ public class InterfaceConst {
 	
 	public final static String LAST_CHANGE_SEQ = "cloudant.db.since";
 
-	public final static String TOPIC = "kafka.topic";
+	public final static String TOPIC = "topics";
 
 }

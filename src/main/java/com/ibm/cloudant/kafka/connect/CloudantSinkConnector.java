@@ -20,6 +20,9 @@ public class CloudantSinkConnector extends SinkConnector {
 
 	private static Logger LOG = Logger.getLogger(CloudantSinkConnector.class);
 	
+	private String dbUrl;
+	private String dbUser;
+	private String dbPassword;
 	private String kafkaTopic;
 	
 	@Override
@@ -31,7 +34,10 @@ public class CloudantSinkConnector extends SinkConnector {
 	public void start(Map<String, String> props) {
 		try {
 			kafkaTopic = props.get(InterfaceConst.TOPIC);
-
+			dbUrl = props.get(InterfaceConst.URL);
+			dbUser = props.get(InterfaceConst.USER_NAME);
+			dbPassword = props.get(InterfaceConst.PASSWORD);
+		
 		} catch (NullPointerException e) {
 			LOG.error(e.getMessage(), e);
 			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION));
@@ -56,7 +62,9 @@ public class CloudantSinkConnector extends SinkConnector {
 
 		try {
 			config.put(InterfaceConst.TOPIC, kafkaTopic);
-
+			config.put(InterfaceConst.URL, dbUrl);
+			config.put(InterfaceConst.USER_NAME, dbUser);
+			config.put(InterfaceConst.PASSWORD, dbPassword);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION));

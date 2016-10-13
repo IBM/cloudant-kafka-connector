@@ -107,7 +107,7 @@ public class CloudantSinkTask extends SinkTask {
 
 	@Override
 	public void flush(Map<TopicPartition, org.apache.kafka.clients.consumer.OffsetAndMetadata> offsets) {
-		LOG.debug("Flushing output stream for {}" + url);
+		LOG.debug("Flushing output stream for {" + url + "}");
 		
 		try {
 			JavaCloudantUtil.batchWrite(url, userName, password, jsonArray);

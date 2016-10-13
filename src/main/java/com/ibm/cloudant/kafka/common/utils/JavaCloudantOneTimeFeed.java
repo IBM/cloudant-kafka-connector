@@ -84,7 +84,8 @@ public class JavaCloudantOneTimeFeed {
 			
 			log.debug("<JavaCloudantOneTimeFeed for " + canturl);
 		} catch(Exception e) {
-			throw new RuntimeException(String.format(ResourceBundleUtil.get(MessageKey.READ_CLOUDANT_STREAM_ERROR), e.getMessage()));
+			throw new RuntimeException(String.format(ResourceBundleUtil.get(
+					MessageKey.READ_CLOUDANT_STREAM_ERROR), e.getMessage()));
 		}
 	}
 	
@@ -131,7 +132,8 @@ public class JavaCloudantOneTimeFeed {
 		try {
 			cantClient.shutdown();
 		} catch (Exception e) {
-			throw new RuntimeException(String.format(ResourceBundleUtil.get(MessageKey.STREAM_TERMINATE_ERROR), e.getMessage()));
+			throw new RuntimeException(String.format(ResourceBundleUtil.get(
+					MessageKey.STREAM_TERMINATE_ERROR), e.getMessage()));
 		}
 		isClosed_ = true;
 		closeMessage_ = message;
@@ -180,7 +182,8 @@ public class JavaCloudantOneTimeFeed {
 			
 			
 		} catch (Exception e) {
-			throw new RuntimeException(String.format(ResourceBundleUtil.get(MessageKey.READ_CLOUDANT_STREAM_ERROR), e.getMessage()));
+			throw new RuntimeException(String.format(ResourceBundleUtil.get(
+					MessageKey.READ_CLOUDANT_STREAM_ERROR), e.getMessage()));
 		}
 
 		if(closeRequested_) {
@@ -193,7 +196,8 @@ public class JavaCloudantOneTimeFeed {
 	public boolean hasMoreChanges() {
 		boolean hasDoc = false;
 		if(isClosed_) {
-			throw new RuntimeException(ResourceBundleUtil.get(MessageKey.STREAM_CLOSED_ERROR));
+			throw new RuntimeException(ResourceBundleUtil.get(
+					MessageKey.STREAM_CLOSED_ERROR));
 		}
 		
 		if(allDocsRead_) {
