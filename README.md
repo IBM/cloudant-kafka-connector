@@ -99,7 +99,11 @@ Any number of connector configurations can be passed to the executing script.
 
 INFO level logging is configured by default to the console. To change log levels or settings, work with
 
-`$kafka_home/config/log4j.properties`
+`$kafka_home/etc/kafka/connect-log4j.properties`
+
+and add log settings like
+
+`log4j.logger.com.ibm.cloudant.kafka=DEBUG, stdout`
 
 ## Building from Source
 
