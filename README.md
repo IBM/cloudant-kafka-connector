@@ -15,6 +15,19 @@ Experimental
 
 ## Configuration
 
+The Cloudant Kafka connector can be configured in standalone or distributed mode according to the [Kafka Connector documentation](http://docs.confluent.io/3.0.1/connect/userguide.html#configuring-connectors).
+
+Make sure to include the following values for either configuration:
+
+Parameter | Value
+---:|:---
+key.converter|org.apache.kafka.connect.json.JsonConverter
+value.converter|org.apache.kafka.connect.json.JsonConverter
+key.converter.schemas.enable|true
+value.converter.schemas.enable|true
+
+Assume these settings in a file `connect-standalone.properties` or `connect-distributed.properties`.
+
 ### Cloudant as source
 
 To read from a Cloudant database as source and write documents to a Kafka topic, create a source configuration file 
@@ -23,15 +36,66 @@ To read from a Cloudant database as source and write documents to a Kafka topic,
 
 with the following parameters:
 
-Parameter | Type | Required| Example | Default value
---- |:---:| ---|:---| ---
-cloudant.db.url|String|YES|https://\<account\>.cloudant.com/\<database\>|None
-cloudant.db.username | String | YES | \<username\> | None
-cloudant.db.password | String | YES | \<password\> | None
-cloudant.db.since | String | NO | 1-g1AAAAETeJzLYWBgYMlgTmGQT0lKzi9.. | 0
-kafka.topic | String | YES | \<topic\> | None
+Parameter | Value | Required | Default value
+---:|:---|:---|:---
+name|cloudant-source|YES|None
+connector.class|com.ibm.cloudant.streaming.kafka.CloudantSourceConnector|YES|None
+tasks.max|5|NO|1
+cloudant.db.url|https://\<account\>.cloudant.com/\<database\>|YES|None
+cloudant.db.username|\<username\>|YES|None
+cloudant.db.password|\<password\>|YES|None
+cloudant.db.since|1-g1AAAAETeJzLYWBgYMlgTmGQT0lKzi9..|NO|0
+kafka.topic|\<topic\>|YES|None
+
+
+### Cloudant as sink
+
+To consume messages from a Kafka topic and save as documents into a Cloudant database, create a sink configuration file
+
+`connect-cloudant-sink.properties`
+
+with the following parameters:
+
+Parameter | Value | Required | Default value
+---:|:---|:---|:---
+name|cloudant-sink|YES|None
+connector.class|com.ibm.cloudant.streaming.kafka.CloudantSinkConnector|YES|None
+tasks.max|5|NO|1
+cloudant.db.url|https://\<account\>.cloudant.com/\<database\>|YES|None
+cloudant.db.username|\<username\>|YES|None
+cloudant.db.password|\<password\>|YES|None
+kafka.topic|\<topic\>|YES|None
 
 ## Usage
+
+Connector execution in Kafka is available through scripts in the Kafka install path, including:
+
+`$kafka_home/bin/connect-standalone.sh`
+
+or
+
+`$kafka_home/bin/connect-distributed.sh`
+
+Use the appropriate configuration files for standalone or distributed execution with Cloudant as source, as sink, or both.
+
+For example:
+- standalone execution with Cloudant as source is called with
+
+`$kafka_home/bin/connect-standalone connect-standalone.properties connect-cloudant-source.properties`
+
+- standalone execution with Cloudant as sink is called with
+
+`$kafka_home/bin/connect-standalone connect-standalone.properties connect-cloudant-sink.properties`
+
+- standalone execution with multiple configurations, one using Cloudant as source and one using Cloudant as sink is called with
+
+`$kafka_home/bin/connect-standalone connect-standalone.properties connect-cloudant-source.properties connect-cloudant-sink.properties`
+
+Any number of connector configurations can be passed to the executing script. 
+
+INFO level logging is configured by default to the console. To change log levels or settings, work with
+
+`$kafka_home/config/log4j.properties`
 
 ## Building from Source
 
@@ -48,5 +112,5 @@ Junit tests are available in `src/test/java`. To execute, please modify values i
 - log4j.properties (optional)
 - test.properties (required)
 
-The settings in test.properties have to include Cloudant database credentials and Kafka topic details. See file for details.
+The settings in `test.properties` have to include Cloudant database credentials and Kafka topic details as above.
 
