@@ -81,15 +81,15 @@ Use the appropriate configuration files for standalone or distributed execution 
 For example:
 - standalone execution with Cloudant as source is called with
 
-`$kafka_home/bin/connect-standalone connect-standalone.properties connect-cloudant-source.properties`
+  `$kafka_home/bin/connect-standalone connect-standalone.properties connect-cloudant-source.properties`
 
 - standalone execution with Cloudant as sink is called with
 
-`$kafka_home/bin/connect-standalone connect-standalone.properties connect-cloudant-sink.properties`
+  `$kafka_home/bin/connect-standalone connect-standalone.properties connect-cloudant-sink.properties`
 
 - standalone execution with multiple configurations, one using Cloudant as source and one using Cloudant as sink is called with
 
-`$kafka_home/bin/connect-standalone connect-standalone.properties connect-cloudant-source.properties connect-cloudant-sink.properties`
+  `$kafka_home/bin/connect-standalone connect-standalone.properties connect-cloudant-source.properties connect-cloudant-sink.properties`
 
 Any number of connector configurations can be passed to the executing script. 
 
