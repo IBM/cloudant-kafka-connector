@@ -39,7 +39,7 @@ with the following parameters:
 Parameter | Value | Required | Default value
 ---:|:---|:---|:---
 name|cloudant-source|YES|None
-connector.class|com.ibm.cloudant.streaming.kafka.CloudantSourceConnector|YES|None
+connector.class|com.ibm.cloudant.kafka.connect.CloudantSourceConnector|YES|None
 tasks.max|5|NO|1
 cloudant.db.url|https://\<account\>.cloudant.com/\<database\>|YES|None
 cloudant.db.username|\<username\>|YES|None
@@ -59,7 +59,7 @@ with the following parameters:
 Parameter | Value | Required | Default value
 ---:|:---|:---|:---
 name|cloudant-sink|YES|None
-connector.class|com.ibm.cloudant.streaming.kafka.CloudantSinkConnector|YES|None
+connector.class|com.ibm.cloudant.kafka.connect.CloudantSinkConnector|YES|None
 tasks.max|5|NO|1
 cloudant.db.url|https://\<account\>.cloudant.com/\<database\>|YES|None
 cloudant.db.username|\<username\>|YES|None
