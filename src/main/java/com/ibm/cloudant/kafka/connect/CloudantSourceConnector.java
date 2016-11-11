@@ -27,7 +27,6 @@ import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.source.SourceConnector;
 import org.apache.log4j.Logger;
 
-import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 
@@ -35,38 +34,19 @@ public class CloudantSourceConnector extends SourceConnector {
 	
 	private static Logger LOG = Logger.getLogger(CloudantSourceConnector.class);
 	
-	private String dbUrl;
-	private String dbUser;
-	private String dbPassword;
-	private String lastSeq;
-	
-	private String kafkaTopic;
+	private Map<String, String> configProperties;
+	private CloudantSourceConnectorConfig config;
 
 	@Override
 	public ConfigDef config() {
-		// TODO Auto-generated method stub
-		return null;
+		return CloudantSourceConnectorConfig.CONFIG_DEF;
 	}
 
 	@Override
 	public void start(Map<String, String> props) {
 		
-		try {
-			dbUrl = props.get(InterfaceConst.URL);
-			dbUser = props.get(InterfaceConst.USER_NAME);
-			dbPassword = props.get(InterfaceConst.PASSWORD);
-			lastSeq = props.get(InterfaceConst.LAST_CHANGE_SEQ);
-			
-			kafkaTopic = props.get(InterfaceConst.TOPIC);
-
-		} catch (NullPointerException e) {
-			LOG.error(e.getMessage(), e);
-			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION));
-		       
-		} catch (ClassCastException e) {
-			LOG.error(e.getMessage(), e);
-			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION));
-		}
+	     configProperties = props;
+		 config = new CloudantSourceConnectorConfig(configProperties);	
 	}
 
 	@Override
@@ -84,26 +64,19 @@ public class CloudantSourceConnector extends SourceConnector {
 	@Override
 	public List<Map<String, String>> taskConfigs(int maxTasks) {
 		
-		ArrayList<Map<String, String>> configs = new ArrayList<Map<String, String>>();
-
-		// Only one input partition makes sense.
-		Map<String, String> config = new HashMap<String, String>();
-		
 		try {
-				config.put(InterfaceConst.URL, dbUrl);
-				config.put(InterfaceConst.USER_NAME, dbUser);
-				config.put(InterfaceConst.PASSWORD, dbPassword);
-				config.put(InterfaceConst.LAST_CHANGE_SEQ, lastSeq);
-				config.put(InterfaceConst.TOPIC, kafkaTopic);
-				
+			Map<String, String> taskProps = new HashMap<String, String>(configProperties);
+			List<Map<String, String>> taskConfigs = new ArrayList<Map<String, String>>(1);
+			
+			// add task specific properties here (if any)
+			// taskProps.put(CloudantSourceTaskConfig.PROPERTY, value);
+			
+			taskConfigs.add(taskProps);
+			return taskConfigs;		
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION));
+			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION), e);
 		}
-
-		configs.add(config);
-		return configs;
-		
 	}
 	 
 	

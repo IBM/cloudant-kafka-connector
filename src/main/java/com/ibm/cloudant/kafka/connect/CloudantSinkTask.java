@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTask;
@@ -40,7 +41,9 @@ import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 public class CloudantSinkTask extends SinkTask {
 	
 	private static Logger LOG = Logger.getLogger(CloudantSinkTask.class);
-
+	
+	private CloudantSinkTaskConfig config;
+	
 	private String url = null;
 	private String userName = null;
 	private String password = null;
@@ -106,18 +109,16 @@ public class CloudantSinkTask extends SinkTask {
 	public void start(Map<String, String> props) {
  		
  		try {
-			url = props.get(InterfaceConst.URL);
-			userName = props.get(InterfaceConst.USER_NAME);
-			password = props.get(InterfaceConst.PASSWORD);
-
-		} catch (NullPointerException e) {
-			LOG.error(e.getMessage(), e);
-			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION));
-		       
-		} catch (ClassCastException e) {
-			LOG.error(e.getMessage(), e);
-			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION));
+			config = new CloudantSinkTaskConfig(props);
+			
+			url = config.getString(InterfaceConst.URL);
+			userName = config.getString(InterfaceConst.USER_NAME);
+			password = config.getString(InterfaceConst.PASSWORD);
+		
+		} catch (ConfigException e) {
+			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION), e);
 		}
+
 	}
 
 	@Override

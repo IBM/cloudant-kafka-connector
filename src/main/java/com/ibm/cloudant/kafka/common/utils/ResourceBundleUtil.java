@@ -15,19 +15,38 @@
 *******************************************************************************/
 package com.ibm.cloudant.kafka.common.utils;
 
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import org.apache.log4j.Logger;
+
+import com.ibm.cloudant.kafka.connect.CloudantSourceTask;
+
 public class ResourceBundleUtil {
 	
+	private static Logger LOG = Logger.getLogger(ResourceBundleUtil.class);
+
 	private static ResourceBundle rb = null;
 	
-	public static String get(String key){
+	public static ResourceBundle getRb() {
+		
 		if(rb == null){
 			Locale locale = new Locale("en", "US"); 
-			rb = ResourceBundle.getBundle("message", locale);			
+			rb = ResourceBundle.getBundle("message", locale);
 		}
-		return rb.getString(key);
+		
+		Enumeration<String> keys = rb.getKeys();
+		while(keys.hasMoreElements()){
+			String key = (String)  keys.nextElement();
+			LOG.debug(key);
+		}
+
+		return rb;
+	}
+
+	public static String get(String key){
+		return getRb().getString(key);
 	}
 
 }

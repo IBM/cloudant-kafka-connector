@@ -15,7 +15,6 @@
 *******************************************************************************/
 package com.ibm.cloudant.kafka.connect;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +26,7 @@ import org.apache.kafka.connect.connector.Task;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.SinkConnector;
 import org.apache.log4j.Logger;
-import com.ibm.cloudant.kafka.common.InterfaceConst;
+
 import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 
@@ -35,10 +34,14 @@ public class CloudantSinkConnector extends SinkConnector {
 
 	private static Logger LOG = Logger.getLogger(CloudantSinkConnector.class);
 	
-	private String dbUrl;
-	private String dbUser;
-	private String dbPassword;
-	private String kafkaTopic;
+	private Map<String, String> configProperties;
+	private CloudantSinkConnectorConfig config;
+
+	@Override
+	public ConfigDef config() {
+		return CloudantSourceConnectorConfig.CONFIG_DEF;
+	}
+
 	
 	@Override
 	public String version() {
@@ -47,20 +50,8 @@ public class CloudantSinkConnector extends SinkConnector {
 
 	@Override
 	public void start(Map<String, String> props) {
-		try {
-			kafkaTopic = props.get(InterfaceConst.TOPIC);
-			dbUrl = props.get(InterfaceConst.URL);
-			dbUser = props.get(InterfaceConst.USER_NAME);
-			dbPassword = props.get(InterfaceConst.PASSWORD);
-		
-		} catch (NullPointerException e) {
-			LOG.error(e.getMessage(), e);
-			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION));
-		       
-		} catch (ClassCastException e) {
-			LOG.error(e.getMessage(), e);
-			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION));
-		}
+	     configProperties = props;
+	     config = new CloudantSinkConnectorConfig(configProperties);	
 	}
 
 	@Override
@@ -70,35 +61,25 @@ public class CloudantSinkConnector extends SinkConnector {
 
 	@Override
 	public List<Map<String, String>> taskConfigs(int maxTasks) {
-		ArrayList<Map<String, String>> configs = new ArrayList<Map<String, String>>();
-
-		// Only one input partition makes sense.
-		Map<String, String> config = new HashMap<String, String>();
-
 		try {
-			config.put(InterfaceConst.TOPIC, kafkaTopic);
-			config.put(InterfaceConst.URL, dbUrl);
-			config.put(InterfaceConst.USER_NAME, dbUser);
-			config.put(InterfaceConst.PASSWORD, dbPassword);
+			Map<String, String> taskProps = new HashMap<String, String>(configProperties);
+			List<Map<String, String>> taskConfigs = new ArrayList<Map<String, String>>(1);
+			
+			// add task specific properties here (if any)
+			// taskProps.put(CloudantSourceTaskConfig.PROPERTY, value);
+			
+			taskConfigs.add(taskProps);
+			return taskConfigs;		
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION));
+			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION), e);
 		}
-
-		configs.add(config);
-		return configs;
 	}
 
 	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public ConfigDef config() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

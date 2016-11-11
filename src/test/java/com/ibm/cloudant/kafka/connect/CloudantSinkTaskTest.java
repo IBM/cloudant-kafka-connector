@@ -65,6 +65,8 @@ public class CloudantSinkTaskTest extends TestCase {
 		targetProperties.put(InterfaceConst.USER_NAME, testProperties.getProperty(InterfaceConst.USER_NAME));
 		targetProperties.put(InterfaceConst.PASSWORD, testProperties.getProperty(InterfaceConst.PASSWORD));
 
+		targetProperties.put(InterfaceConst.TOPIC, testProperties.getProperty(InterfaceConst.TOPIC));
+
 	}
 
 	/**
@@ -135,7 +137,7 @@ public class CloudantSinkTaskTest extends TestCase {
 		   result += doc.toString();
 		 }
 
-		assertEquals(result, new String (doc1 + doc2));
+		assertEquals(result, new String (doc2 + doc1));
 
 		
 	}

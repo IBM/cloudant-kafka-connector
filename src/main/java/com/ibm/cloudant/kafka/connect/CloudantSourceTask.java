@@ -37,6 +37,8 @@ import com.ibm.cloudant.kafka.common.utils.JsonUtil;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 import com.ibm.cloudant.kafka.common.utils.UnitOfWorkManager;
 
+import org.apache.kafka.common.config.ConfigException;
+
 public class CloudantSourceTask extends SourceTask {
 	
 	private static Logger LOG = Logger.getLogger(CloudantSourceTask.class);
@@ -49,12 +51,7 @@ public class CloudantSourceTask extends SourceTask {
 	int docCounter = 0;
 	private static long sleepSecond = 2;
 	
-	private String url = null;
-	private String userName = null;
-	private String password = null;
-	private String latestSequenceNumber = null;
-	
-	private String topic = null;
+	private CloudantSourceTaskConfig config;
 	
 	protected JavaCloudantOneTimeFeed feed = null;
 
@@ -62,6 +59,13 @@ public class CloudantSourceTask extends SourceTask {
 	@Override
 	public List<SourceRecord> poll() throws InterruptedException {
 	
+		String url = config.getString(InterfaceConst.URL);
+		String userName = config.getString(InterfaceConst.USER_NAME);
+		String password = config.getString(InterfaceConst.PASSWORD);
+		List<String> topics = config.getList(InterfaceConst.TOPIC);
+		
+		String latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
+		
 		ArrayList<SourceRecord> records = new ArrayList<SourceRecord>();
 		OffsetStorageReader offsetReader = context.offsetStorageReader();
 		
@@ -124,7 +128,11 @@ public class CloudantSourceTask extends SourceTask {
 					docCounter = 0;
 				}
 				
-				records.add(new SourceRecord(offsetKey(url), offsetValue(latestSequenceNumber), topic, Schema.STRING_SCHEMA, document.toString()));
+				// Emit the record to every topic configured
+				for (String topic : topics) {
+					records.add(new SourceRecord(offsetKey(url), offsetValue(latestSequenceNumber), topic, Schema.STRING_SCHEMA, document.toString()));
+				}
+				
 				LOG.info("Last sequencce " + latestSequenceNumber);
 			}
 		} catch(Exception e){
@@ -139,22 +147,11 @@ public class CloudantSourceTask extends SourceTask {
 	public void start(Map<String, String> props) {
 
 		try {
-			url = props.get(InterfaceConst.URL);
-			userName = props.get(InterfaceConst.USER_NAME);
-			password = props.get(InterfaceConst.PASSWORD);
-			latestSequenceNumber = props.get(InterfaceConst.LAST_CHANGE_SEQ);
-			
-			topic = props.get(InterfaceConst.TOPIC);
-
-		} catch (NullPointerException e) {
-			LOG.error(e.getMessage(), e);
-			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION));
-		       
-		} catch (ClassCastException e) {
-			LOG.error(e.getMessage(), e);
-			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION));
+			config = new CloudantSourceTaskConfig(props);
+		} catch (ConfigException e) {
+			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION), e);
 		}
-	 
+
 	    uowManager = new UnitOfWorkManager();
 	}
 
