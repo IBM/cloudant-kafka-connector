@@ -40,7 +40,7 @@ Parameter | Value | Required | Default value
 ---:|:---|:---|:---
 name|cloudant-source|YES|None
 connector.class|com.ibm.cloudant.kafka.connect.CloudantSourceConnector|YES|None
-tasks.max|5|NO|1
+batch.size|1000|YES|None
 cloudant.db.url|https://\<account\>.cloudant.com/\<database\>|YES|None
 cloudant.db.username|\<username\>|YES|None
 cloudant.db.password|\<password\>|YES|None
