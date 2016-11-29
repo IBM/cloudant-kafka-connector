@@ -18,146 +18,208 @@ package com.ibm.cloudant.kafka.connect;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
 import org.apache.kafka.connect.storage.OffsetStorageReader;
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 
-import com.ibm.cloudant.kafka.common.CloudantConst;
+import com.cloudant.client.api.ClientBuilder;
+import com.cloudant.client.api.CloudantClient;
+import com.cloudant.client.api.Database;
+import com.cloudant.client.api.model.ChangesResult;
+import com.cloudant.client.api.model.ChangesResult.Row;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
-import com.ibm.cloudant.kafka.common.utils.JavaCloudantOneTimeFeed;
-import com.ibm.cloudant.kafka.common.utils.JsonUtil;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
-import com.ibm.cloudant.kafka.common.utils.UnitOfWorkManager;
-
-import org.apache.kafka.common.config.ConfigException;
 
 public class CloudantSourceTask extends SourceTask {
 	
 	private static Logger LOG = Logger.getLogger(CloudantSourceTask.class);
-	
-	private UnitOfWorkManager uowManager;
 
-
-	private static int CLOUDANT_BATCH_SIZE = 10;
+	private static long FEED_SLEEP_MILLISEC = 5000;
+	private static long SHUTDOWN_DELAY_MILLISEC = 10;
+	private static String DEFAULT_CLOUDANT_LAST_SEQ = "0";
 	
-	int docCounter = 0;
-	private static long sleepSecond = 2;
+	private AtomicBoolean stop;
+	private AtomicBoolean _running;
 	
 	private CloudantSourceTaskConfig config;
 	
-	protected JavaCloudantOneTimeFeed feed = null;
+	String url = null;
+	String userName = null;
+	String password = null;
+	List<String> topics = null;
+	
+	private static String latestSequenceNumber = null;
+	private static int batch_size = 0;
 
+	int task_number = 0;
+	int tasks_max = 0;
 
+	private static CloudantClient cantClient = null;
+	private ChangesResult cantChangeResult = null;
+	private static Database cantDB = null; 
+	private static String cantDBName = null;
+	
 	@Override
 	public List<SourceRecord> poll() throws InterruptedException {
-	
-		String url = config.getString(InterfaceConst.URL);
-		String userName = config.getString(InterfaceConst.USER_NAME);
-		String password = config.getString(InterfaceConst.PASSWORD);
-		List<String> topics = config.getList(InterfaceConst.TOPIC);
 		
-		String latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
+		// Use like a semaphore to allow synchronization
+		// between poll() and stop() methods
+		_running = new AtomicBoolean(false);
 		
-		ArrayList<SourceRecord> records = new ArrayList<SourceRecord>();
-		OffsetStorageReader offsetReader = context.offsetStorageReader();
-		
-		if (offsetReader != null) {
-			Map<String, Object> offset = offsetReader.offset(Collections.singletonMap(InterfaceConst.URL, url));
-			if (offset != null) {
-				latestSequenceNumber = (String) offset.get(InterfaceConst.LAST_CHANGE_SEQ);
-				LOG.debug("*** offset *** " + latestSequenceNumber);
-			}
-		}
-	
-	    feed = new JavaCloudantOneTimeFeed(url, userName, password, latestSequenceNumber);
-	
-		//add the first unit of work
-		uowManager.addUnitOfWork(CLOUDANT_BATCH_SIZE);
-
-		JSONObject change;
-		JSONObject document;
-		
-		try{
-			while (true) {
-				change = feed.getNextChange();	
-				if (change == null) {
-					try {
-						// Make the latest unit of work complete before going to sleep
-						if (docCounter != CLOUDANT_BATCH_SIZE)
-						{
-							uowManager.setLastUnitOfWorkInfo(docCounter % CLOUDANT_BATCH_SIZE, latestSequenceNumber);
-							docCounter = 0;
-						}
-						Thread.sleep(TimeUnit.SECONDS.toMillis(sleepSecond));
-					} catch (InterruptedException e) {
-						LOG.error("[" + url + "]" + e);
-					}
+		// stop will be set but can be honored only after we release
+		// the changes() feed
+		while (!stop.get()) {
+			_running.set(true);
 			
-					return records;
-				}
-				document = (JSONObject) change.get(CloudantConst.CLOUDANT_DOC);
-				
-				String sequenceNumber = JsonUtil.getStringValue(change, CloudantConst.SEQ);
-				
-				// Wrap the result
-				JSONObject record = new JSONObject();
-				record.put(CloudantConst.CLOUDANT_DOC, document);
-				record = document;
-				
-				latestSequenceNumber = sequenceNumber;
+			// the array to be returend
+			ArrayList<SourceRecord> records = new ArrayList<SourceRecord>();
 
-				docCounter++;
-					
-				if (docCounter == CLOUDANT_BATCH_SIZE)
-				{
-					// For the last operations in an unit of work, we need to store its sequence number
-					// Currently, the latestSequenceNumber is the previous record's seq
-					uowManager.setLastOperationSequenceNumber(latestSequenceNumber);
-					
-					// Add a new unit of work.  All subsequent operations should belong to
-					// this unit of work until a new unit of work is created.
-					uowManager.addUnitOfWork(CLOUDANT_BATCH_SIZE);
-					docCounter = 0;
-				}
+			LOG.debug("Process lastSeq: " + latestSequenceNumber);
+			
+			// the changes feed for initial processing (not continuous yet)
+			cantChangeResult = cantDB.changes()
+					.includeDocs(true)
+					.since(latestSequenceNumber)
+					.limit(batch_size)
+					.getChanges();
+
+			if (cantDB.changes() != null) {
 				
-				// Emit the record to every topic configured
-				for (String topic : topics) {
-					records.add(new SourceRecord(offsetKey(url), offsetValue(latestSequenceNumber), topic, Schema.STRING_SCHEMA, document.toString()));
+				// This indicates that we have exhausted the initial feed
+				// and can request a continuous feed next
+				if (cantChangeResult.getResults().size() == 0) {
+
+					LOG.debug("Get continuous feed for lastSeq: " + latestSequenceNumber);
+
+					// the continuous changes feed
+					cantChangeResult = cantDB.changes()
+							.includeDocs(true)
+							.since(latestSequenceNumber)
+							.limit(batch_size)
+							.continuousChanges()
+							.heartBeat(FEED_SLEEP_MILLISEC)
+							.getChanges();
 				}
+
+
+				LOG.debug("Got " + cantChangeResult.getResults().size() + " changes");
+				latestSequenceNumber = cantChangeResult.getLastSeq();
+
+				// process the results into the array to be returned
+				for (ListIterator<Row> it = cantChangeResult.getResults().listIterator(); it.hasNext(); ) {
+					Row row_ = it.next();
+
+					// Emit the record to every topic configured
+					for (String topic : topics) {
+						SourceRecord sourceRecord = new SourceRecord(offsetKey(url), 
+								offsetValue(latestSequenceNumber), topic, Schema.STRING_SCHEMA, 
+								row_.getDoc().toString());
+						records.add(sourceRecord);
+					}
+				}
+
+				LOG.info("Return " + records.size() + " records (total across all topcis) with last offset " 
+				+ latestSequenceNumber);
+
+				cantChangeResult = null;
 				
-				LOG.info("Last sequencce " + latestSequenceNumber);
+				_running.set(false);
+				return records;
 			}
-		} catch(Exception e){
-			LOG.error(e.getMessage(), e);
 		}
-		
-		LOG.info("Records array contains " + records.size() + " source records");
-		return records;
-	}
+
+		// Only in case of shutdown
+		return null;
+	}	
+
 
 	@Override
 	public void start(Map<String, String> props) {
 
 		try {
 			config = new CloudantSourceTaskConfig(props);
+
+			url = config.getString(InterfaceConst.URL);
+			userName = config.getString(InterfaceConst.USER_NAME);
+			password = config.getString(InterfaceConst.PASSWORD);
+			topics = config.getList(InterfaceConst.TOPIC);
+
+			latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
+			task_number = config.getInt(CloudantSourceTaskConfig.TASK_NUMBER);
+			tasks_max =  config.getInt(CloudantSourceTaskConfig.TASK_MAX);
+			batch_size = config.getInt(CloudantSourceTaskConfig.BATCH_SIZE);
+			
+			if (tasks_max > 1) {
+				throw new ConfigException("CouchDB _changes API only supports 1 thread. Configure tasks.max=1");
+			}
+
+			stop = new AtomicBoolean(false);
+			
+			if (latestSequenceNumber == null) {
+				latestSequenceNumber = new String(DEFAULT_CLOUDANT_LAST_SEQ);
+				
+				OffsetStorageReader offsetReader = context.offsetStorageReader();
+
+				if (offsetReader != null) {
+					Map<String, Object> offset = offsetReader.offset(Collections.singletonMap(InterfaceConst.URL, url));
+					if (offset != null) {
+						latestSequenceNumber = (String) offset.get(InterfaceConst.LAST_CHANGE_SEQ);
+						LOG.info("Start with current offset (last sequence): " + latestSequenceNumber);
+					}
+				}
+			}
+
+			// Create a new CloudantClient instance for account endpoint account.cloudant.com
+			String urlWithoutProtocal = url.substring(url.indexOf("://") +3);
+			String account = urlWithoutProtocal.substring(0,urlWithoutProtocal.indexOf("."));
+			
+			cantClient = ClientBuilder.account(account)
+			                          .username(userName)
+			                          .password(password)
+			                          .build();
+			
+			// Create a database instance
+			cantDBName = url.substring(url.lastIndexOf("/")+1);
+			
+			// Create a database instance
+			cantDB = cantClient.database(cantDBName, false);
+			
 		} catch (ConfigException e) {
 			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION), e);
 		}
 
-	    uowManager = new UnitOfWorkManager();
 	}
 
 	@Override
 	public void stop() {
-		// reader.finish();
+		if (stop != null) {
+			stop.set(true);
+		}
+		
+		// terminate the changes feed
+		// Careful: this is an asynchronous call
+		if (cantDB.changes() != null) {		
+			cantDB.changes().stop();
+			
+			// graceful shutdown
+			// allow the poll() method to flush records first
+			while (_running.get() == true) {
+				try {
+					Thread.sleep(SHUTDOWN_DELAY_MILLISEC);
+				} catch (InterruptedException e) {
+					LOG.error(e);
+				}
+			}
+		}
 	}
 	
 

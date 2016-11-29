@@ -63,12 +63,14 @@ public class CloudantSinkConnector extends SinkConnector {
 	public List<Map<String, String>> taskConfigs(int maxTasks) {
 		try {
 			Map<String, String> taskProps = new HashMap<String, String>(configProperties);
-			List<Map<String, String>> taskConfigs = new ArrayList<Map<String, String>>(1);
-			
-			// add task specific properties here (if any)
-			// taskProps.put(CloudantSourceTaskConfig.PROPERTY, value);
-			
-			taskConfigs.add(taskProps);
+			List<Map<String, String>> taskConfigs = new ArrayList<Map<String, String>>(maxTasks);
+
+			for (int i = 0; i < maxTasks; ++i) {
+				// add task specific properties here (if any)
+				// taskProps.put(CloudantSourceTaskConfig.PROPERTY, value);
+
+				taskConfigs.add(taskProps);
+			}
 			return taskConfigs;		
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);

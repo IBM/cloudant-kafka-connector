@@ -17,14 +17,28 @@ package com.ibm.cloudant.kafka.connect;
 
 import java.util.Map;
 
+import org.apache.kafka.common.config.ConfigDef.Importance;
+import org.apache.kafka.common.config.ConfigDef.Type;
+
 public class CloudantSourceTaskConfig extends CloudantSourceConnectorConfig {
 
 	// Expand this ConfigDef with task specific parameters
-	// - None at this point -
-	//	static ConfigDef config = baseConfigDef();
+	public static final String TASK_NUMBER = "task.number";
+	public static final String TASK_MAX = "task.max";
+	public static final String BATCH_SIZE = "batch.size";
+	
+	public static final int DEFAULT_TASK_MAX = 1;
+	
+	static org.apache.kafka.common.config.ConfigDef config = baseConfigDef()
+		      .define(TASK_NUMBER,
+		    		  Type.INT, Importance.HIGH, TASK_NUMBER)
+		      .define(TASK_MAX,
+		    		  Type.INT, DEFAULT_TASK_MAX, Importance.LOW, TASK_MAX)
+		      .define(BATCH_SIZE, Type.INT, 
+		    		  Importance.LOW, BATCH_SIZE);
 
 	public CloudantSourceTaskConfig(Map<String, String> originals) {
-		super(originals);
+		super(config, originals);
 	}
 
 }

@@ -65,13 +65,21 @@ public class CloudantSourceConnector extends SourceConnector {
 	public List<Map<String, String>> taskConfigs(int maxTasks) {
 		
 		try {
-			Map<String, String> taskProps = new HashMap<String, String>(configProperties);
-			List<Map<String, String>> taskConfigs = new ArrayList<Map<String, String>>(1);
+			List<Map<String, String>> taskConfigs = new ArrayList<Map<String, String>>(maxTasks);
 			
-			// add task specific properties here (if any)
-			// taskProps.put(CloudantSourceTaskConfig.PROPERTY, value);
+			for (int i = 0; i < maxTasks; i++) {
+				Map<String, String> taskProps = new HashMap<String, String>(configProperties);
 			
-			taskConfigs.add(taskProps);
+				// add task specific properties here (if any)
+				// taskProps.put(CloudantSourceTaskConfig.PROPERTY, value);
+			    
+				taskProps.put(CloudantSourceTaskConfig.TASK_NUMBER,
+	                      String.valueOf(i));
+				taskProps.put(CloudantSourceTaskConfig.TASK_MAX,
+	                      String.valueOf(maxTasks));
+	    
+				taskConfigs.add(taskProps);
+			}
 			return taskConfigs;		
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);

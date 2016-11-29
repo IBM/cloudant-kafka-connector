@@ -33,7 +33,7 @@ public class CloudantSourceConnectorConfig extends AbstractConfig {
 	private static Logger LOG = Logger.getLogger(CloudantSourceConnectorConfig.class);
 
 	public static final String DATABASE_GROUP = "Database";
-	public static final String CLOUDANT_LAST_SEQ_NUM_DEFAULT = "0";
+	public static final String CLOUDANT_LAST_SEQ_NUM_DEFAULT = null;
 	
 	public static final ConfigDef CONFIG_DEF = baseConfigDef();
 
@@ -73,6 +73,10 @@ public class CloudantSourceConnectorConfig extends AbstractConfig {
 	
 	public CloudantSourceConnectorConfig(Map<String, String> originals) {
 		super(CONFIG_DEF, originals);
+	}
+	
+	protected CloudantSourceConnectorConfig(ConfigDef subclassConfigDef, Map<String, String> originals) {
+		    super(subclassConfigDef, originals);
 	}
 	
 	public static void main(String[] args) {
