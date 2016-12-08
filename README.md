@@ -36,17 +36,16 @@ To read from a Cloudant database as source and write documents to a Kafka topic,
 
 with the following parameters:
 
-Parameter | Value | Required | Default value
----:|:---|:---|:---
-name|cloudant-source|YES|None
-connector.class|com.ibm.cloudant.kafka.connect.CloudantSourceConnector|YES|None
-batch.size|1000|YES|None
-cloudant.db.url|https://\<account\>.cloudant.com/\<database\>|YES|None
-cloudant.db.username|\<username\>|YES|None
-cloudant.db.password|\<password\>|YES|None
-cloudant.db.since|1-g1AAAAETeJzLYWBgYMlgTmGQT0lKzi9..|NO|0
-topics|\<topic1\>,\<topic2\>,..|YES|None
-
+Parameter | Value | Required | Default value | Description
+---:|:---|:---|:---|:---
+name|cloudant-source|YES|None|A unique name to identify the connector with. 
+connector.class|com.ibm.cloudant.kafka.connect.CloudantSourceConnector|YES|None|The connector class name.
+topics|\<topic1\>,\<topic2\>,..|YES|None|A list of topics you want messages to be written to.
+cloudant.db.url|https://\<account\>.cloudant.com/\<database\>|YES|None|The Cloudant database to read documents from.
+cloudant.db.username|\<username\>|YES|None|The Cloudant username to use for authentication.
+cloudant.db.password|\<password\>|YES|None|The Cloudant password to use for authentication.
+cloudant.db.since|1-g1AAAAETeJzLYWBgYMlgTmGQT0lKzi9..|NO|0|The first change sequence to process from the Cloudant database above. 0 will apply all available document changes.
+batch.size|400|NO|1000|The batch size used to bulk read from the Cloudant database.
 
 ### Cloudant as sink
 
@@ -56,15 +55,16 @@ To consume messages from a Kafka topic and save as documents into a Cloudant dat
 
 with the following parameters:
 
-Parameter | Value | Required | Default value
----:|:---|:---|:---
-name|cloudant-sink|YES|None
-connector.class|com.ibm.cloudant.kafka.connect.CloudantSinkConnector|YES|None
-tasks.max|5|NO|1
-cloudant.db.url|https://\<account\>.cloudant.com/\<database\>|YES|None
-cloudant.db.username|\<username\>|YES|None
-cloudant.db.password|\<password\>|YES|None
-topics|\<topic1\>,\<topic2\>,..|YES|None
+Parameter | Value | Required | Default value | Description
+---:|:---|:---|:---|:---
+name|cloudant-sink|YES|None|A unique name to identify the connector with. 
+connector.class|com.ibm.cloudant.kafka.connect.CloudantSinkConnector|YES|None|The connector class name.
+topics|\<topic1\>,\<topic2\>,..|YES|None|The list of topics you want to consume messages from.
+cloudant.db.url|https://\<account\>.cloudant.com/\<database\>|YES|None|The Cloudant database to write documents to.
+cloudant.db.username|\<username\>|YES|None|The Cloudant username to use for authentication.
+cloudant.db.password|\<password\>|YES|None|The Cloudant password to use for authentication.
+tasks.max|5|NO|1|The number of concurrent threads to use for parallel bulk insert into Cloudant.
+batch.size|400|NO|1000|The maximum number of documents to commit with a single bulk insert.
 
 ## Usage
 
