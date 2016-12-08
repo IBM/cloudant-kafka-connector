@@ -47,9 +47,10 @@ public class CloudantSinkTask extends SinkTask {
 	private String userName = null;
 	private String password = null;
 	
+	private static int batch_size = 0;
+
 	private JSONArray jsonArray = new JSONArray();
-	private static int PAGE_SIZE = 1;
-	
+		
 	public String version() {
 		 return new CloudantSinkConnector().version();
 	}
@@ -57,10 +58,10 @@ public class CloudantSinkTask extends SinkTask {
 	@Override
 	public void put(Collection<SinkRecord> sinkRecords) {
 	
-		JSONArray jsonArray = new JSONArray();
-
+		LOG.info("Thread[" + Thread.currentThread().getId() + "].sinkRecords = " + sinkRecords.size());
+		
 		for (SinkRecord record : sinkRecords) {
-			LOG.debug("Add document to: " +  url + " <- " + (String) record.value().toString());
+		
 			JSONObject jsonRecord;
 		
 			JSONTokener tokener = new JSONTokener(record.value().toString());		
@@ -74,27 +75,14 @@ public class CloudantSinkTask extends SinkTask {
 			
 			jsonArray.put(jsonRecord);
 			
-			LOG.info("DOCUMENT: " + _id);
+			LOG.debug("Add DOCUMENT: " + _id);
 			
-			if (jsonArray.length() == PAGE_SIZE) {
-				try {
-					if (jsonArray.length() > 0) {
-						LOG.info("Commit " + jsonArray.length() + " documents to -> " + url);
-					}
-				
-					JSONArray results = JavaCloudantUtil.batchWrite(url, userName, password, jsonArray);
-					
-					if (results != null) {
-						for (int i = 0; i < results.length(); i++) {
-							JSONObject result = (JSONObject) results.get(i);
-							LOG.info(result.toString());
-						}
-					}
-				} catch (JSONException e) {
-					LOG.error(e.getMessage(), e);
-				}
-			}
-		}
+			if ((jsonArray != null) && (jsonArray.length() >= batch_size)) {
+	
+				flush(null);
+	
+			} 
+		} 
 	}
 
 
@@ -113,6 +101,9 @@ public class CloudantSinkTask extends SinkTask {
 			url = config.getString(InterfaceConst.URL);
 			userName = config.getString(InterfaceConst.USER_NAME);
 			password = config.getString(InterfaceConst.PASSWORD);
+			
+			batch_size = config.getInt(CloudantSinkTaskConfig.BATCH_SIZE);
+
 		
 		} catch (ConfigException e) {
 			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION), e);
@@ -123,15 +114,32 @@ public class CloudantSinkTask extends SinkTask {
 	@Override
 	public void flush(Map<TopicPartition, org.apache.kafka.clients.consumer.OffsetAndMetadata> offsets) {
 		LOG.debug("Flushing output stream for {" + url + "}");
-		
+
 		try {
-			JavaCloudantUtil.batchWrite(url, userName, password, jsonArray);
-			if (jsonArray.length() > 0) {
+
+			if ((jsonArray != null) && (jsonArray.length() > 0)) {
+
+				JSONArray results = JavaCloudantUtil.batchWrite(url, userName, password, jsonArray);
 				LOG.info("Committed " + jsonArray.length() + " documents to -> " + url);
+
+				// The results array has a record for every single document commit
+				// Processing this is expensive!
+				if (results != null) {
+					/* 
+					for (int i = 0; i < results.length(); i++) {
+						JSONObject result = (JSONObject) results.get(i);
+						LOG.debug(result.toString());
+					}
+					*/
+				}
 			}
+
 		} catch (JSONException e) {
 			LOG.error(e.getMessage(), e);
-		}	
+		} finally {
+			// Release memory (regardless if documents got committed or not)
+			jsonArray = new JSONArray(); ;
+		}
 	}
-	
+
 }

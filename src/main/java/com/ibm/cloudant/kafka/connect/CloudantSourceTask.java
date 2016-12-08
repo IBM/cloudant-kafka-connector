@@ -127,7 +127,7 @@ public class CloudantSourceTask extends SourceTask {
 					}
 				}
 
-				LOG.info("Return " + records.size() + " records (total across all topcis) with last offset " 
+				LOG.info("Return " + records.size() / topics.size() + " records with last offset " 
 				+ latestSequenceNumber);
 
 				cantChangeResult = null;
@@ -212,6 +212,8 @@ public class CloudantSourceTask extends SourceTask {
 			
 			// graceful shutdown
 			// allow the poll() method to flush records first
+			if (_running == null) return;
+			
 			while (_running.get() == true) {
 				try {
 					Thread.sleep(SHUTDOWN_DELAY_MILLISEC);

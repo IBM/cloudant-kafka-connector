@@ -17,14 +17,22 @@ package com.ibm.cloudant.kafka.connect;
 
 import java.util.Map;
 
-public class CloudantSinkTaskConfig extends CloudantSinkConnectorConfig {
+import org.apache.kafka.common.config.ConfigDef.Importance;
+import org.apache.kafka.common.config.ConfigDef.Type;
+
+public class CloudantSinkTaskConfig extends CloudantSourceConnectorConfig {
 
 	// Expand this ConfigDef with task specific parameters
-	// - None at this point -
-	//	static ConfigDef config = baseConfigDef();
-
+	public static final String BATCH_SIZE = "batch.size";
+	
+	public static final int DEFAULT_BATCH_SIZE = 1000;
+	
+	static org.apache.kafka.common.config.ConfigDef config = baseConfigDef()
+		      .define(BATCH_SIZE, Type.INT, DEFAULT_BATCH_SIZE,
+		    		  Importance.LOW, BATCH_SIZE);
+	
 	public CloudantSinkTaskConfig(Map<String, String> originals) {
-		super(originals);
+		super(config, originals);
 	}
 
 }

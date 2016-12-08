@@ -40,6 +40,7 @@ public class CloudantSinkConnectorConfig extends AbstractConfig {
 	public static ConfigDef baseConfigDef() {
 		
 		return new ConfigDef()
+				
 				  // Kafka topic
 				  .define(InterfaceConst.TOPIC, Type.LIST,
 						  Importance.HIGH, 
