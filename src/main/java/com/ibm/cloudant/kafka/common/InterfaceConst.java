@@ -24,5 +24,9 @@ public class InterfaceConst {
 	public final static String LAST_CHANGE_SEQ = "cloudant.db.since";
 
 	public final static String TOPIC = "topics";
+	
+	public final static String TASKS_MAX = "tasks.max";
+	public final static String BATCH_SIZE = "batch.size";
+	
 
 }

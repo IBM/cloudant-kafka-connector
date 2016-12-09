@@ -104,8 +104,8 @@ public class JavaCloudantUtil {
 					String cantDBName = url.substring(url.lastIndexOf("/")+1);
 					
 					if (cantDBName != null) {
-						// create a database instance (don't create it if database doesn't exist)
-						cantDB = cantClient.database(cantDBName, false);
+						// create a database instance (create it if database doesn't exist)
+						cantDB = cantClient.database(cantDBName, true);
 					}
 				}
 			}

@@ -28,11 +28,12 @@ public class CloudantSourceTaskConfig extends CloudantSourceConnectorConfig {
 	public static final String BATCH_SIZE = "batch.size";
 	
 	public static final int DEFAULT_TASK_MAX = 1;
+	public static final int DEFAULT_TASK_NUMBER = 0;
 	public static final int DEFAULT_BATCH_SIZE = 1000;
 
 	static org.apache.kafka.common.config.ConfigDef config = baseConfigDef()
-		      .define(TASK_NUMBER,
-		    		  Type.INT, Importance.HIGH, TASK_NUMBER)
+		      .define(TASK_NUMBER, 
+		    		  Type.INT, DEFAULT_TASK_NUMBER, Importance.HIGH, TASK_NUMBER)
 		      .define(TASK_MAX,
 		    		  Type.INT, DEFAULT_TASK_MAX, Importance.LOW, TASK_MAX)
 		      .define(BATCH_SIZE, Type.INT, DEFAULT_BATCH_SIZE, 
