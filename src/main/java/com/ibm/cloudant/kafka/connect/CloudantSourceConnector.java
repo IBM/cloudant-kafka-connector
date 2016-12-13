@@ -27,6 +27,7 @@ import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.source.SourceConnector;
 import org.apache.log4j.Logger;
 
+import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 
@@ -73,9 +74,9 @@ public class CloudantSourceConnector extends SourceConnector {
 				// add task specific properties here (if any)
 				// taskProps.put(CloudantSourceTaskConfig.PROPERTY, value);
 			    
-				taskProps.put(CloudantSourceTaskConfig.TASK_NUMBER,
+				taskProps.put(InterfaceConst.TASK_NUMBER,
 	                      String.valueOf(i));
-				taskProps.put(CloudantSourceTaskConfig.TASK_MAX,
+				taskProps.put(InterfaceConst.TASKS_MAX,
 	                      String.valueOf(maxTasks));
 	    
 				taskConfigs.add(taskProps);

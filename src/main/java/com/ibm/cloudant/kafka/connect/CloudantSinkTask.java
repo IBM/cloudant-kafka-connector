@@ -102,7 +102,7 @@ public class CloudantSinkTask extends SinkTask {
 			userName = config.getString(InterfaceConst.USER_NAME);
 			password = config.getString(InterfaceConst.PASSWORD);
 			
-			batch_size = config.getInt(CloudantSinkTaskConfig.BATCH_SIZE);
+			batch_size = config.getInt(InterfaceConst.BATCH_SIZE);
 
 		
 		} catch (ConfigException e) {

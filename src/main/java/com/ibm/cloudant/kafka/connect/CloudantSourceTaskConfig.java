@@ -20,24 +20,22 @@ import java.util.Map;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
 
+import com.ibm.cloudant.kafka.common.InterfaceConst;
+
 public class CloudantSourceTaskConfig extends CloudantSourceConnectorConfig {
 
-	// Expand this ConfigDef with task specific parameters
-	public static final String TASK_NUMBER = "task.number";
-	public static final String TASK_MAX = "task.max";
-	public static final String BATCH_SIZE = "batch.size";
-	
 	public static final int DEFAULT_TASK_MAX = 1;
 	public static final int DEFAULT_TASK_NUMBER = 0;
 	public static final int DEFAULT_BATCH_SIZE = 1000;
 
+	// Expand this ConfigDef with task specific parameters
 	static org.apache.kafka.common.config.ConfigDef config = baseConfigDef()
-		      .define(TASK_NUMBER, 
-		    		  Type.INT, DEFAULT_TASK_NUMBER, Importance.HIGH, TASK_NUMBER)
-		      .define(TASK_MAX,
-		    		  Type.INT, DEFAULT_TASK_MAX, Importance.LOW, TASK_MAX)
-		      .define(BATCH_SIZE, Type.INT, DEFAULT_BATCH_SIZE, 
-		    		  Importance.LOW, BATCH_SIZE);
+		      .define(InterfaceConst.TASK_NUMBER, 
+		    		  Type.INT, DEFAULT_TASK_NUMBER, Importance.HIGH, InterfaceConst.TASK_NUMBER)
+		      .define(InterfaceConst.TASKS_MAX,
+		    		  Type.INT, DEFAULT_TASK_MAX, Importance.LOW, InterfaceConst.TASKS_MAX)
+		      .define(InterfaceConst.BATCH_SIZE, Type.INT, DEFAULT_BATCH_SIZE, 
+		    		  Importance.LOW, InterfaceConst.BATCH_SIZE);
 
 	public CloudantSourceTaskConfig(Map<String, String> originals) {
 		super(config, originals);

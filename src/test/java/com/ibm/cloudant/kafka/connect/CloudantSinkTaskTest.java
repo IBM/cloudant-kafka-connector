@@ -26,12 +26,15 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.sink.SinkRecord;
+import org.json.JSONArray;
 
 import com.cloudant.client.api.Database;
 import com.cloudant.client.api.model.ChangesResult;
-import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
+import com.ibm.cloudant.kakfa.connect.utils.CloudantDbUtils;
 
 import junit.framework.TestCase;
 
@@ -41,9 +44,11 @@ import junit.framework.TestCase;
  */
 public class CloudantSinkTaskTest extends TestCase {
 
-	CloudantSinkTask task;
+	private CloudantSinkTask task;
     private ByteArrayOutputStream os;
-	HashMap<String, String> targetProperties;
+	private HashMap<String, String> targetProperties;
+	
+	JSONArray data = null;
 	
 	Properties testProperties;
 	
@@ -64,9 +69,12 @@ public class CloudantSinkTaskTest extends TestCase {
 		targetProperties.put(InterfaceConst.URL, testProperties.getProperty(InterfaceConst.URL));
 		targetProperties.put(InterfaceConst.USER_NAME, testProperties.getProperty(InterfaceConst.USER_NAME));
 		targetProperties.put(InterfaceConst.PASSWORD, testProperties.getProperty(InterfaceConst.PASSWORD));
-
+	
+		targetProperties.put(InterfaceConst.TASKS_MAX, testProperties.getProperty(InterfaceConst.TASKS_MAX));
+		targetProperties.put(InterfaceConst.BATCH_SIZE, testProperties.getProperty(InterfaceConst.BATCH_SIZE));
+    	  
 		targetProperties.put(InterfaceConst.TOPIC, testProperties.getProperty(InterfaceConst.TOPIC));
-
+		
 	}
 
 	/**
@@ -89,23 +97,25 @@ public class CloudantSinkTaskTest extends TestCase {
 		// Emit 3 new documents
 		task.start(targetProperties);
 		
-		String doc1 = 	"{\"_id\":\"doc1\","
-				+ "\"key\":\"value1\"}";
+		JsonParser parser = new JsonParser();
+
+		JsonObject doc1 = parser.parse("{\"_id\":\"doc1\","
+				+ "\"key\":\"value1\"}").getAsJsonObject();
 		
 		task.put(Arrays.asList(
 				new SinkRecord(testProperties.getProperty(InterfaceConst.TOPIC), 0, 
-						null, null, Schema.STRING_SCHEMA, doc1.toString(), 1)));
+						null, null, Schema.STRING_SCHEMA, doc1, 1)));
 		
-		offsets.put(new TopicPartition(testProperties.getProperty(InterfaceConst.TOPIC), 0), 
+	/*	offsets.put(new TopicPartition(testProperties.getProperty(InterfaceConst.TOPIC), 0), 
 				new OffsetAndMetadata(1L));
-		
+		*/
 		task.flush(offsets);
 
-		String doc2 = "{\"_id\":\"doc2\","
-				+ "\"key\":\"value2\"}";
+		JsonObject doc2 = parser.parse("{\"_id\":\"doc2\","
+				+ "\"key\":\"value2\"}").getAsJsonObject();
 		
-		String doc3 = "{\"_id\":\"doc3\","
-				+ "\"key\":\"value3\"}";
+		JsonObject doc3 = parser.parse("{\"_id\":\"doc3\","
+				+ "\"key\":\"value3\"}").getAsJsonObject();
 		
 		task.put(Arrays.asList(
 				new SinkRecord(testProperties.getProperty(InterfaceConst.TOPIC), 
@@ -114,11 +124,12 @@ public class CloudantSinkTaskTest extends TestCase {
 				new SinkRecord(testProperties.getProperty(InterfaceConst.TOPIC), 
 						0, null, null, Schema.STRING_SCHEMA, doc3.toString(), 3)
 				));
-		
+	/*	
 		offsets.put(new TopicPartition(testProperties.getProperty(InterfaceConst.TOPIC), 0), 
 				new OffsetAndMetadata(2L));
 		offsets.put(new TopicPartition(testProperties.getProperty(InterfaceConst.TOPIC), 0),
-				new OffsetAndMetadata(2L));
+				new OffsetAndMetadata(3L));
+				*/
 		task.flush(offsets);
 		
 		// CLOUDANT
@@ -129,16 +140,54 @@ public class CloudantSinkTaskTest extends TestCase {
 				.getChanges();
 
 		 //process the ChangesResult
-		 String result = new String();
+		JSONArray result = new JSONArray();
 		 
 		 for (ChangesResult.Row row : changeResult.getResults()) {
-		   String docId = row.getId();
-		   JsonElement doc = row.getDoc().get("map");
-		   result += doc.toString();
+			JsonObject doc = (JsonObject) row.getDoc().get("map");
+			result.put(doc);
 		 }
+		 
+		 assertEquals(3, result.length());
+		 
+		 assertTrue(result.toList().contains(doc1));
+		 assertTrue(result.toList().contains(doc2));
+		 assertTrue(result.toList().contains(doc3));
+	
+	}
 
-		assertEquals(result, new String (doc2 + doc1));
+	/**
+	 * @return the targetProperties
+	 */
+	public HashMap<String, String> getTargetProperties() {
+		return targetProperties;
+	}
 
-		
+	/**
+	 * @param targetProperties the targetProperties to set
+	 */
+	public void setTargetProperties(HashMap<String, String> targetProperties) {
+		this.targetProperties = targetProperties;
+	}
+
+	/**
+	 * @return the task
+	 */
+	public CloudantSinkTask getTask() {
+		return task;
+	}
+
+	/**
+	 * @param task the task to set
+	 */
+	public void setTask(CloudantSinkTask task) {
+		this.task = task;
+	}
+	
+	protected void tearDown() throws Exception {
+
+		// Remove the created database
+		CloudantDbUtils.dropDatabase(targetProperties.get(InterfaceConst.URL), 
+				targetProperties.get(InterfaceConst.USER_NAME), 
+				targetProperties.get(InterfaceConst.PASSWORD));
 	}
 }

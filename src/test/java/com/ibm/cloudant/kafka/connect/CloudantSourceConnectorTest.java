@@ -115,29 +115,4 @@ public class CloudantSourceConnectorTest extends TestCase {
         
         PowerMock.verifyAll();
 	}
-	
-	/**
-	 * Test method for {@link com.ibm.cloudant.kafka.connect.CloudantSourceConnector#taskConfigs(int)}.
-	 */
-	public void testTaskConfigs_defaults() {
-	    
-		int tasks_max = new Integer(sourceProperties.get(InterfaceConst.TASKS_MAX)).intValue();
-	    
-	     
-		// remove user values where defaults exists
-        sourceProperties.remove(InterfaceConst.LAST_CHANGE_SEQ);
-        
-		PowerMock.replayAll();		
-
-        connector.start(sourceProperties);
-         
-        List<Map<String, String>> taskConfigs = connector.taskConfigs(tasks_max);
-
-        Assert.assertEquals(1, taskConfigs.size());
-        Assert.assertEquals(null,  taskConfigs.get(0).get(InterfaceConst.LAST_CHANGE_SEQ));
-        
-        PowerMock.verifyAll();
-	}
-
-
 }

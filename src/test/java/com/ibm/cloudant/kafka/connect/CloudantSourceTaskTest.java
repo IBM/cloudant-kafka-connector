@@ -171,11 +171,40 @@ public class CloudantSourceTaskTest extends TestCase {
 		assertEquals(new_changes, records2.size());
 	}
 	
+	/**
+	 * @return the sourceProperties
+	 */
+	public Map<String, String> getSourceProperties() {
+		return sourceProperties;
+	}
+
+	/**
+	 * @param sourceProperties the sourceProperties to set
+	 */
+	public void setSourceProperties(Map<String, String> sourceProperties) {
+		this.sourceProperties = sourceProperties;
+	}
+
+	/**
+	 * @return the task
+	 */
+	public CloudantSourceTask getTask() {
+		return task;
+	}
+
+	/**
+	 * @param task the task to set
+	 */
+	public void setTask(CloudantSourceTask task) {
+		this.task = task;
+	}
+	
 	protected void tearDown() throws Exception {
 
 		// Remove the created database
-		CloudantDbUtils.dropDatabase(testProperties.getProperty(InterfaceConst.URL), 
-				testProperties.getProperty(InterfaceConst.USER_NAME), 
-				testProperties.getProperty(InterfaceConst.PASSWORD));
+		CloudantDbUtils.dropDatabase(sourceProperties.get(InterfaceConst.URL), 
+				sourceProperties.get(InterfaceConst.USER_NAME), 
+				sourceProperties.get(InterfaceConst.PASSWORD));
 	}
+
 }

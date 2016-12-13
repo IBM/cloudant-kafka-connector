@@ -157,9 +157,9 @@ public class CloudantSourceTask extends SourceTask {
 			topics = config.getList(InterfaceConst.TOPIC);
 
 			latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
-			task_number = config.getInt(CloudantSourceTaskConfig.TASK_NUMBER);
-			tasks_max =  config.getInt(CloudantSourceTaskConfig.TASK_MAX);
-			batch_size = config.getInt(CloudantSourceTaskConfig.BATCH_SIZE);
+			task_number = config.getInt(InterfaceConst.TASK_NUMBER);
+			tasks_max =  config.getInt(InterfaceConst.TASKS_MAX);
+			batch_size = config.getInt(InterfaceConst.BATCH_SIZE);
 			
 			if (tasks_max > 1) {
 				throw new ConfigException("CouchDB _changes API only supports 1 thread. Configure tasks.max=1");
