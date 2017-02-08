@@ -73,7 +73,7 @@ public class CloudantSinkConnectorConfig extends AbstractConfig {
 	}
 	
 	public CloudantSinkConnectorConfig(Map<String, String> originals) {
-		super(CONFIG_DEF, originals);
+		super(CONFIG_DEF, originals, false);
 	}
 	
 	public static void main(String[] args) {

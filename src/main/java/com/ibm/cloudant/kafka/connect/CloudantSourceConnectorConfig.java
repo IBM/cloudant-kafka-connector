@@ -72,7 +72,7 @@ public class CloudantSourceConnectorConfig extends AbstractConfig {
 	}
 	
 	public CloudantSourceConnectorConfig(Map<String, String> originals) {
-		super(CONFIG_DEF, originals);
+		super(CONFIG_DEF, originals, false);
 	}
 	
 	protected CloudantSourceConnectorConfig(ConfigDef subclassConfigDef, Map<String, String> originals) {
