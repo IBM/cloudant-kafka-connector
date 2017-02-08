@@ -8,13 +8,13 @@
 	</parent>
 
 	<properties>
-		<kafka.version.major>2.11</kafka.version.major>
-		<kafka.version.minor>0.10.0.1</kafka.version.minor>
+		<scala.version>2.11</scala.version>
+		<kafka.version>0.10.0.1</kafka.version>
 	</properties>
 	
 	<groupId>com.ibm.cloudant</groupId>
 	<artifactId>kafka-connect-cloudant</artifactId>
-	<version>${kafka.version.major}-${kafka.version.minor}</version>
+	<version>${kafka.version}</version>
 	<name>kafka-connect-cloudant</name>
 	<description>Kafka Connect Cloudant connector</description>
 
@@ -46,14 +46,14 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
-			<artifactId>kafka_${kafka.version.major}</artifactId>
-			<version>${kafka.version.minor}</version>
+			<artifactId>kafka_${scala.version}</artifactId>
+			<version>${kafka.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
 			<artifactId>connect-api</artifactId>
-			<version>${kafka.version.minor}</version>
+			<version>${kafka.version}</version>
 		</dependency>
 
 		<dependency>
