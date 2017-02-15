@@ -71,10 +71,7 @@ public class CloudantSourceTask extends SourceTask {
 	@Override
 	public List<SourceRecord> poll() throws InterruptedException {
 		
-		// Use like a semaphore to allow synchronization
-		// between poll() and stop() methods
-		_running = new AtomicBoolean(false);
-		
+				
 		// stop will be set but can be honored only after we release
 		// the changes() feed
 		while (!stop.get()) {
@@ -164,7 +161,9 @@ public class CloudantSourceTask extends SourceTask {
 			if (tasks_max > 1) {
 				throw new ConfigException("CouchDB _changes API only supports 1 thread. Configure tasks.max=1");
 			}
-
+			// Use like a semaphore to allow synchronization
+			// between poll() and stop() methods
+			_running = new AtomicBoolean(false);
 			stop = new AtomicBoolean(false);
 			
 			if (latestSequenceNumber == null) {
