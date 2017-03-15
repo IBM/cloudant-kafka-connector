@@ -9,7 +9,7 @@
 
 	<properties>
 		<scala.version>2.11</scala.version>
-		<kafka.version>0.10.0.1</kafka.version>
+		<kafka.version>0.10.2.0</kafka.version>
 	</properties>
 	
 	<groupId>com.ibm.cloudant</groupId>
