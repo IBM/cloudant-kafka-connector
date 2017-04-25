@@ -59,7 +59,7 @@ public class CloudantSinkConnectorConfig extends AbstractConfig {
 						  DATABASE_GROUP, 1, Width.LONG,
 						  ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_USR_DISP))
 				  // Cloudant Password
-				  .define(InterfaceConst.PASSWORD, Type.STRING, Importance.HIGH, 
+				  .define(InterfaceConst.PASSWORD, Type.PASSWORD, Importance.HIGH, 
 						  ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_PWD_DOC), 
 						  DATABASE_GROUP, 1, Width.LONG,
 						  ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_PWD_DISP))
