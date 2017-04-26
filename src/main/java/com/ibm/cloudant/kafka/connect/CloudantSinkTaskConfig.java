@@ -25,11 +25,14 @@ import com.ibm.cloudant.kafka.common.InterfaceConst;
 public class CloudantSinkTaskConfig extends CloudantSinkConnectorConfig {
 
 	public static final int DEFAULT_BATCH_SIZE = 1000;
+	public static final String DEFAULT_GUID_SCHEMA = "kafka";
 
 	// Expand this ConfigDef with task specific parameters	
 	static org.apache.kafka.common.config.ConfigDef config = baseConfigDef()
 		      .define(InterfaceConst.BATCH_SIZE, Type.INT, DEFAULT_BATCH_SIZE,
-		    		  Importance.LOW, InterfaceConst.BATCH_SIZE);
+		    		  Importance.LOW, InterfaceConst.BATCH_SIZE)
+		      .define(InterfaceConst.GUID_SCHEMA, Type.STRING, DEFAULT_GUID_SCHEMA,
+		    		  Importance.LOW, InterfaceConst.GUID_SCHEMA);
 	
 	public CloudantSinkTaskConfig(Map<String, String> originals) {
 		super(config, originals);
