@@ -28,6 +28,6 @@ public class InterfaceConst {
 	public final static String TASKS_MAX = "tasks.max";
 	public final static String TASK_NUMBER = "task.number";
 	public final static String BATCH_SIZE = "batch.size";
-	
+	public final static String GUID_SCHEMA = "guid.schema";
 
 }
