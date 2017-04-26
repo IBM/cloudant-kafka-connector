@@ -22,7 +22,7 @@ import org.apache.kafka.common.config.ConfigDef.Type;
 
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 
-public class CloudantSinkTaskConfig extends CloudantSourceConnectorConfig {
+public class CloudantSinkTaskConfig extends CloudantSinkConnectorConfig {
 
 	public static final int DEFAULT_BATCH_SIZE = 1000;
 
