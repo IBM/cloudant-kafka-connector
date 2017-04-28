@@ -28,6 +28,12 @@ public class InterfaceConst {
 	public final static String TASKS_MAX = "tasks.max";
 	public final static String TASK_NUMBER = "task.number";
 	public final static String BATCH_SIZE = "batch.size";
+
+	public final static String GUID_SCHEMA = "guid.schema";	
 	
+	public static final String DEFAULT_GUID_SETTING = InterfaceConst.GUID_SETTING.KAFKA.name();	
+	public enum GUID_SETTING {
+		KAFKA, CLOUDANT
+	};
 
 }

@@ -49,8 +49,8 @@ public class JavaCloudantUtil {
 						MessageKey.CLOUDANT_DATABASE_ERROR), url));
 			}
 			List<Object> entryObj = new ArrayList<Object>();
-			for(int i=0; i < data.length();i++){
-				entryObj.add(data.get(i));
+			for(int i=0; i < data.length();i++){											
+				entryObj.add(data.getJSONObject(i).toMap());
 			}
 
 			//perform bulk insert for array of documents

@@ -34,4 +34,6 @@ public class MessageKey {
 	
 	public static final String KAFKA_TOPIC_LIST_DOC = "KafkaTopicListDoc";
 	public static final String KAFKA_TOPIC_LIST_DISP = "KafkaTopicListDisp";
+	
+	public static final String GUID_SCHEMA = "GuidSchema";
 }

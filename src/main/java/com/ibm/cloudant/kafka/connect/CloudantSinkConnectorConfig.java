@@ -76,8 +76,11 @@ public class CloudantSinkConnectorConfig extends AbstractConfig {
 		super(CONFIG_DEF, originals, false);
 	}
 	
+	protected CloudantSinkConnectorConfig(ConfigDef subclassConfigDef, Map<String, String> originals) {
+	    super(subclassConfigDef, originals);
+	}
+	
 	public static void main(String[] args) {
 		  System.out.println(CONFIG_DEF.toRst());
 	}
-
 }
