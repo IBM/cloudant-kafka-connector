@@ -14,7 +14,7 @@
 	
 	<groupId>com.ibm.cloudant</groupId>
 	<artifactId>kafka-connect-cloudant</artifactId>
-	<version>${kafka.version}</version>
+	<version>2017-04-25</version>
 	<name>kafka-connect-cloudant</name>
 	<description>Kafka Connect Cloudant connector</description>
 
@@ -48,12 +48,14 @@
 			<groupId>org.apache.kafka</groupId>
 			<artifactId>kafka_${scala.version}</artifactId>
 			<version>${kafka.version}</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
 			<artifactId>connect-api</artifactId>
 			<version>${kafka.version}</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -72,18 +74,21 @@
 			<groupId>org.powermock</groupId>
 			<artifactId>powermock-api-easymock</artifactId>
 			<version>1.6.4</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.easymock</groupId>
 			<artifactId>easymock</artifactId>
 			<version>3.4</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

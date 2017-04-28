@@ -150,7 +150,7 @@ public class CloudantSourceTask extends SourceTask {
 
 			url = config.getString(InterfaceConst.URL);
 			userName = config.getString(InterfaceConst.USER_NAME);
-			password = config.getString(InterfaceConst.PASSWORD);
+			password = config.getPassword(InterfaceConst.PASSWORD).value();
 			topics = config.getList(InterfaceConst.TOPIC);
 
 			latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
