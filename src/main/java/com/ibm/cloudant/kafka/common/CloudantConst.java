@@ -75,6 +75,5 @@ public class CloudantConst {
 	public static final int RECONNECT_MAX_WAIT_TIME = 86400;
 	
 	public static final int DEFAULT_BATCH_SIZE = 1000;
-	
-	public static final String SOURCE_DOC_ID = "source_id";
+
 }

@@ -93,7 +93,7 @@ public class CloudantSourceTaskTest extends TestCase {
 
 		sourceProperties.put(InterfaceConst.TOPIC, testProperties.getProperty(InterfaceConst.TOPIC));
 		sourceProperties.put(InterfaceConst.TASKS_MAX, testProperties.getProperty(InterfaceConst.TASKS_MAX));
-		sourceProperties.put(InterfaceConst.BATCH_SIZE, testProperties.getProperty(InterfaceConst.BATCH_SIZE));
+		sourceProperties.put(InterfaceConst.BATCH_SIZE, testProperties.getProperty(InterfaceConst.BATCH_SIZE)==null?"500":testProperties.getProperty(InterfaceConst.BATCH_SIZE));
 
 		sourceProperties.put(InterfaceConst.LAST_CHANGE_SEQ, testProperties.getProperty(InterfaceConst.LAST_CHANGE_SEQ));
 
@@ -121,8 +121,8 @@ public class CloudantSourceTaskTest extends TestCase {
 		task.start(sourceProperties);
 		List<SourceRecord> records = task.poll();
 		assertTrue(records.size() > 0);
-		assertEquals( new Integer(testProperties.getProperty(InterfaceConst.BATCH_SIZE)).intValue(), records.size());
-			
+		assertEquals( new Integer(testProperties.getProperty(InterfaceConst.BATCH_SIZE)==null?"500":testProperties.getProperty(InterfaceConst.BATCH_SIZE)).intValue(), records.size());
+		
 		// Inspect the first record and make sure it is a valid Cloudant doc
 		SourceRecord firstRecord = records.get(0);
 		String firstValue = firstRecord.value().toString();

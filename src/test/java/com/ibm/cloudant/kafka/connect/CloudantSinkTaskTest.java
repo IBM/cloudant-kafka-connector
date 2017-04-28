@@ -18,8 +18,10 @@ package com.ibm.cloudant.kafka.connect;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
@@ -30,6 +32,7 @@ import org.json.JSONArray;
 
 import com.cloudant.client.api.Database;
 import com.cloudant.client.api.model.ChangesResult;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
@@ -141,19 +144,18 @@ public class CloudantSinkTaskTest extends TestCase {
 				.getChanges();
 
 		 //process the ChangesResult
-		JSONArray result = new JSONArray();
+		List<JsonElement> result = new ArrayList<JsonElement>();
+		
+		for (ChangesResult.Row row : changeResult.getResults()) {
+			 JsonElement key = row.getDoc().get("key");
+			 result.add(key);
+		}
 		 
-		 for (ChangesResult.Row row : changeResult.getResults()) {
-			JsonObject doc = (JsonObject) row.getDoc().get("map");
-			result.put(doc);
-		 }
-		 
-		 assertEquals(3, result.length());
-		 
-		 //ToDO: Change Results changed
-		 //assertTrue(result.toList().contains(doc1));
-		 //assertTrue(result.toList().contains(doc2));
-		 //assertTrue(result.toList().contains(doc3));
+		assertEquals(3, result.size());
+	
+		assertTrue(result.contains(doc1.get("key")));
+		assertTrue(result.contains(doc2.get("key")));
+		assertTrue(result.contains(doc3.get("key")));
 	}
 
 	/**

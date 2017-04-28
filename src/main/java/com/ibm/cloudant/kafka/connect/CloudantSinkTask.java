@@ -72,11 +72,21 @@ public class CloudantSinkTask extends SinkTask {
 			}
 			
 			if(jsonRecord.has(CloudantConst.CLOUDANT_DOC_ID)){
-				jsonRecord.put(CloudantConst.SOURCE_DOC_ID, jsonRecord.get(CloudantConst.CLOUDANT_DOC_ID));
-				if(guid_schema.toLowerCase().equals("kafka")) {
-					jsonRecord.put(CloudantConst.CLOUDANT_DOC_ID, record.topic() + "_" + record.kafkaPartition().toString() + "_" + Long.toString(record.kafkaOffset()));	
+				if(guid_schema.equalsIgnoreCase(InterfaceConst.GUID_SETTING.KAFKA.name())) {				
+					jsonRecord.put(CloudantConst.CLOUDANT_DOC_ID, 
+							record.topic() + "_" + 
+							record.kafkaPartition().toString() + "_" + 
+							Long.toString(record.kafkaOffset()) + "_" + 
+							jsonRecord.get(CloudantConst.CLOUDANT_DOC_ID));	
+				}
+				else if (guid_schema.equalsIgnoreCase(InterfaceConst.GUID_SETTING.CLOUDANT.name())) {
+					// Do Nothing => Mirror from Cloundant Obj
 				}
 				else {
+					LOG.info(MessageKey.GUID_SCHEMA + ": " + guid_schema);
+					LOG.warn(CloudantConst.CLOUDANT_DOC_ID + "from source database will removed");
+					
+					//remove Cloudant _id
 					jsonRecord.remove(CloudantConst.CLOUDANT_DOC_ID);
 				}
 			}					
@@ -107,9 +117,9 @@ public class CloudantSinkTask extends SinkTask {
 			userName = config.getString(InterfaceConst.USER_NAME);
 			password = config.getString(InterfaceConst.PASSWORD);
 			
-			batch_size = config.getInt(InterfaceConst.BATCH_SIZE);
-			guid_schema = config.getString(InterfaceConst.GUID_SCHEMA);
-		
+			batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? CloudantConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
+			guid_schema = config.getString(InterfaceConst.GUID_SCHEMA) == null ? InterfaceConst.DEFAULT_GUID_SETTING : config.getString(InterfaceConst.GUID_SCHEMA); 
+
 		} catch (ConfigException e) {
 			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION), e);
 		}
