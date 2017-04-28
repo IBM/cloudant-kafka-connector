@@ -35,6 +35,7 @@ import com.cloudant.client.api.CloudantClient;
 import com.cloudant.client.api.Database;
 import com.cloudant.client.api.model.ChangesResult;
 import com.cloudant.client.api.model.ChangesResult.Row;
+import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
@@ -155,9 +156,9 @@ public class CloudantSourceTask extends SourceTask {
 
 			latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
 			task_number = config.getInt(InterfaceConst.TASK_NUMBER);
-			tasks_max =  config.getInt(InterfaceConst.TASKS_MAX);
-			batch_size = config.getInt(InterfaceConst.BATCH_SIZE);
-			
+			tasks_max =  config.getInt(InterfaceConst.TASKS_MAX);			
+			batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? CloudantConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
+				
 			if (tasks_max > 1) {
 				throw new ConfigException("CouchDB _changes API only supports 1 thread. Configure tasks.max=1");
 			}
