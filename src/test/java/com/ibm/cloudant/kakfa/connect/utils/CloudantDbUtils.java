@@ -36,12 +36,4 @@ public class CloudantDbUtils {
 			}
 		}
 	}
-	
-	public static long getDocCount(String dbName) {
-		long docCount = 0;
-		
-		return docCount;
-	}
-
-	
 }
