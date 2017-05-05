@@ -22,6 +22,7 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.annotation.AxisRange;
 import com.carrotsearch.junitbenchmarks.annotation.BenchmarkMethodChart;
 import com.cloudant.client.api.Database;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
@@ -34,10 +35,9 @@ import com.ibm.cloudant.kakfa.connect.utils.ConnectorUtils;
 @BenchmarkMethodChart(filePrefix = "benchmark-lists")
 public class CloudantSinkPerformanceTest extends AbstractBenchmark {	
 	private static Database targetDb;	
-	private static ArrayList<Long> timeTest1 = new ArrayList<Long>();	
-	private static ArrayList<Long> timeTest2 = new ArrayList<Long>();
-	private static ArrayList<Long> timeTest3 = new ArrayList<Long>();
-	private static long diskSize, documents;
+	private static JsonObject testResults1 = new JsonObject();
+	private static JsonObject testResults2 = new JsonObject();
+	private static JsonObject testResults3 = new JsonObject();
 		
 	private Properties defaultProperties;	
 	private Map<String, String> targetProperties;  
@@ -66,22 +66,25 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
 	@Test
 	public void testSinkPerformance() throws Exception {
-		init(100000, "perfomanceTest", 5000, 2, "kafka");
-		timeTest1.add(runTest());
+		init(1000, "perfomanceTest", 5000, 1, "kafka");
+		long testTime = runTest();
+		testResults1 = addResults(testResults1, testTime);
 	}
 	
 	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
 	@Test
 	public void testSinkPerformance2() throws Exception {
-		init(100000, "perfomanceTest", 5000, 2, "kafka");
-		timeTest2.add(runTest());
+		init(10000, "perfomanceTest2", 5000, 2, "cloudant");
+		long testTime = runTest();
+		testResults2 = addResults(testResults2, testTime);
 	}
 	
 	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
 	@Test
 	public void testSinkPerformance3() throws Exception {
-		init(100000, "perfomanceTest", 5000, 2, "kafka");
-		timeTest3.add(runTest());
+		init(100000, "perfomanceTest3", 5000, 3, "cloudant");
+		long testTime = runTest();
+		testResults3 = addResults(testResults3, testTime);
 	}
 	
 	public void init(int numberDocs, String topics, int batch_size, int tasks_max, String guid_schema) {
@@ -98,9 +101,29 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 		targetProperties.put(InterfaceConst.URL, defaultProperties.getProperty("performance.url") + "_target");
 		targetProperties.put(InterfaceConst.TOPIC, topics); //ToDO: mehrere Topics
 		targetProperties.put(InterfaceConst.BATCH_SIZE, Integer.toString(batch_size));
-		targetProperties.put(InterfaceConst.TASK_NUMBER, Integer.toString(tasks_max));
 		targetProperties.put(InterfaceConst.TASKS_MAX, Integer.toString(tasks_max));
 		targetProperties.put(InterfaceConst.GUID_SCHEMA, guid_schema);
+	}
+	
+	public JsonObject addResults(JsonObject results, long testTime) {
+		if(results.size() == 0){			
+			JsonArray testTimes = new JsonArray();
+			testTimes.add(testTime);			
+			results.addProperty("testRounds", 1);
+			results.addProperty("diskSize", targetDb.info().getDiskSize());
+			results.addProperty("documents", targetDb.info().getDocCount());
+			
+			results.addProperty(InterfaceConst.TOPIC, targetProperties.get(InterfaceConst.TOPIC));
+			results.addProperty(InterfaceConst.BATCH_SIZE, targetProperties.get(InterfaceConst.BATCH_SIZE));
+			results.addProperty(InterfaceConst.TASKS_MAX, targetProperties.get(InterfaceConst.TASKS_MAX));
+			results.addProperty(InterfaceConst.GUID_SCHEMA, targetProperties.get(InterfaceConst.GUID_SCHEMA));
+			results.add("testTimes", testTimes);	
+		}
+		else {
+			results.addProperty("testRounds", results.get("testRounds").getAsInt() + 1);
+			results.get("testTimes").getAsJsonArray().add(testTime);
+		}
+		return results;
 	}
 	
 	public long runTest() throws Exception {									
@@ -126,10 +149,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 	}
 				
 	@After
-	public void tearDown() throws Exception { 
-		diskSize = targetDb.info().getDiskSize();
-		documents = targetDb.info().getDocCount();
-		
+	public void tearDown() throws Exception { 	
 		CloudantDbUtils.dropDatabase(
 				defaultProperties.getProperty("performance.url") + "_target", 
 				defaultProperties.get(InterfaceConst.USER_NAME).toString(), 
@@ -137,13 +157,13 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 	}
 	
 	@AfterClass
-	public static void Results() {
+	public static void Results() {		
 		//Show Properties and BenchmarkRounds
-		System.out.println("\n### Results - PerformanceSinkTest1 ###");
-		ConnectorUtils.showPerformanceResults(documents, diskSize, timeTest1);
-		System.out.println("\n### Results - PerformanceSinkTest2 ###");
-		ConnectorUtils.showPerformanceResults(documents, diskSize, timeTest2);
-		System.out.println("\n### Results - PerformanceSinkTest3 ###");
-		ConnectorUtils.showPerformanceResults(documents, diskSize, timeTest3);
+		System.out.println("\n### Results - testSinkPerformance ###");
+		ConnectorUtils.showPerformanceResults(testResults1);
+		System.out.println("\n### Results - testSinkPerformance2 ###");
+		ConnectorUtils.showPerformanceResults(testResults2);
+		System.out.println("\n### Results - testSinkPerformance3 ###");
+		ConnectorUtils.showPerformanceResults(testResults3);
 	}
 }

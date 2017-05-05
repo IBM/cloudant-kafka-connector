@@ -103,7 +103,7 @@ public class CloudantSourceTask extends SourceTask {
 							.includeDocs(true)
 							.since(latestSequenceNumber)
 							.limit(batch_size)
-							.continuousChanges()
+							//.continuousChanges() //#ToDo: Ask Holger
 							.heartBeat(FEED_SLEEP_MILLISEC)
 							.getChanges();
 				}

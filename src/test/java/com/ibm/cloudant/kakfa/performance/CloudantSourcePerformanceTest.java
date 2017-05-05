@@ -17,6 +17,8 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.annotation.AxisRange;
 import com.carrotsearch.junitbenchmarks.annotation.BenchmarkMethodChart;
 import com.cloudant.client.api.Database;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloudant.kafka.connect.CloudantSourceTask;
@@ -26,9 +28,9 @@ import com.ibm.cloudant.kakfa.connect.utils.ConnectorUtils;
 @BenchmarkMethodChart(filePrefix = "benchmark-lists")
 public class CloudantSourcePerformanceTest extends AbstractBenchmark {	
 	private static Database sourceDb;
-	private static ArrayList<Long> timeTest1 = new ArrayList<Long>();	
-	private static ArrayList<Long> timeTest2 = new ArrayList<Long>();
-	private static ArrayList<Long> timeTest3 = new ArrayList<Long>();
+	private static JsonObject testResults1 = new JsonObject();
+	private static JsonObject testResults2 = new JsonObject();
+	private static JsonObject testResults3 = new JsonObject();
 	
 	private Properties defaultProperties;
 	private Map<String, String> sourceProperties;  	
@@ -50,25 +52,28 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 				defaultProperties.get(InterfaceConst.PASSWORD).toString());	
 	}
 					
-	@BenchmarkOptions(benchmarkRounds = 2, warmupRounds = 0)
+	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
 	@Test
 	public void testSourcePerformance() throws Exception {
-		init("perfomanceTest", 500, 1);
-		timeTest1.add(runTest());
+		init("perfomanceTest", 1000, 1);
+		long testTime = runTest();
+		testResults1 = addResults(testResults1, testTime);
 	}
 	
-	@BenchmarkOptions(benchmarkRounds = 2, warmupRounds = 0)
+	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
 	@Test
 	public void testSourcePerformance2() throws Exception {
-		init("perfomanceTest", 1000, 1);
-		timeTest2.add(runTest());
+		init("perfomanceTest", 2000, 1);
+		long testTime = runTest();
+		testResults2 = addResults(testResults2, testTime);
 	}
 	
-	@BenchmarkOptions(benchmarkRounds = 2, warmupRounds = 0)
+	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
 	@Test
 	public void testSourcePerformance3() throws Exception {
-		init("perfomanceTest", 5000, 1);
-		timeTest3.add(runTest());
+		init("perfomanceTest", 10000, 1);
+		long testTime = runTest();
+		testResults3 = addResults(testResults3, testTime);
 	}
 	
 	public void init(String topics, int batch_size, int tasks_max) {
@@ -76,6 +81,26 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 		sourceProperties.put(InterfaceConst.TOPIC, topics); //ToDO: mehrere Topics
 		sourceProperties.put(InterfaceConst.BATCH_SIZE, Integer.toString(batch_size));
 		sourceProperties.put(InterfaceConst.TASKS_MAX, Integer.toString(tasks_max));
+	}
+	
+	public JsonObject addResults(JsonObject results, long testTime) {
+		if(results.size() == 0){			
+			JsonArray testTimes = new JsonArray();
+			testTimes.add(testTime);								
+			results.addProperty("testRounds", 1);
+			results.addProperty("diskSize", sourceDb.info().getDiskSize());
+			results.addProperty("documents", sourceDb.info().getDocCount());
+			
+			results.addProperty(InterfaceConst.TOPIC, sourceProperties.get(InterfaceConst.TOPIC));
+			results.addProperty(InterfaceConst.BATCH_SIZE, sourceProperties.get(InterfaceConst.BATCH_SIZE));
+			results.addProperty(InterfaceConst.TASKS_MAX, sourceProperties.get(InterfaceConst.TASKS_MAX));
+			results.add("testTimes", testTimes);	
+		}
+		else {
+			results.addProperty("testRounds", results.get("testRounds").getAsInt() + 1);
+			results.get("testTimes").getAsJsonArray().add(testTime);
+		}
+		return results;
 	}
 	
 	public long runTest() throws Exception {									
@@ -100,11 +125,11 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 	
 	@AfterClass
 	public static void Results() {
-		System.out.println("\n### Results - PerformanceSourceTest1 ###");
-		ConnectorUtils.showPerformanceResults(sourceDb.info().getDocCount(), sourceDb.info().getDiskSize(), timeTest1);
-		System.out.println("\n### Results - PerformanceSourceTest2 ###");
-		ConnectorUtils.showPerformanceResults(sourceDb.info().getDocCount(), sourceDb.info().getDiskSize(), timeTest2);
-		System.out.println("\n### Results - PerformanceSourceTest3 ###");
-		ConnectorUtils.showPerformanceResults(sourceDb.info().getDocCount(), sourceDb.info().getDiskSize(), timeTest3);
+		System.out.println("\n### Results - testSourcePerformance ###");
+		ConnectorUtils.showPerformanceResults(testResults1);
+		System.out.println("\n### Results - testSourcePerformance2 ###");
+		ConnectorUtils.showPerformanceResults(testResults2);
+		System.out.println("\n### Results - testSourcePerformance3 ###");
+		ConnectorUtils.showPerformanceResults(testResults3);
 	}
 }

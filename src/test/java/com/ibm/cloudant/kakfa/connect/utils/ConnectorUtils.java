@@ -9,6 +9,8 @@ import org.apache.kafka.connect.connector.ConnectorContext;
 import org.apache.kafka.connect.source.SourceTaskContext;
 import org.easymock.EasyMock;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.connect.CloudantSourceConnector;
 import com.ibm.cloudant.kafka.connect.CloudantSourceTask;
@@ -59,27 +61,53 @@ public class ConnectorUtils {
 		return targetProperties;
 	}
 	
-	public static void showPerformanceResults(long documents, long diskSize, ArrayList<Long> timeDiff) {		
-		float diskSizeInMB = diskSize/(1024*1024);
+	public static void showPerformanceResults(JsonObject testResults) {		
+		float diskSizeInMB = testResults.get("diskSize").getAsLong()/(1024*1024);
 				
-		System.out.println("Documents: " + documents);
-		System.out.println("DB Size: " + diskSizeInMB + " MB");
-		System.out.println("Time: " + average(timeDiff)/1000f + " Seconds");
-		System.out.println("Documents per second: " + documents/(average(timeDiff)/1000f));
-		System.out.println("Data per second: " + diskSizeInMB/(average(timeDiff)/1000f) + " MB/s");		
+		//Show TestProperties			
+		System.out.println("Rounds: " + testResults.get("testRounds") + "; Documents: " + testResults.get("documents") + "; DB Size: " + diskSizeInMB + " MB");						
+		System.out.print(InterfaceConst.TOPIC + ": " + testResults.get(InterfaceConst.TOPIC));
+		System.out.print("; " + InterfaceConst.BATCH_SIZE + ": " + testResults.get(InterfaceConst.BATCH_SIZE));
+		System.out.print("; " + InterfaceConst.TASKS_MAX + ": " + testResults.get(InterfaceConst.TASKS_MAX));
+		if(testResults.has(InterfaceConst.GUID_SCHEMA)) System.out.print("; " + InterfaceConst.GUID_SCHEMA + ": " + testResults.get(InterfaceConst.GUID_SCHEMA));
+		
+		//Show TestResults
+		System.out.print("\nTime: " + average(getTestTimes(testResults))/1000f + " Seconds");
+		System.out.println("[+- " + stdDeviation(getTestTimes(testResults))/1000f + "]");
+		System.out.println("Documents per second: " + testResults.get("documents").getAsLong()/(average(getTestTimes(testResults))/1000f));
+		System.out.println("Data per second: " + diskSizeInMB/(average(getTestTimes(testResults))/1000f) + " MB/s");		
 	}
 	
-	public static double average(ArrayList<Long> list) {
-	    // 'average' is undefined if there are no elements in the list.
-	    if (list == null || list.isEmpty())
-	        return 0.0;
-	    // Calculate the summation of the elements in the list
+	public static ArrayList<Long> getTestTimes(JsonObject testResults) {
+		ArrayList<Long> list = new ArrayList<Long>(); 
+		JsonArray testTimes = testResults.get("testTimes").getAsJsonArray();
+		if (testTimes != null) { 
+		   for (int i=0;i<testTimes.size();i++){ 
+			   list.add(testTimes.get(i).getAsLong());
+		   } 
+		}
+		return list;
+	}
+	
+	public static double average(ArrayList<Long> list) {			
+	    if (list == null || list.isEmpty()) return 0.0;
+	    
 	    long sum = 0;
-	    int n = list.size();
-	    // Iterating manually is faster than using an enhanced for loop.
-	    for (int i = 0; i < n; i++)
-	        sum += list.get(i);
-	    // We don't want to perform an integer division, so the cast is mandatory.
-	    return ((double) sum) / n;
+	    for (int i = 0; i < list.size(); i++) {
+	    	sum += list.get(i);
+	    }
+	        
+	    return ((double) sum) / list.size();
+	}
+	
+	public static double stdDeviation(ArrayList<Long> list) {		
+	   double sumDiffsSquared = 0.0;
+	   double avg = average(list);
+	   for (long value : list) {
+	       double diff = value - avg;
+	       diff *= diff;
+	       sumDiffsSquared += diff;
+	   }
+	   return Math.sqrt(sumDiffsSquared  / (list.size()-1));
 	}
 }
