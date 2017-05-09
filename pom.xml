@@ -118,6 +118,17 @@
 					</descriptorRefs>
 				</configuration>
 			</plugin>
+			 <plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-surefire-plugin</artifactId>
+		        <configuration>
+		            <excludes>
+						<exclude>**/CloudantSourcePerformanceTest.java</exclude>
+						<exclude>**/CloudantSinkPerformanceTest.java</exclude>
+						<exclude>**/CloudantSourceAndSinkPerformanceTest.java</exclude>
+					</excludes>
+		        </configuration>
+		      </plugin>	
 		</plugins>
 	</build>
 

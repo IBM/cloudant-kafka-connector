@@ -10,7 +10,6 @@ import java.util.Properties;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
@@ -23,7 +22,6 @@ import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloudant.kafka.connect.CloudantSourceTask;
 import com.ibm.cloudant.kakfa.connect.utils.ConnectorUtils;
 
-@Ignore 
 public class CloudantSourcePerformanceTest extends AbstractBenchmark {	
 	private static Database sourceDb;
 	private static JsonObject testResults1 = new JsonObject();
