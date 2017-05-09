@@ -15,12 +15,11 @@ import org.apache.kafka.connect.sink.SinkRecord;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
-import com.carrotsearch.junitbenchmarks.annotation.AxisRange;
-import com.carrotsearch.junitbenchmarks.annotation.BenchmarkMethodChart;
 import com.cloudant.client.api.Database;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -31,8 +30,7 @@ import com.ibm.cloudant.kafka.connect.CloudantSinkTask;
 import com.ibm.cloudant.kakfa.connect.utils.CloudantDbUtils;
 import com.ibm.cloudant.kakfa.connect.utils.ConnectorUtils;
 
-@AxisRange(min = 0, max = 5)
-@BenchmarkMethodChart(filePrefix = "benchmark-lists")
+@Ignore 
 public class CloudantSinkPerformanceTest extends AbstractBenchmark {	
 	private static Database targetDb;	
 	private static JsonObject testResults1 = new JsonObject();

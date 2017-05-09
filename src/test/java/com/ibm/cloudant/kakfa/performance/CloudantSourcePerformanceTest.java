@@ -10,12 +10,11 @@ import java.util.Properties;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
-import com.carrotsearch.junitbenchmarks.annotation.AxisRange;
-import com.carrotsearch.junitbenchmarks.annotation.BenchmarkMethodChart;
 import com.cloudant.client.api.Database;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -24,8 +23,7 @@ import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloudant.kafka.connect.CloudantSourceTask;
 import com.ibm.cloudant.kakfa.connect.utils.ConnectorUtils;
 
-@AxisRange(min = 0, max = 5)
-@BenchmarkMethodChart(filePrefix = "benchmark-lists")
+@Ignore 
 public class CloudantSourcePerformanceTest extends AbstractBenchmark {	
 	private static Database sourceDb;
 	private static JsonObject testResults1 = new JsonObject();
