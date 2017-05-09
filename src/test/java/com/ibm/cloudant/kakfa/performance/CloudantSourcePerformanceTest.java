@@ -52,33 +52,36 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 				defaultProperties.get(InterfaceConst.PASSWORD).toString());	
 	}
 					
-	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
+	@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 0)
 	@Test
 	public void testSourcePerformance() throws Exception {
-		init("perfomanceTest", 1000, 1);
+		//set parameter => init(topic, batch.size, tasks.max)
+		init("topic", 10000, 1);
 		long testTime = runTest();
 		testResults1 = addResults(testResults1, testTime);
 	}
 	
-	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
+	@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 0)
 	@Test
 	public void testSourcePerformance2() throws Exception {
-		init("perfomanceTest", 2000, 1);
+		//set parameter => init(topic, batch.size, tasks.max)
+		init("topic2", 10000, 1);
 		long testTime = runTest();
 		testResults2 = addResults(testResults2, testTime);
 	}
 	
-	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
+	@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 0)
 	@Test
 	public void testSourcePerformance3() throws Exception {
-		init("perfomanceTest", 10000, 1);
+		//set parameter => init(topic, batch.size, tasks.max)
+		init("topic3", 10000, 1);
 		long testTime = runTest();
 		testResults3 = addResults(testResults3, testTime);
 	}
 	
 	public void init(String topics, int batch_size, int tasks_max) {
 		sourceProperties.put(InterfaceConst.URL, defaultProperties.getProperty("performance.url"));
-		sourceProperties.put(InterfaceConst.TOPIC, topics); //ToDO: mehrere Topics
+		sourceProperties.put(InterfaceConst.TOPIC, topics);
 		sourceProperties.put(InterfaceConst.BATCH_SIZE, Integer.toString(batch_size));
 		sourceProperties.put(InterfaceConst.TASKS_MAX, Integer.toString(tasks_max));
 	}

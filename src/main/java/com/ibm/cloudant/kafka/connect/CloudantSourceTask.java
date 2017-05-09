@@ -103,11 +103,16 @@ public class CloudantSourceTask extends SourceTask {
 							.includeDocs(true)
 							.since(latestSequenceNumber)
 							.limit(batch_size)
-							//.continuousChanges() //#ToDo: Ask Holger
+							//.continuousChanges() 
+								/*
+								 * => Removed because of performance (waiting time)
+								 * Requests Change notifications of feed type continuous. 
+								 * Feed notifications are accessed in an iterator style.
+								 * This method will connect to the changes feed; any configuration options applied after calling it will be ignored.	 
+								 */
 							.heartBeat(FEED_SLEEP_MILLISEC)
 							.getChanges();
 				}
-
 
 				LOG.debug("Got " + cantChangeResult.getResults().size() + " changes");
 				latestSequenceNumber = cantChangeResult.getLastSeq();

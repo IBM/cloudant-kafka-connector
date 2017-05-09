@@ -63,26 +63,29 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 		sinkRecords = new ArrayList<SinkRecord>();
 	}
 	
-	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
+	@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 0)
 	@Test
 	public void testSinkPerformance() throws Exception {
-		init(1000, "perfomanceTest", 5000, 1, "kafka");
+		//set parameter => init(docsNumber, topic, batch.size, tasks.max, guid.schema)
+		init(100000, "topic", 10000, 1, "kafka");
 		long testTime = runTest();
 		testResults1 = addResults(testResults1, testTime);
 	}
 	
-	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
+	@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 0)
 	@Test
 	public void testSinkPerformance2() throws Exception {
-		init(10000, "perfomanceTest2", 5000, 2, "cloudant");
+		//set parameter => init(docsNumber, topic, batch.size, tasks.max, guid.schema)
+		init(100000, "topic2", 10000, 1, "kafka");
 		long testTime = runTest();
 		testResults2 = addResults(testResults2, testTime);
 	}
 	
-	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
+	@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 0)
 	@Test
 	public void testSinkPerformance3() throws Exception {
-		init(100000, "perfomanceTest3", 5000, 3, "cloudant");
+		//set parameter => init(docsNumber, topic, batch.size, tasks.max, guid.schema)
+		init(100000, "topic3", 10000, 1, "kafka");
 		long testTime = runTest();
 		testResults3 = addResults(testResults3, testTime);
 	}
@@ -136,7 +139,6 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 		// 2. Measure SourceRecords
 		long startTime = System.currentTimeMillis();				
 		
-		// Do Something
 		sinkTask.put(sinkRecords);
 		sinkTask.flush(offsets);
 		
