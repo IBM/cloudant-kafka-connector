@@ -123,7 +123,8 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
 			// - no schema
 			// - no offset
 			for (SourceRecord record : sourceRecords) {
-				SinkRecord sinkRecord = new SinkRecord(targetProperties.get(InterfaceConst.TOPIC), 
+				SinkRecord sinkRecord = new SinkRecord(
+						record.topic(), // topic
 						0, // partition
 						record.keySchema(), // key schema
 						record.key(), // key

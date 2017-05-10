@@ -73,7 +73,4 @@ public class CloudantConst {
 	public static final int RECONNECT_INTERVAL = 10;
 	//86400 seconds(24 hours)
 	public static final int RECONNECT_MAX_WAIT_TIME = 86400;
-	
-	public static final int DEFAULT_BATCH_SIZE = 1000;
-
 }

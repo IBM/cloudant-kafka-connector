@@ -35,5 +35,8 @@ public class InterfaceConst {
 	public enum GUID_SETTING {
 		KAFKA, CLOUDANT
 	};
-
+	
+	public static final int DEFAULT_BATCH_SIZE = 1000;
+	public static final int DEFAULT_TASKS_MAX = 1;
+	public static final int DEFAULT_TASK_NUMBER = 0;
 }

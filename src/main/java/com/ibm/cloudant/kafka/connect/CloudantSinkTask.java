@@ -16,6 +16,7 @@
 package com.ibm.cloudant.kafka.connect;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.kafka.common.TopicPartition;
@@ -33,7 +34,6 @@ import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
-import com.ibm.cloudant.kafka.common.utils.JsonUtil;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 
 
@@ -46,8 +46,10 @@ public class CloudantSinkTask extends SinkTask {
 	private String url = null;
 	private String userName = null;
 	private String password = null;
+	List<String> topics = null;
 	
 	private static int batch_size = 0;
+	private static int tasks_max = 0;
 	private String guid_schema = null;
 	private JSONArray jsonArray = new JSONArray();
 		
@@ -60,6 +62,7 @@ public class CloudantSinkTask extends SinkTask {
 	
 		LOG.info("Thread[" + Thread.currentThread().getId() + "].sinkRecords = " + sinkRecords.size());
 		
+		//TODO:create Threads for all topics with task.max
 		for (SinkRecord record : sinkRecords) {
 		
 			JSONObject jsonRecord;
@@ -71,7 +74,8 @@ public class CloudantSinkTask extends SinkTask {
 				jsonRecord.remove(CloudantConst.CLOUDANT_REV);
 			}
 			
-			if(jsonRecord.has(CloudantConst.CLOUDANT_DOC_ID)){
+			if(jsonRecord.has(CloudantConst.CLOUDANT_DOC_ID)){			
+				//Create guid_schema depending from property guid.schema
 				if(guid_schema.equalsIgnoreCase(InterfaceConst.GUID_SETTING.KAFKA.name())) {				
 					jsonRecord.put(CloudantConst.CLOUDANT_DOC_ID, 
 							record.topic() + "_" + 
@@ -116,8 +120,10 @@ public class CloudantSinkTask extends SinkTask {
 			url = config.getString(InterfaceConst.URL);
 			userName = config.getString(InterfaceConst.USER_NAME);
             password = config.getPassword(InterfaceConst.PASSWORD).value();
+            topics = config.getList(InterfaceConst.TOPIC);
 			
-			batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? CloudantConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
+            tasks_max = config.getInt(InterfaceConst.TASKS_MAX)==null ? InterfaceConst.DEFAULT_TASKS_MAX : config.getInt(InterfaceConst.TASKS_MAX);
+            batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? InterfaceConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
 			guid_schema = config.getString(InterfaceConst.GUID_SCHEMA) == null ? InterfaceConst.DEFAULT_GUID_SETTING : config.getString(InterfaceConst.GUID_SCHEMA); 
 
 		} catch (ConfigException e) {

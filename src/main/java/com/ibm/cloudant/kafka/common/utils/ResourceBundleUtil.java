@@ -21,8 +21,6 @@ import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
 
-import com.ibm.cloudant.kafka.connect.CloudantSourceTask;
-
 public class ResourceBundleUtil {
 	
 	private static Logger LOG = Logger.getLogger(ResourceBundleUtil.class);

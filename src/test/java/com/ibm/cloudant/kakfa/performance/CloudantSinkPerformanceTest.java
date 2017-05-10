@@ -63,7 +63,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 	@Test
 	public void testSinkPerformance() throws Exception {
 		//set parameter => init(docsNumber, topic, batch.size, tasks.max, guid.schema)
-		init(100000, "topic", 10000, 1, "kafka");
+		init(100000, 1, 10000, 1, "kafka");
 		long testTime = runTest();
 		testResults1 = addResults(testResults1, testTime);
 	}
@@ -72,7 +72,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 	@Test
 	public void testSinkPerformance2() throws Exception {
 		//set parameter => init(docsNumber, topic, batch.size, tasks.max, guid.schema)
-		init(100000, "topic2", 10000, 1, "kafka");
+		init(100000, 1, 10000, 1, "kafka");
 		long testTime = runTest();
 		testResults2 = addResults(testResults2, testTime);
 	}
@@ -81,24 +81,29 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 	@Test
 	public void testSinkPerformance3() throws Exception {
 		//set parameter => init(docsNumber, topic, batch.size, tasks.max, guid.schema)
-		init(100000, "topic3", 10000, 1, "kafka");
+		init(100000, 1, 10000, 1, "kafka");
 		long testTime = runTest();
 		testResults3 = addResults(testResults3, testTime);
 	}
 	
-	public void init(int numberDocs, String topics, int batch_size, int tasks_max, String guid_schema) {
+	public void init(int numberDocs, int numTopics, int batch_size, int tasks_max, String guid_schema) {				
+		List<String> topics = new ArrayList<String>();
 		JsonParser parser = new JsonParser();
-			
-		for(int i=0; i<numberDocs; i++) {
-			JsonObject doc = parser.parse("{\"_id\":\"doc" + i + "\","
-					+ "\"key\":\"value"+ i +"\"}").getAsJsonObject();
-					
-			sinkRecords.add(new SinkRecord(defaultProperties.getProperty(InterfaceConst.TOPIC), 0, 
-							null, null, Schema.STRING_SCHEMA, doc, i));	
-		}		
 		
+		for(int i=0; i<numTopics; i++) {
+			topics.add("topic" + i);
+		}
+		
+		for (String topic : topics) {
+			for(int i=0; i<numberDocs; i++) {		
+				JsonObject doc = parser.parse("{\"_id\":\"doc" + i + "\","
+						+ "\"key\":\"value"+ i +"\"}").getAsJsonObject();
+						
+				sinkRecords.add(new SinkRecord(topic, 0, null, null, Schema.STRING_SCHEMA, doc, i));	
+			}		
+		}
 		targetProperties.put(InterfaceConst.URL, defaultProperties.getProperty("performance.url") + "_target");
-		targetProperties.put(InterfaceConst.TOPIC, topics); //ToDO: mehrere Topics
+		targetProperties.put(InterfaceConst.TOPIC, topics.toString());
 		targetProperties.put(InterfaceConst.BATCH_SIZE, Integer.toString(batch_size));
 		targetProperties.put(InterfaceConst.TASKS_MAX, Integer.toString(tasks_max));
 		targetProperties.put(InterfaceConst.GUID_SCHEMA, guid_schema);

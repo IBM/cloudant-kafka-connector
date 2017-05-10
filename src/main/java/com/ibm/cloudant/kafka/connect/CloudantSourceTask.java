@@ -35,7 +35,6 @@ import com.cloudant.client.api.CloudantClient;
 import com.cloudant.client.api.Database;
 import com.cloudant.client.api.model.ChangesResult;
 import com.cloudant.client.api.model.ChangesResult.Row;
-import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
@@ -60,9 +59,7 @@ public class CloudantSourceTask extends SourceTask {
 	
 	private static String latestSequenceNumber = null;
 	private static int batch_size = 0;
-
-	int task_number = 0;
-	int tasks_max = 0;
+	private static int tasks_max = 0;
 
 	private static CloudantClient cantClient = null;
 	private ChangesResult cantChangeResult = null;
@@ -160,9 +157,8 @@ public class CloudantSourceTask extends SourceTask {
 			topics = config.getList(InterfaceConst.TOPIC);
 
 			latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
-			task_number = config.getInt(InterfaceConst.TASK_NUMBER);
-			tasks_max =  config.getInt(InterfaceConst.TASKS_MAX);			
-			batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? CloudantConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
+			tasks_max =  config.getInt(InterfaceConst.TASKS_MAX)==null ? InterfaceConst.DEFAULT_TASKS_MAX : config.getInt(InterfaceConst.TASKS_MAX);			
+			batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? InterfaceConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
 				
 			if (tasks_max > 1) {
 				throw new ConfigException("CouchDB _changes API only supports 1 thread. Configure tasks.max=1");
