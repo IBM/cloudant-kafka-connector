@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.kafka.common.config.ConfigException;
@@ -66,6 +68,11 @@ public class CloudantSourceTask extends SourceTask {
 	private static Database cantDB = null; 
 	private static String cantDBName = null;
 	
+	public int counter = 0;
+	public ArrayList<SourceRecord> records = new ArrayList<SourceRecord>();	
+	private ExecutorService executor = Executors.newCachedThreadPool();	
+	//private ArrayList<Thread> recordWriters = new ArrayList<Thread>();
+		
 	@Override
 	public List<SourceRecord> poll() throws InterruptedException {
 		
@@ -75,7 +82,7 @@ public class CloudantSourceTask extends SourceTask {
 		while (!stop.get()) {
 			_running.set(true);
 			
-			// the array to be returend
+			// the array to be returned
 			ArrayList<SourceRecord> records = new ArrayList<SourceRecord>();
 
 			LOG.debug("Process lastSeq: " + latestSequenceNumber);
@@ -129,6 +136,10 @@ public class CloudantSourceTask extends SourceTask {
 						records.add(sourceRecord);
 					}
 				}
+					
+			/*for(Thread recordWriter : recordWriters) {	
+				executor.execute(recordWriter);
+			}*/
 
 				LOG.info("Return " + records.size() / topics.size() + " records with last offset " 
 				+ latestSequenceNumber);
@@ -160,11 +171,31 @@ public class CloudantSourceTask extends SourceTask {
 			tasks_max =  config.getInt(InterfaceConst.TASKS_MAX)==null ? InterfaceConst.DEFAULT_TASKS_MAX : config.getInt(InterfaceConst.TASKS_MAX);			
 			batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? InterfaceConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
 				
-			if (tasks_max > 1) {
+			/*if (tasks_max > 1) {
 				throw new ConfigException("CouchDB _changes API only supports 1 thread. Configure tasks.max=1");
-			}
+			}*/
 			// Use like a semaphore to allow synchronization
 			// between poll() and stop() methods
+			
+			/*for (int i = 0; i < tasks_max && i < topics.size(); i++) {
+				//Distribute topics to tasks
+				List<String> threadTopics = new ArrayList<String>();
+				
+				if(topics.size() <= tasks_max) {
+					threadTopics = topics.subList(i, i);
+				}
+				else {
+					//uniform distribution of topics
+					for(int j = 0; j < topics.size(); j++) {
+						//if((j+1) % (i+1) == 0) threadTopics.add(topics.get(j));
+						if(i==j || j%tasks_max == i) threadTopics.add(topics.get(j));
+					}			
+				}
+		        
+				CloudantSourceRecordWriter recordWriter = new CloudantSourceRecordWriter(threadTopics);
+				recordWriters.add(new Thread(recordWriter));
+		    }*/
+												
 			_running = new AtomicBoolean(false);
 			stop = new AtomicBoolean(false);
 			
