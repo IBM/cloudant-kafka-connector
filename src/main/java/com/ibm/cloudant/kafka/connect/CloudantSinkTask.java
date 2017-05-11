@@ -72,6 +72,11 @@ public class CloudantSinkTask extends SinkTask {
 			}
 			
 			if(jsonRecord.has(CloudantConst.CLOUDANT_DOC_ID)){
+				//Add archive schema from SinkRecord when available
+				if(record.keySchema() != null) {
+					jsonRecord.put(InterfaceConst.KC_SCHEMA, record.keySchema());
+				}
+				
 				if(guid_schema.equalsIgnoreCase(InterfaceConst.GUID_SETTING.KAFKA.name())) {				
 					jsonRecord.put(CloudantConst.CLOUDANT_DOC_ID, 
 							record.topic() + "_" + 
