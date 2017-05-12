@@ -78,7 +78,7 @@ public class CloudantSinkTaskTest extends TestCase {
     	  
 		targetProperties.put(InterfaceConst.TOPIC, testProperties.getProperty(InterfaceConst.TOPIC));
 		
-		targetProperties.put(InterfaceConst.GUID_SCHEMA, testProperties.getProperty(InterfaceConst.GUID_SCHEMA));		
+		targetProperties.put(InterfaceConst.REPLICATION, testProperties.getProperty(InterfaceConst.REPLICATION));		
 	}
 
 	/**
