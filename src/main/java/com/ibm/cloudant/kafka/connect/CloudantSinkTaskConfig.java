@@ -30,8 +30,8 @@ public class CloudantSinkTaskConfig extends CloudantSinkConnectorConfig {
 		    		  Importance.LOW, InterfaceConst.BATCH_SIZE)
 		      .define(InterfaceConst.TASKS_MAX, Type.INT, InterfaceConst.DEFAULT_TASKS_MAX,
 		    		  Importance.LOW, InterfaceConst.TASKS_MAX)
-		      .define(InterfaceConst.GUID_SCHEMA, Type.STRING, InterfaceConst.DEFAULT_GUID_SETTING,
-		    		  Importance.LOW, InterfaceConst.GUID_SCHEMA);
+		      .define(InterfaceConst.REPLICATION, Type.BOOLEAN, InterfaceConst.DEFAULT_REPLICATION,
+		    		  Importance.LOW, InterfaceConst.REPLICATION);
 	
 	public CloudantSinkTaskConfig(Map<String, String> originals) {
 		super(config, originals);

@@ -16,12 +16,9 @@
 package com.ibm.cloudant.kafka.connect;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.errors.ConnectException;
@@ -54,13 +51,16 @@ public class CloudantSinkTask extends SinkTask {
 	public static int batch_size = 0;
 	private static int tasks_max = 0;
 	public static String guid_schema = null;
+	private Boolean replication;
 	public static volatile JSONArray jsonArray = new JSONArray();
+
 	
 	@Override
 	public String version() {
 		 return new CloudantSinkConnector().version();
 	}
 
+	
 	@Override
 	public void put(Collection<SinkRecord> sinkRecords) {
 	
@@ -79,24 +79,27 @@ public class CloudantSinkTask extends SinkTask {
 			}
 			
 			if(jsonRecord.has(CloudantConst.CLOUDANT_DOC_ID)){			
-				//Create guid_schema depending from property guid.schema
-				if(guid_schema.equalsIgnoreCase(InterfaceConst.GUID_SETTING.KAFKA.name())) {				
+				if(replication == false) {
+					//Add archive schema from SinkRecord when available
+					jsonRecord.put(InterfaceConst.KC_SCHEMA, record.keySchema());
+					
+					//Create object id from kafka
 					jsonRecord.put(CloudantConst.CLOUDANT_DOC_ID, 
 							record.topic() + "_" + 
 							record.kafkaPartition().toString() + "_" + 
 							Long.toString(record.kafkaOffset()) + "_" + 
 							jsonRecord.get(CloudantConst.CLOUDANT_DOC_ID));	
 				}
-				else if (guid_schema.equalsIgnoreCase(InterfaceConst.GUID_SETTING.CLOUDANT.name())) {
-					// Do Nothing => Mirror from Cloundant Obj
-				}
-				else {
+				//OPTION B: IF replication == true => Do Nothing => Create mirror from Cloudant object
+				
+				//OPTION C (not implemented): generate new id with  cloudant 
+				/*else {
 					LOG.info(MessageKey.GUID_SCHEMA + ": " + guid_schema);
 					LOG.warn(CloudantConst.CLOUDANT_DOC_ID + "from source database will removed");
 					
 					//remove Cloudant _id
 					jsonRecord.remove(CloudantConst.CLOUDANT_DOC_ID);
-				}
+				}*/
 			}					
 			jsonArray.put(jsonRecord);
 			
@@ -115,7 +118,7 @@ public class CloudantSinkTask extends SinkTask {
 	}
 
 	
- 	@Override
+	@Override
 	public void start(Map<String, String> props) {
  		
  		try {
@@ -124,16 +127,13 @@ public class CloudantSinkTask extends SinkTask {
 			url = config.getString(InterfaceConst.URL);
 			userName = config.getString(InterfaceConst.USER_NAME);
             password = config.getPassword(InterfaceConst.PASSWORD).value();
-            topics = config.getList(InterfaceConst.TOPIC);
-			
+            topics = config.getList(InterfaceConst.TOPIC);			
             tasks_max = config.getInt(InterfaceConst.TASKS_MAX)==null ? InterfaceConst.DEFAULT_TASKS_MAX : config.getInt(InterfaceConst.TASKS_MAX);
-            batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? InterfaceConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
-			guid_schema = config.getString(InterfaceConst.GUID_SCHEMA) == null ? InterfaceConst.DEFAULT_GUID_SETTING : config.getString(InterfaceConst.GUID_SCHEMA); 
-
+			batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? InterfaceConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);			
+			replication = config.getBoolean(InterfaceConst.REPLICATION) == null ? InterfaceConst.DEFAULT_REPLICATION : config.getBoolean(InterfaceConst.REPLICATION); 
 		} catch (ConfigException e) {
 			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION), e);
 		}
-
 	}
 
 	@Override

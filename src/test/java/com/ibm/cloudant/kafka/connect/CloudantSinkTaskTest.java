@@ -65,7 +65,20 @@ public class CloudantSinkTaskTest extends TestCase {
 		testProperties.load(new FileReader(new File("src/test/resources/test.properties")));
 		targetProperties = ConnectorUtils.getTargetProperties(testProperties);
 		
-		task = new CloudantSinkTask();	      		
+		task = new CloudantSinkTask();
+	      
+		targetProperties = new HashMap<String, String>();
+		
+		targetProperties.put(InterfaceConst.URL, testProperties.getProperty(InterfaceConst.URL));
+		targetProperties.put(InterfaceConst.USER_NAME, testProperties.getProperty(InterfaceConst.USER_NAME));
+		targetProperties.put(InterfaceConst.PASSWORD, testProperties.getProperty(InterfaceConst.PASSWORD));
+	
+		targetProperties.put(InterfaceConst.TASKS_MAX, testProperties.getProperty(InterfaceConst.TASKS_MAX));
+		targetProperties.put(InterfaceConst.BATCH_SIZE, testProperties.getProperty(InterfaceConst.BATCH_SIZE));
+    	  
+		targetProperties.put(InterfaceConst.TOPIC, testProperties.getProperty(InterfaceConst.TOPIC));
+		
+		targetProperties.put(InterfaceConst.REPLICATION, testProperties.getProperty(InterfaceConst.REPLICATION));		
 	}
 
 	/**
