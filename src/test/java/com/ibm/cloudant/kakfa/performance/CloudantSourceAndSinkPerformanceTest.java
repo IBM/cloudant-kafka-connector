@@ -62,7 +62,7 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
 	@Test
 	public void testSourceAndSinkPerformance() throws Exception {
 		//set parameter => init(topic, batch.size, tasks.max, guid.schema)
-		init("topic", 10000, 1, "kafka");
+		init("topic", 10000, 1, false);
 		long testTime = runTest();
 		testResults1 = addResults(testResults1, testTime);
 	}
@@ -71,7 +71,7 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
 	@Test
 	public void testSourceAndSinkPerformance2() throws Exception {
 		//set parameter => init(topic, batch.size, tasks.max, guid.schema)
-		init("topic2", 10000, 1, "kafka");
+		init("topic2", 10000, 1, false);
 		long testTime = runTest();
 		testResults2 = addResults(testResults2, testTime);
 	}
@@ -80,12 +80,12 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
 	@Test
 	public void testSourceAndSinkPerformance3() throws Exception {
 		//set parameter => init(topic, batch.size, tasks.max, guid.schema)
-		init("topic3", 10000, 1, "kafka");
+		init("topic3", 10000, 1, false);
 		long testTime = runTest();
 		testResults3 = addResults(testResults3, testTime);
 	}
 	
-	public void init(String topics, int batch_size, int tasks_max, String guid_schema) {
+	public void init(String topics, int batch_size, int tasks_max, Boolean replication) {
 		//set SourceProperties for SourceTasks
 		sourceProperties.put(InterfaceConst.URL, defaultProperties.getProperty("performance.url"));
 		sourceProperties.put(InterfaceConst.TOPIC, topics);
@@ -97,7 +97,7 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
 		targetProperties.put(InterfaceConst.TOPIC, topics);
 		targetProperties.put(InterfaceConst.BATCH_SIZE, Integer.toString(batch_size));
 		targetProperties.put(InterfaceConst.TASKS_MAX, Integer.toString(tasks_max));
-		targetProperties.put(InterfaceConst.GUID_SCHEMA, guid_schema);
+		targetProperties.put(InterfaceConst.REPLICATION, replication.toString());
 	}
 	
 	public long runTest() throws Exception {										
@@ -163,7 +163,7 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
 			results.addProperty(InterfaceConst.TOPIC, targetProperties.get(InterfaceConst.TOPIC));
 			results.addProperty(InterfaceConst.BATCH_SIZE, targetProperties.get(InterfaceConst.BATCH_SIZE));
 			results.addProperty(InterfaceConst.TASKS_MAX, targetProperties.get(InterfaceConst.TASKS_MAX));
-			results.addProperty(InterfaceConst.GUID_SCHEMA, targetProperties.get(InterfaceConst.GUID_SCHEMA));
+			results.addProperty(InterfaceConst.REPLICATION, targetProperties.get(InterfaceConst.REPLICATION));
 			results.add("testTimes", testTimes);	
 		}
 		else {

@@ -63,7 +63,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 	@Test
 	public void testSinkPerformance() throws Exception {
 		//set parameter => init(docsNumber, topic, batch.size, tasks.max, guid.schema)
-		init(100000, 1, 10000, 1, "kafka");
+		init(100000, 1, 10000, 1, false);
 		long testTime = runTest();
 		testResults1 = addResults(testResults1, testTime);
 	}
@@ -72,7 +72,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 	@Test
 	public void testSinkPerformance2() throws Exception {
 		//set parameter => init(docsNumber, topic, batch.size, tasks.max, guid.schema)
-		init(100000, 1, 10000, 1, "kafka");
+		init(100000, 1, 10000, 1, false);
 		long testTime = runTest();
 		testResults2 = addResults(testResults2, testTime);
 	}
@@ -81,12 +81,12 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 	@Test
 	public void testSinkPerformance3() throws Exception {
 		//set parameter => init(docsNumber, topic, batch.size, tasks.max, guid.schema)
-		init(100000, 1, 10000, 1, "kafka");
+		init(100000, 1, 10000, 1, false);
 		long testTime = runTest();
 		testResults3 = addResults(testResults3, testTime);
 	}
 	
-	public void init(int numberDocs, int numTopics, int batch_size, int tasks_max, String guid_schema) {				
+	public void init(int numberDocs, int numTopics, int batch_size, int tasks_max, Boolean replication) {				
 		List<String> topics = new ArrayList<String>();
 		JsonParser parser = new JsonParser();
 		
@@ -106,7 +106,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 		targetProperties.put(InterfaceConst.TOPIC, topics.toString());
 		targetProperties.put(InterfaceConst.BATCH_SIZE, Integer.toString(batch_size));
 		targetProperties.put(InterfaceConst.TASKS_MAX, Integer.toString(tasks_max));
-		targetProperties.put(InterfaceConst.GUID_SCHEMA, guid_schema);
+		targetProperties.put(InterfaceConst.REPLICATION, replication.toString());
 	}
 	
 	public JsonObject addResults(JsonObject results, long testTime) {
@@ -120,7 +120,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 			results.addProperty(InterfaceConst.TOPIC, targetProperties.get(InterfaceConst.TOPIC));
 			results.addProperty(InterfaceConst.BATCH_SIZE, targetProperties.get(InterfaceConst.BATCH_SIZE));
 			results.addProperty(InterfaceConst.TASKS_MAX, targetProperties.get(InterfaceConst.TASKS_MAX));
-			results.addProperty(InterfaceConst.GUID_SCHEMA, targetProperties.get(InterfaceConst.GUID_SCHEMA));
+			results.addProperty(InterfaceConst.REPLICATION, targetProperties.get(InterfaceConst.REPLICATION));
 			results.add("testTimes", testTimes);	
 		}
 		else {

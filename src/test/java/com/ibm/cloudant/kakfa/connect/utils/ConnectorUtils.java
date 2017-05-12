@@ -56,7 +56,7 @@ public class ConnectorUtils {
 		  
 		targetProperties.put(InterfaceConst.TOPIC, testProperties.getProperty(InterfaceConst.TOPIC));
 		
-		targetProperties.put(InterfaceConst.GUID_SCHEMA, testProperties.getProperty(InterfaceConst.GUID_SCHEMA));
+		targetProperties.put(InterfaceConst.REPLICATION, testProperties.getProperty(InterfaceConst.REPLICATION));
 		
 		return targetProperties;
 	}
@@ -69,7 +69,7 @@ public class ConnectorUtils {
 		System.out.print(InterfaceConst.TOPIC + ": " + testResults.get(InterfaceConst.TOPIC));
 		System.out.print("; " + InterfaceConst.BATCH_SIZE + ": " + testResults.get(InterfaceConst.BATCH_SIZE));
 		System.out.print("; " + InterfaceConst.TASKS_MAX + ": " + testResults.get(InterfaceConst.TASKS_MAX));
-		if(testResults.has(InterfaceConst.GUID_SCHEMA)) System.out.print("; " + InterfaceConst.GUID_SCHEMA + ": " + testResults.get(InterfaceConst.GUID_SCHEMA));
+		if(testResults.has(InterfaceConst.REPLICATION)) System.out.print("; " + InterfaceConst.REPLICATION + ": " + testResults.get(InterfaceConst.REPLICATION));
 		
 		//Show TestResults
 		System.out.print("\nTime: " + average(getTestTimes(testResults))/1000f + " Seconds");
