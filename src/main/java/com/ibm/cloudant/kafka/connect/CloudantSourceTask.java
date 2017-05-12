@@ -235,7 +235,7 @@ public class CloudantSourceTask extends SourceTask {
 	}
 
 	@Override
-	public void stop() {
+	public synchronized void stop() {
 		if (stop != null) {
 			stop.set(true);
 		}

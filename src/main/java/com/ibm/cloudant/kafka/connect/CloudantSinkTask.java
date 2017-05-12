@@ -16,9 +16,12 @@
 package com.ibm.cloudant.kafka.connect;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.errors.ConnectException;
@@ -48,11 +51,12 @@ public class CloudantSinkTask extends SinkTask {
 	private String password = null;
 	List<String> topics = null;
 	
-	private static int batch_size = 0;
+	public static int batch_size = 0;
 	private static int tasks_max = 0;
-	private String guid_schema = null;
-	private JSONArray jsonArray = new JSONArray();
-		
+	public static String guid_schema = null;
+	public static volatile JSONArray jsonArray = new JSONArray();
+	
+	@Override
 	public String version() {
 		 return new CloudantSinkConnector().version();
 	}
