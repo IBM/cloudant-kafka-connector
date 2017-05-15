@@ -48,7 +48,7 @@ public class CloudantSinkTask extends SinkTask {
 	private String password = null;
 	
 	private static int batch_size = 0;
-	private String guid_schema = null;
+	private Boolean replication;
 	private JSONArray jsonArray = new JSONArray();
 		
 	public String version() {
@@ -71,29 +71,28 @@ public class CloudantSinkTask extends SinkTask {
 				jsonRecord.remove(CloudantConst.CLOUDANT_REV);
 			}
 			
-			if(jsonRecord.has(CloudantConst.CLOUDANT_DOC_ID)){
-				//Add archive schema from SinkRecord when available
-				if(record.keySchema() != null) {
-					jsonRecord.put(InterfaceConst.KC_SCHEMA, record.keySchema());
-				}
-				
-				if(guid_schema.equalsIgnoreCase(InterfaceConst.GUID_SETTING.KAFKA.name())) {				
+			if(jsonRecord.has(CloudantConst.CLOUDANT_DOC_ID)){			
+				if(replication == false) {
+					//Add archive schema from SinkRecord when available
+					jsonRecord.put(InterfaceConst.KC_SCHEMA, record.valueSchema());
+					
+					//Create object id from kafka
 					jsonRecord.put(CloudantConst.CLOUDANT_DOC_ID, 
 							record.topic() + "_" + 
 							record.kafkaPartition().toString() + "_" + 
 							Long.toString(record.kafkaOffset()) + "_" + 
 							jsonRecord.get(CloudantConst.CLOUDANT_DOC_ID));	
 				}
-				else if (guid_schema.equalsIgnoreCase(InterfaceConst.GUID_SETTING.CLOUDANT.name())) {
-					// Do Nothing => Mirror from Cloundant Obj
-				}
-				else {
+				//OPTION B: IF replication == true => Do Nothing => Create mirror from Cloudant object
+				
+				//OPTION C (not implemented): generate new id with  cloudant 
+				/*else {
 					LOG.info(MessageKey.GUID_SCHEMA + ": " + guid_schema);
 					LOG.warn(CloudantConst.CLOUDANT_DOC_ID + "from source database will removed");
 					
 					//remove Cloudant _id
 					jsonRecord.remove(CloudantConst.CLOUDANT_DOC_ID);
-				}
+				}*/
 			}					
 			jsonArray.put(jsonRecord);
 			
@@ -122,9 +121,9 @@ public class CloudantSinkTask extends SinkTask {
 			userName = config.getString(InterfaceConst.USER_NAME);
             password = config.getPassword(InterfaceConst.PASSWORD).value();
 			
-			batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? CloudantConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
-			guid_schema = config.getString(InterfaceConst.GUID_SCHEMA) == null ? InterfaceConst.DEFAULT_GUID_SETTING : config.getString(InterfaceConst.GUID_SCHEMA); 
-
+			batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? CloudantConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);			
+			replication = config.getBoolean(InterfaceConst.REPLICATION) == null ? InterfaceConst.DEFAULT_REPLICATION : config.getBoolean(InterfaceConst.REPLICATION); 
+						
 		} catch (ConfigException e) {
 			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION), e);
 		}
