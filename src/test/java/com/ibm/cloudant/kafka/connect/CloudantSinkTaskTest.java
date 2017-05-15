@@ -118,19 +118,19 @@ public class CloudantSinkTaskTest extends TestCase {
 		kcschema.addProperty("type", "STRING");
 		kcschema.addProperty("optional", false);		
 		
-		doc1.add("kcschema", kcschema);
+		doc1.add(InterfaceConst.KC_SCHEMA, kcschema);
 		doc1.addProperty("_id", 
 				targetProperties.get(InterfaceConst.TOPIC) + 
 				"_" + 0 + "_" + doc1.get("number") + 
 				"_" + doc1.get("_id").getAsString());	
 		
-		doc2.add("kcschema", kcschema);
+		doc2.add(InterfaceConst.KC_SCHEMA, kcschema);
 		doc2.addProperty("_id", 
 				targetProperties.get(InterfaceConst.TOPIC) + 
 				"_" + 0 + "_" + doc2.get("number") + 
 				"_" + doc2.get("_id").getAsString());
 		
-		doc3.add("kcschema", kcschema);
+		doc3.add(InterfaceConst.KC_SCHEMA, kcschema);
 		doc3.addProperty("_id", 
 				targetProperties.get(InterfaceConst.TOPIC) + 
 				"_" + 0 + "_" + doc3.get("number") + 
