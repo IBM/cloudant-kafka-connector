@@ -65,7 +65,7 @@ cloudant.db.username|\<username\>|YES|None|The Cloudant username to use for auth
 cloudant.db.password|\<password\>|YES|None|The Cloudant password to use for authentication.
 tasks.max|5|NO|1|The number of concurrent threads to use for parallel bulk insert into Cloudant.
 batch.size|400|NO|1000|The maximum number of documents to commit with a single bulk insert.
-guid.schema|kafka|NO|kafka|The used schema to create ids for the Cloundant objects. Type of schemas: kafka [\<topic-name\>\_\<partition\>\_\<offset>\_\<sourceCloudantObjectId\>] or [\<sourceCloudantObjectId\>] 
+replication|false|NO|false|Managed object schema in sink database <br>*true: duplicate objects from source <br>false: adjust objects from source (\_id = [\<topic-name\>\_\<partition\>\_\<offset>\_\<sourceCloudantObjectId\>], kc.schema = Kafka value schema)*
 
 ## Usage
 
