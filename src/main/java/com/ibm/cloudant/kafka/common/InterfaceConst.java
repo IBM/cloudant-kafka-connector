@@ -35,5 +35,5 @@ public class InterfaceConst {
 	
 	public final static String REPLICATION = "replication";	
 	public final static Boolean DEFAULT_REPLICATION = false;
-	public final static String KC_SCHEMA = "kcschema";
+	public final static String KC_SCHEMA = "kc_schema";
 }

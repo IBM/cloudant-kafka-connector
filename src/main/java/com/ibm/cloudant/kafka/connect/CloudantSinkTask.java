@@ -81,7 +81,7 @@ public class CloudantSinkTask extends SinkTask {
 			if(jsonRecord.has(CloudantConst.CLOUDANT_DOC_ID)){			
 				if(replication == false) {
 					//Add archive schema from SinkRecord when available
-					jsonRecord.put(InterfaceConst.KC_SCHEMA, record.keySchema());
+					jsonRecord.put(InterfaceConst.KC_SCHEMA, record.valueSchema());
 					
 					//Create object id from kafka
 					jsonRecord.put(CloudantConst.CLOUDANT_DOC_ID, 
