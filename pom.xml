@@ -14,7 +14,7 @@
 	
 	<groupId>com.ibm.cloudant</groupId>
 	<artifactId>kafka-connect-cloudant</artifactId>
-	<version>2017-05-15</version>
+	<version>2017-05-18</version>
 	<name>kafka-connect-cloudant</name>
 	<description>Kafka Connect Cloudant connector</description>
 

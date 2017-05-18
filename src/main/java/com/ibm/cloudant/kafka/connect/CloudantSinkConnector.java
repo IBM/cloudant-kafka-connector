@@ -27,6 +27,7 @@ import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.SinkConnector;
 import org.apache.log4j.Logger;
 
+import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 
@@ -61,14 +62,18 @@ public class CloudantSinkConnector extends SinkConnector {
 
 	@Override
 	public List<Map<String, String>> taskConfigs(int maxTasks) {
-		try {
-			Map<String, String> taskProps = new HashMap<String, String>(configProperties);
+		
+		try {			
+			ArrayList<String> topics = ResourceBundleUtil.balanceTopicsTasks(configProperties, maxTasks);
+			int topicsLength = ResourceBundleUtil.numberOfTopics(configProperties);
 			List<Map<String, String>> taskConfigs = new ArrayList<Map<String, String>>(maxTasks);
-
-			for (int i = 0; i < maxTasks; ++i) {
+			
+			for (int i = 0; i < maxTasks; i++) {
+				Map<String, String> taskProps = new HashMap<String, String>(configProperties);		
 				// add task specific properties here (if any)
-				// taskProps.put(CloudantSourceTaskConfig.PROPERTY, value);
-
+				taskProps.put(InterfaceConst.TASK_NUMBER, String.valueOf(i));
+				taskProps.replace(InterfaceConst.TOPIC, topics.get(i % topicsLength));
+				
 				taskConfigs.add(taskProps);
 			}
 			return taskConfigs;		

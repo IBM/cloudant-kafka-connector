@@ -49,7 +49,7 @@ public class CloudantSinkTask extends SinkTask {
 	List<String> topics = null;
 	
 	public static int batch_size = 0;
-	private static int tasks_max = 0;
+	private int taskNumber;
 	public static String guid_schema = null;
 	private Boolean replication;
 	public static volatile JSONArray jsonArray = new JSONArray();
@@ -61,14 +61,13 @@ public class CloudantSinkTask extends SinkTask {
 	}
 
 	
+	//TODO: all sinkRecords in first Thread
 	@Override
 	public void put(Collection<SinkRecord> sinkRecords) {
 	
 		LOG.info("Thread[" + Thread.currentThread().getId() + "].sinkRecords = " + sinkRecords.size());
 		
-		//TODO:create Threads for all topics with task.max
-		for (SinkRecord record : sinkRecords) {
-		
+		for (SinkRecord record : sinkRecords) {		
 			JSONObject jsonRecord;
 		
 			JSONTokener tokener = new JSONTokener(record.value().toString());		
@@ -117,7 +116,11 @@ public class CloudantSinkTask extends SinkTask {
 		// reader.finish();
 	}
 
-	
+	/**
+    * Start the Task. Handles configuration parsing and one-time setup of the task.
+    *
+    * @param props initial configuration
+    */
 	@Override
 	public void start(Map<String, String> props) {
  		
@@ -127,9 +130,12 @@ public class CloudantSinkTask extends SinkTask {
 			url = config.getString(InterfaceConst.URL);
 			userName = config.getString(InterfaceConst.USER_NAME);
             password = config.getPassword(InterfaceConst.PASSWORD).value();
-            topics = config.getList(InterfaceConst.TOPIC);			
-            tasks_max = config.getInt(InterfaceConst.TASKS_MAX)==null ? InterfaceConst.DEFAULT_TASKS_MAX : config.getInt(InterfaceConst.TASKS_MAX);
-			batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? InterfaceConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);			
+            taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
+            
+            //TODO: split topics from Connector
+            topics = config.getList(InterfaceConst.TOPIC);
+            
+            batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? InterfaceConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);			
 			replication = config.getBoolean(InterfaceConst.REPLICATION) == null ? InterfaceConst.DEFAULT_REPLICATION : config.getBoolean(InterfaceConst.REPLICATION); 
 		} catch (ConfigException e) {
 			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION), e);

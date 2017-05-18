@@ -56,10 +56,10 @@ public class CloudantSourceTask extends SourceTask {
 	String userName = null;
 	String password = null;
 	List<String> topics = null;
+	int taskNumber;
 	
 	private static String latestSequenceNumber = null;
 	private static int batch_size = 0;
-	private static int tasks_max = 0;
 
 	private static CloudantClient cantClient = null;
 	private ChangesResult cantChangeResult = null;
@@ -157,7 +157,7 @@ public class CloudantSourceTask extends SourceTask {
 			userName = config.getString(InterfaceConst.USER_NAME);
 			password = config.getPassword(InterfaceConst.PASSWORD).value();
 			topics = config.getList(InterfaceConst.TOPIC);
-			tasks_max = config.getInt(InterfaceConst.TASKS_MAX)==null ? InterfaceConst.DEFAULT_TASKS_MAX : config.getInt(InterfaceConst.TASKS_MAX);
+			taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
 
 			latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
 			batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? InterfaceConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
