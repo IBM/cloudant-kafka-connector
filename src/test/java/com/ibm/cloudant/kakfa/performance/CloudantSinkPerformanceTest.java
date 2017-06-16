@@ -52,14 +52,14 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 				defaultProperties.get(InterfaceConst.USER_NAME).toString(),
 				defaultProperties.get(InterfaceConst.PASSWORD).toString());
 		
-		//Create Connectors	
+		//Create Connector
 		sinkTask = new CloudantSinkTask();		
 		
 		//Create Kafka SinkRecord
 		sinkRecords = new ArrayList<SinkRecord>();
 	}
 	
-	@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 0)
+	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
 	@Test
 	public void testSinkPerformance() throws Exception {
 		//set parameter => init(docsNumber, topic, batch.size, tasks.max, guid.schema)
@@ -68,7 +68,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 		testResults1 = addResults(testResults1, testTime);
 	}
 	
-	@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 0)
+	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
 	@Test
 	public void testSinkPerformance2() throws Exception {
 		//set parameter => init(docsNumber, topic, batch.size, tasks.max, guid.schema)
@@ -77,7 +77,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 		testResults2 = addResults(testResults2, testTime);
 	}
 	
-	@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 0)
+	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
 	@Test
 	public void testSinkPerformance3() throws Exception {
 		//set parameter => init(docsNumber, topic, batch.size, tasks.max, guid.schema)
@@ -96,8 +96,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 		
 		for (String topic : topics) {
 			for(int i=0; i<numberDocs; i++) {		
-				JsonObject doc = parser.parse("{\"_id\":\"doc" + i + "\","
-						+ "\"key\":\"value"+ i +"\"}").getAsJsonObject();
+				JsonObject doc = parser.parse("{\"_id\":\"" + i + "\"}").getAsJsonObject();
 						
 				sinkRecords.add(new SinkRecord(topic, 0, null, null, Schema.STRING_SCHEMA, doc, i));	
 			}		
@@ -145,7 +144,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 		
 		long endTime = System.currentTimeMillis();
 		
-		//stop sourceTask		
+		//3. Stop sourceTask		
 		sinkTask.stop();
 		
 		return endTime - startTime;

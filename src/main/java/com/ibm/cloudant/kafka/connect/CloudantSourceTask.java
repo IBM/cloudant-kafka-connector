@@ -123,7 +123,9 @@ public class CloudantSourceTask extends SourceTask {
 					// Emit the record to every topic configured
 					for (String topic : topics) {
 						SourceRecord sourceRecord = new SourceRecord(offsetKey(url), 
-								offsetValue(latestSequenceNumber), topic,
+								offsetValue(latestSequenceNumber), 
+								topic, // topics 
+								//Integer.valueOf(row_.getId())%3, // partition
 								Schema.STRING_SCHEMA, // key schema
 								row_.getId(), // key
 								Schema.STRING_SCHEMA, // value schema

@@ -172,5 +172,17 @@ public class CloudantSinkTask extends SinkTask {
 			jsonArray = new JSONArray(); ;
 		}
 	}
+	
+	@Override
+	public void open(Collection<TopicPartition> partitions) {
+		LOG.info("Committed ");
+		TopicPartition partition = new TopicPartition(topics.get(taskNumber), taskNumber);		
+		partitions.add(partition);
+	}
+	
+	@Override
+	public void close(Collection<TopicPartition> partitions) {
+		LOG.info("Committed ");
+	}
 
 }

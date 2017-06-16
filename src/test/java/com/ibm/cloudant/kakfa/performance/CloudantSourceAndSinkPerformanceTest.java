@@ -3,16 +3,20 @@ package com.ibm.cloudant.kakfa.performance;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.kafka.connect.connector.ConnectorContext;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
+import org.powermock.api.easymock.PowerMock;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
@@ -21,22 +25,36 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
+import com.ibm.cloudant.kafka.connect.CloudantSinkConnector;
 import com.ibm.cloudant.kafka.connect.CloudantSinkTask;
+import com.ibm.cloudant.kafka.connect.CloudantSourceConnector;
 import com.ibm.cloudant.kafka.connect.CloudantSourceTask;
 import com.ibm.cloudant.kakfa.connect.utils.CloudantDbUtils;
 import com.ibm.cloudant.kakfa.connect.utils.ConnectorUtils;
 
 public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {	
-	private static Database sourceDb;
+	private static Database targetDb;	
 	private static JsonObject testResults1 = new JsonObject();
 	private static JsonObject testResults2 = new JsonObject();
 	private static JsonObject testResults3 = new JsonObject();
-	
+		
 	private Properties defaultProperties;
 	private Map<String, String> sourceProperties;  	
 	private Map<String, String> targetProperties; 
-	private CloudantSourceTask sourceTask;	
+	
+	private CloudantSinkConnector sinkConnector;
+	private CloudantSourceConnector sourceConnector;
+	private ConnectorContext context;
+	
 	private CloudantSinkTask sinkTask;
+	private CloudantSourceTask sourceTask;
+	
+	private List<SourceRecord> sourceRecords;
+	private List<SinkRecord> sinkRecords;
+	private List<SinkRecord> tempRecords;
+	
+	private AtomicBoolean _runningSourceThread;
+	private AtomicBoolean _runningSinkThread;
 	
 	@Before
 	public void setUp() throws Exception {	
@@ -48,39 +66,50 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
 		sourceProperties.put(InterfaceConst.URL, defaultProperties.getProperty("performance.url"));
 		targetProperties = ConnectorUtils.getTargetProperties(defaultProperties);
 		
-		// Get the source database handle
-		sourceDb = JavaCloudantUtil.getDBInst(
-				defaultProperties.getProperty("performance.url"), 
+		//Create SinkConnector
+		sinkConnector = new CloudantSinkConnector();
+        context = PowerMock.createMock(ConnectorContext.class);
+        sinkConnector.initialize(context);
+		
+		//Create SourceConnector
+        sourceConnector = new CloudantSourceConnector();
+        context = PowerMock.createMock(ConnectorContext.class);
+        sourceConnector.initialize(context);
+			
+		// Create a _target database to replicate data into	
+		targetDb = JavaCloudantUtil.getDBInst(defaultProperties.getProperty("performance.url") + "_target", 
 				defaultProperties.get(InterfaceConst.USER_NAME).toString(),
 				defaultProperties.get(InterfaceConst.PASSWORD).toString());
 		
 		//Create Sink Connector	
-		sinkTask = new CloudantSinkTask();				
+		sourceTask = new CloudantSourceTask();		
+		sinkTask = new CloudantSinkTask();
 	}
 	
-	@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 0)
+	//BATCHSIZE
+	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
 	@Test
 	public void testSourceAndSinkPerformance() throws Exception {
 		//set parameter => init(topic, batch.size, tasks.max, guid.schema)
-		init("topic", 10000, 1, false);
-		long testTime = runTest();
+		init("t01", 10000, 1, false);
+		long testTime = runTest();			
 		testResults1 = addResults(testResults1, testTime);
 	}
 	
-	@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 0)
+	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
 	@Test
 	public void testSourceAndSinkPerformance2() throws Exception {
 		//set parameter => init(topic, batch.size, tasks.max, guid.schema)
-		init("topic2", 10000, 1, false);
+		init("t02", 10000, 1, false);
 		long testTime = runTest();
 		testResults2 = addResults(testResults2, testTime);
 	}
 	
-	@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 0)
+	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
 	@Test
 	public void testSourceAndSinkPerformance3() throws Exception {
 		//set parameter => init(topic, batch.size, tasks.max, guid.schema)
-		init("topic3", 10000, 1, false);
+		init("t03", 10000, 1, false);
 		long testTime = runTest();
 		testResults3 = addResults(testResults3, testTime);
 	}
@@ -100,55 +129,107 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
 		targetProperties.put(InterfaceConst.REPLICATION, replication.toString());
 	}
 	
-	public long runTest() throws Exception {										
-		// 1. Trigger sourceTask to get a batch of records
-		sourceTask = ConnectorUtils.createCloudantSourceConnector(sourceProperties);
-		sourceTask.start(sourceProperties);	
-		List<SourceRecord> sourceRecords = new ArrayList<SourceRecord>();
+	public long runTest() throws Exception {																						
+		// 1. Set variables								
+		sinkRecords = new ArrayList<SinkRecord>();
+		sourceRecords = new ArrayList<SourceRecord>();	
+		tempRecords = Collections.synchronizedList(new ArrayList<SinkRecord>());
 		
-		// 2. Trigger sinkTask
+		_runningSourceThread = new AtomicBoolean(true);
+		_runningSinkThread = new AtomicBoolean(true);	
+		
+		// 2. Start source and sink task
+		sourceTask.start(sourceProperties);
 		sinkTask.start(targetProperties);	
-		List<SinkRecord> sinkRecords = new ArrayList<SinkRecord>();
-		//HashMap<TopicPartition, OffsetAndMetadata> offsets = new HashMap<TopicPartition, OffsetAndMetadata>();
+									
+		// 3. Thread for source tasks
+		Thread threadSourceTask = new Thread() {			  			
+			public void run() {		
+				  try {	  
+					  do {				  								
+						  sourceRecords = sourceTask.poll();	
+						  for (SourceRecord record : sourceRecords) {
+								SinkRecord sinkRecord = new SinkRecord(
+										record.topic(), // topic
+										0, // partition
+										record.keySchema(), // key schema
+										record.key(), // key
+										record.valueSchema(), // value schema
+										record.value(),  // value
+										0); // offset
+								sinkRecords.add(sinkRecord);
+							}
+						  	
+						  	synchronized(tempRecords){
+							  tempRecords.addAll(sinkRecords);
+						  	}				  					  
+						  	sinkRecords.clear();
+					  
+					  } while (sourceRecords.size() > 0);
+					  
+					  _runningSourceThread.set(false);				  
+				  } catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				  }					  
+			  	}
+		};
 				
-		// 3. SourceAndSinkTask => MeasureTime
+		// 4. Thread for sink tasks
+		Thread threadSinkTask = new Thread() {
+		  public void run() {		  					    		    		  
+			  try {				  	
+				  do {	  					  			  
+					  if((tempRecords.size() == 0)) {
+						  Thread.sleep(100);
+					  }
+					  else {		 					  						  
+						  synchronized(tempRecords){
+							  sinkTask.put(tempRecords);
+							  //tempRecords.remove(x);
+							  tempRecords.clear();
+						  }							  
+					  }
+				  } while (sourceRecords.size() > 0 || tempRecords.size() > 0 || targetDb.info().getDocCount() == 0);
+				  
+				  _runningSinkThread.set(false);			  
+			  } catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+			  }		  
+		  	}		  			
+		 };
+								
+		// 5. Start Threads and measure time
 		long startTime = System.currentTimeMillis();	
-		do {
-
-			// 3a. Get a batch of source records
-			sourceRecords = sourceTask.poll();
-
-			// Process every source record into a corresponding sink record
-			// - 1 partition
-			// - no schema
-			// - no offset
-			for (SourceRecord record : sourceRecords) {
-				SinkRecord sinkRecord = new SinkRecord(
-						record.topic(), // topic
-						0, // partition
-						record.keySchema(), // key schema
-						record.key(), // key
-						record.valueSchema(), // value schema
-						record.value(),  // value
-						0); // offset
-				sinkRecords.add(sinkRecord);
+		
+		threadSourceTask.start(); 
+		threadSinkTask.start();
+		 
+		// 5. Test Thread are running	
+		while (_runningSourceThread.get() || _runningSinkThread.get()) {		
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				//LOG.error(e);
 			}
-
-			// 3b. Put all sinkRecords to the sink task
-			sinkTask.put(sinkRecords);
-			sinkRecords.clear();
-
-		} while (sourceRecords.size() > 0);
+		}	
+		
 		long endTime = System.currentTimeMillis();
 		
-		// 4. Flush the latest set of records in case the batch has not been committed
+		
+		// 6. Stop Threads
+		threadSourceTask.interrupt();
+		threadSinkTask.interrupt();
+		
+		// 7. Flush the latest set of records in case the batch has not been committed
 		sinkTask.flush(null);
-				
-		// 5. Stop source and target task				
+		sinkRecords.clear();
+		
+		// 8. Stop source and target task				
 		sourceTask.stop();
 		sinkTask.stop();
-		
-		return endTime - startTime;
+		return endTime - startTime;							
 	}
 	
 	public JsonObject addResults(JsonObject results, long testTime) {
@@ -156,8 +237,8 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
 			JsonArray testTimes = new JsonArray();
 			testTimes.add(testTime);								
 			results.addProperty("testRounds", 1);
-			results.addProperty("diskSize", sourceDb.info().getDiskSize());
-			results.addProperty("documents", sourceDb.info().getDocCount());
+			results.addProperty("diskSize", targetDb.info().getDiskSize());
+			results.addProperty("documents", targetDb.info().getDocCount());
 			
 			//SourceProperties and TargetProperties should be equal
 			results.addProperty(InterfaceConst.TOPIC, targetProperties.get(InterfaceConst.TOPIC));
@@ -189,6 +270,6 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
 		System.out.println("\n### Results - testSourceAndSinkPerformance2 ###");
 		ConnectorUtils.showPerformanceResults(testResults2);
 		System.out.println("\n### Results - testSourceAndSinkPerformance3 ###");
-		ConnectorUtils.showPerformanceResults(testResults3);
+		ConnectorUtils.showPerformanceResults(testResults3);	
 	}
 }

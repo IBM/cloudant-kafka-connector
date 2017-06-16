@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.kafka.connect.connector.ConnectorContext;
-import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -59,29 +58,57 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
         sourceConnector.initialize(context);
 	}
 					
-	@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 0)
+	/*@BenchmarkOptions(benchmarkRounds = 1, warmupRounds = 0)
 	@Test
 	public void testSourcePerformance() throws Exception {
 		//set parameter => init(topic, batch.size, tasks.max)
-		init("topic", 10000, 1);
+		init("t1", 10000, 1);
 		long testTime = runTest();
 		testResults1 = addResults(testResults1, testTime);
 	}
 	
-	@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 0)
+	@BenchmarkOptions(benchmarkRounds = 1, warmupRounds = 0)
 	@Test
 	public void testSourcePerformance2() throws Exception {
 		//set parameter => init(topic, batch.size, tasks.max)
-		init("topic2", 10000, 1);
+		init("t1, t2, t3, t4, t5, t6", 10000, 1);
 		long testTime = runTest();
 		testResults2 = addResults(testResults2, testTime);
 	}
 	
-	@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 0)
+	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
 	@Test
 	public void testSourcePerformance3() throws Exception {
 		//set parameter => init(topic, batch.size, tasks.max)
-		init("topic3", 10000, 1);
+		init("t3", 10000, 1);
+		long testTime = runTest();
+		testResults3 = addResults(testResults3, testTime);
+	}*/
+		
+	//TASKS
+	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
+	@Test
+	public void testSourcePerformance() throws Exception {
+		//set parameter => init(topic, batch.size, tasks.max)
+		init("t1", 10000, 1);
+		long testTime = runTest();
+		testResults1 = addResults(testResults1, testTime);
+	}
+	
+	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
+	@Test
+	public void testSourcePerformance2() throws Exception {
+		//set parameter => init(topic, batch.size, tasks.max)
+		init("t2", 10000, 1);
+		long testTime = runTest();
+		testResults2 = addResults(testResults2, testTime);
+	}
+	
+	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
+	@Test
+	public void testSourcePerformance3() throws Exception {
+		//set parameter => init(topic, batch.size, tasks.max)
+		init("t3", 10000, 1);
 		long testTime = runTest();
 		testResults3 = addResults(testResults3, testTime);
 	}
@@ -113,12 +140,10 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 		return results;
 	}
 	
-	public long runTest() throws Exception {									
-		
-		sourceConnector.start(sourceProperties);
-        
-        int tasks_max = new Integer(sourceProperties.get(InterfaceConst.TASKS_MAX)).intValue();
-        List<Map<String, String>> taskConfigs = sourceConnector.taskConfigs(tasks_max);
+	public long runTest() throws Exception {											
+		sourceConnector.start(sourceProperties);       
+        //int tasks_max = new Integer(sourceProperties.get(InterfaceConst.TASKS_MAX)).intValue();
+        //List<Map<String, String>> taskConfigs = sourceConnector.taskConfigs(tasks_max);
                       
 		// 1. Create Connector and Trigger sourceTask to get a batch of records		
 		sourceTask = ConnectorUtils.createCloudantSourceConnector(sourceProperties);
@@ -127,16 +152,15 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 		
 		// 2. Measure SourceRecords
 		long startTime = System.currentTimeMillis();		
+		       
+		do {			
+			// 2a. Get a batch of source records
+			records = sourceTask.poll();
+		} while (records.size() > 0);
+				
+		//3. Stop sourceTask		
+		sourceTask.stop();
 		
-		//for(Map<String, String> config : taskConfigs) {       
-			do {			
-				// 2a. Get a batch of source records
-				records = sourceTask.poll();
-			} while (records.size() > 0);
-					
-			//stop sourceTask		
-			sourceTask.stop();
-		//}
 		long endTime = System.currentTimeMillis();
 		return endTime - startTime;
 	}

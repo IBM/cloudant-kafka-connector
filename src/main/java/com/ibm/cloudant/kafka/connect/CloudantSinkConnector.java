@@ -72,7 +72,7 @@ public class CloudantSinkConnector extends SinkConnector {
 				Map<String, String> taskProps = new HashMap<String, String>(configProperties);		
 				// add task specific properties here (if any)
 				taskProps.put(InterfaceConst.TASK_NUMBER, String.valueOf(i));
-				taskProps.replace(InterfaceConst.TOPIC, topics.get(i % topicsLength));
+				//taskProps.replace(InterfaceConst.TOPIC, topics.get(i % topicsLength));
 				
 				taskConfigs.add(taskProps);
 			}
