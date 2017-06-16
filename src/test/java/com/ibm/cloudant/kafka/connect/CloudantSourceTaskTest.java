@@ -83,7 +83,7 @@ public class CloudantSourceTaskTest extends TestCase {
 		task.start(sourceProperties);
 		List<SourceRecord> records = task.poll();
 		assertTrue(records.size() > 0);
-		assertEquals( new Integer(testProperties.getProperty(InterfaceConst.BATCH_SIZE)==null?"500":testProperties.getProperty(InterfaceConst.BATCH_SIZE)).intValue(), records.size());
+		assertEquals(999, records.size());
 		
 		// Inspect the first record and make sure it is a valid Cloudant doc
 		SourceRecord firstRecord = records.get(0);
