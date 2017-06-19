@@ -15,7 +15,6 @@
 *******************************************************************************/
 package com.ibm.cloudant.kafka.connect;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ import org.json.JSONArray;
 
 import com.cloudant.client.api.Database;
 import com.cloudant.client.api.model.ChangesResult;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
@@ -48,10 +46,12 @@ import junit.framework.TestCase;
 public class CloudantSinkTaskTest extends TestCase {
 
 	private CloudantSinkTask task;
-    private ByteArrayOutputStream os;
 	private HashMap<String, String> targetProperties;
 	
 	JSONArray data = null;
+	
+	JsonParser parser;
+	JsonObject doc1, doc2, doc3;
 	
 	Properties testProperties;
 	
@@ -65,7 +65,6 @@ public class CloudantSinkTaskTest extends TestCase {
 		testProperties.load(new FileReader(new File("src/test/resources/test.properties")));
 		
 		task = new CloudantSinkTask();
-		os = new ByteArrayOutputStream();
 	      
 		targetProperties = new HashMap<String, String>();
 		
@@ -78,14 +77,73 @@ public class CloudantSinkTaskTest extends TestCase {
     	  
 		targetProperties.put(InterfaceConst.TOPIC, testProperties.getProperty(InterfaceConst.TOPIC));
 		
-		targetProperties.put(InterfaceConst.GUID_SCHEMA, testProperties.getProperty(InterfaceConst.GUID_SCHEMA));		
+		//Test objects
+		parser = new JsonParser();
+		doc1 = parser.parse("{\"_id\":\"doc1\","
+				+ "\"number\":1,"
+				+ "\"key\":\"value1\"}").getAsJsonObject();
+		
+		doc2 = parser.parse("{\"_id\":\"doc2\","
+				+ "\"number\":2,"
+				+ "\"key\":\"value2\"}").getAsJsonObject();
+		
+		doc3 = parser.parse("{\"_id\":\"doc3\","
+				+ "\"number\":3,"
+				+ "\"key\":\"value3\"}").getAsJsonObject();
 	}
 
 	/**
 	 * Test method for {@link com.ibm.cloudant.kafka.connect.CloudantSinkTask#put(java.util.Collection)}.
 	 */
-	public void testPutCollectionOfSinkRecord() {
+	public void testReplicateSinkRecordSchema() {
+		targetProperties.put(InterfaceConst.REPLICATION, "true");				
+		List<JsonObject> result = testPutCollectionOfSinkRecord();				
+				
+		//Test results
+		assertEquals(3, result.size());	
+		assertTrue(result.contains(doc1));
+		assertTrue(result.contains(doc2));
+		assertTrue(result.contains(doc3));
+	}
+	
+	/**
+	 * Test method for {@link com.ibm.cloudant.kafka.connect.CloudantSinkTask#put(java.util.Collection)}.
+	 */
+	public void testNonReplicateSinkRecordSchema() {
+		targetProperties.put(InterfaceConst.REPLICATION, "false");		
+		List<JsonObject> result = testPutCollectionOfSinkRecord();	
 		
+		//Add Information (id_schema, kcschema)
+		JsonObject kcschema = new JsonObject();
+		kcschema.addProperty("type", "STRING");
+		kcschema.addProperty("optional", false);		
+		
+		doc1.add(InterfaceConst.KC_SCHEMA, kcschema);
+		doc1.addProperty("_id", 
+				targetProperties.get(InterfaceConst.TOPIC) + 
+				"_" + 0 + "_" + doc1.get("number") + 
+				"_" + doc1.get("_id").getAsString());	
+		
+		doc2.add(InterfaceConst.KC_SCHEMA, kcschema);
+		doc2.addProperty("_id", 
+				targetProperties.get(InterfaceConst.TOPIC) + 
+				"_" + 0 + "_" + doc2.get("number") + 
+				"_" + doc2.get("_id").getAsString());
+		
+		doc3.add(InterfaceConst.KC_SCHEMA, kcschema);
+		doc3.addProperty("_id", 
+				targetProperties.get(InterfaceConst.TOPIC) + 
+				"_" + 0 + "_" + doc3.get("number") + 
+				"_" + doc3.get("_id").getAsString());
+										
+		//Test results		
+		assertEquals(3, result.size());	
+		assertTrue(result.contains(doc1));
+		assertTrue(result.contains(doc2));
+		assertTrue(result.contains(doc3));
+	}
+		
+	public List<JsonObject> testPutCollectionOfSinkRecord() {	
 		// CLOUDANT
 		Database db = JavaCloudantUtil.getDBInst(
 				targetProperties.get(InterfaceConst.URL), 
@@ -101,33 +159,23 @@ public class CloudantSinkTaskTest extends TestCase {
 		// Emit 3 new documents
 		task.start(targetProperties);
 		
-		JsonParser parser = new JsonParser();
-
-		JsonObject doc1 = parser.parse("{\"_id\":\"doc1\","
-				+ "\"key\":\"value1\"}").getAsJsonObject();
-		
 		task.put(Arrays.asList(
 				new SinkRecord(testProperties.getProperty(InterfaceConst.TOPIC), 0, 
-						null, null, Schema.STRING_SCHEMA, doc1, 1)));
+						null, null, Schema.STRING_SCHEMA, doc1, doc1.get("number").getAsLong())));
 		
 	/*	offsets.put(new TopicPartition(testProperties.getProperty(InterfaceConst.TOPIC), 0), 
 				new OffsetAndMetadata(1L));
 		*/
 		task.flush(offsets);
-
-		JsonObject doc2 = parser.parse("{\"_id\":\"doc2\","
-				+ "\"key\":\"value2\"}").getAsJsonObject();
-		
-		JsonObject doc3 = parser.parse("{\"_id\":\"doc3\","
-				+ "\"key\":\"value3\"}").getAsJsonObject();
 		
 		task.put(Arrays.asList(
 				new SinkRecord(testProperties.getProperty(InterfaceConst.TOPIC), 
-						0, null, null, Schema.STRING_SCHEMA,doc2.toString(), 2),
+						0, null, null, Schema.STRING_SCHEMA,doc2.toString(), doc2.get("number").getAsLong()),
 				
 				new SinkRecord(testProperties.getProperty(InterfaceConst.TOPIC), 
-						0, null, null, Schema.STRING_SCHEMA, doc3.toString(), 3)
-				));
+						0, null, null, Schema.STRING_SCHEMA, doc3.toString(), doc3.get("number").getAsLong())
+				));		
+		
 	/*	
 		offsets.put(new TopicPartition(testProperties.getProperty(InterfaceConst.TOPIC), 0), 
 				new OffsetAndMetadata(2L));
@@ -143,19 +191,15 @@ public class CloudantSinkTaskTest extends TestCase {
 				.includeDocs(true)
 				.getChanges();
 
-		 //process the ChangesResult
-		List<JsonElement> result = new ArrayList<JsonElement>();
-		
+		//process the ChangesResult			
+		List<JsonObject> result = new ArrayList<JsonObject>();
 		for (ChangesResult.Row row : changeResult.getResults()) {
-			 JsonElement key = row.getDoc().get("key");
-			 result.add(key);
+			 JsonObject doc = row.getDoc();
+			 doc.remove("_rev");
+			 result.add(doc);
 		}
-		 
-		assertEquals(3, result.size());
-	
-		assertTrue(result.contains(doc1.get("key")));
-		assertTrue(result.contains(doc2.get("key")));
-		assertTrue(result.contains(doc3.get("key")));
+		
+		return result;
 	}
 
 	/**
