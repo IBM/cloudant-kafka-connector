@@ -17,6 +17,7 @@ package com.ibm.cloudant.kafka.common.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -36,7 +37,7 @@ public class JavaCloudantUtil {
 
 	private static Logger LOG = Logger.getLogger(JavaCloudantUtil.class.toString());
 	
-	public static JSONArray batchWrite(String url, String userName, String password, JSONArray data) throws JSONException  {
+	public static JSONArray batchWrite(String url, String userName, String password, JSONArray data) throws JSONException, InterruptedException  {
 		LOG.debug(data.toString());
 		// wrap result to JSONArray
 		JSONArray result = new JSONArray();
@@ -76,7 +77,53 @@ public class JavaCloudantUtil {
 				result.put(jsonResult);
 			}
 		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
+			//LOG.error(e.getMessage(), e);
+			if(e.getMessage().equals(String.format(ResourceBundleUtil.get(
+					MessageKey.CLOUDANT_LIMITATION)))){
+				// get database object
+				Database cantDB = getDBInst(url, userName, password);
+				if (cantDB == null) {
+					throw new RuntimeException(String.format(ResourceBundleUtil.get(
+							MessageKey.CLOUDANT_DATABASE_ERROR), url));
+				}
+							
+				List<Object> entryObj = new ArrayList<Object>();
+				JSONArray tempData = new JSONArray(data.toString());			
+				
+				while(tempData.length() > 0) {
+					TimeUnit.SECONDS.sleep(1);
+					for(int i=0; i < 10;i++){											
+						if(tempData.length()>0){
+							entryObj.add(tempData.getJSONObject(0).toMap());
+							tempData.remove(0);
+						}					
+					}
+					
+					//perform bulk insert for array of documents
+					List<Response> resList = cantDB.bulk(entryObj);
+					entryObj.clear();
+				
+					for(int j=0; j < resList.size();j++){
+						Response res = resList.get(j);
+			    	 
+						JSONObject jsonResult = new JSONObject();
+						// construct response which is similar to doPost()
+						// {"rev":"380-270e81b096fe9ed54dc42a14b47467b9","id":"kafka@database","ok":true}
+						jsonResult.put(CloudantConst.RESPONSE_ID,res.getId());
+						jsonResult.put(CloudantConst.RESPONSE_REV,res.getRev());
+						jsonResult.put(CloudantConst.RESPONSE_ERROR,res.getError());
+						jsonResult.put(CloudantConst.RESPONSE_REASON,res.getReason());
+						if (res.getError() != null) {
+							jsonResult.put(CloudantConst.RESPONSE_OK,false);
+						} else {
+							jsonResult.put(CloudantConst.RESPONSE_OK,true);
+						}
+						jsonResult.put(CloudantConst.RESPONSE_CODE,res.getStatusCode());
+			    	 
+						result.put(jsonResult);
+					}
+				}
+			}		
 		}
 
 	    return result;

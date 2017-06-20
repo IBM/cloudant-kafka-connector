@@ -155,6 +155,9 @@ public class CloudantSinkTask extends SinkTask {
 
 		} catch (JSONException e) {
 			LOG.error(e.getMessage(), e);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} finally {
 			// Release memory (regardless if documents got committed or not)
 			jsonArray = new JSONArray(); ;
