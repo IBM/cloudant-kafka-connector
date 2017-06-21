@@ -28,6 +28,7 @@ import com.cloudant.client.api.ClientBuilder;
 import com.cloudant.client.api.CloudantClient;
 import com.cloudant.client.api.Database;
 import com.cloudant.client.api.model.Response;
+import com.cloudant.http.interceptors.Replay429Interceptor;
 import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 
@@ -77,7 +78,6 @@ public class JavaCloudantUtil {
 				result.put(jsonResult);
 			}
 		} catch (Exception e) {
-			//LOG.error(e.getMessage(), e);
 			if(e.getMessage().equals(String.format(ResourceBundleUtil.get(
 					MessageKey.CLOUDANT_LIMITATION)))){
 				// get database object
@@ -91,7 +91,6 @@ public class JavaCloudantUtil {
 				JSONArray tempData = new JSONArray(data.toString());			
 				
 				while(tempData.length() > 0) {
-					TimeUnit.SECONDS.sleep(1);
 					for(int i=0; i < 10;i++){											
 						if(tempData.length()>0){
 							entryObj.add(tempData.getJSONObject(0).toMap());
@@ -144,9 +143,10 @@ public class JavaCloudantUtil {
 				String account = urlWithoutProtocal.substring(0,urlWithoutProtocal.indexOf("."));
 				if (account != null) {
 					cantClient = ClientBuilder.account(account)
-											  .username(username)
-											  .password(password)
-											  .build();
+							.username(username)
+							.password(password)
+							.interceptors(Replay429Interceptor.WITH_DEFAULTS)
+							.build();
 		
 					String cantDBName = url.substring(url.lastIndexOf("/")+1);
 					
