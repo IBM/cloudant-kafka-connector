@@ -1,16 +1,14 @@
-
 # Performance Report
+The report measures the data throughput of the kafka-connect-cloudant connector with different parameter settings. The aim is to show the performance impact of the individual parameters.
 
-In the results, you can see that the number of `topics` and the type of `replication` has no significant impact of the performance. This insight is applicable for the source and sink connector. The parameters `batch.size`, `tasks` as well as the number of documents have a significant
- impact of the connector performance. Up to a certain `batch.size` the data throughput increase significantly. Also, the performance increase with a higher number of documents, because of the set-up time of the source and sink connector.
+In the results, you can see that the number of `topics` and the type of `replication` has no significant impact of the performance. This insight is applicable for the source and sink connector. The parameters `batch.size` as well as the number of documents have a significant impact of the connector performance. Up to a certain `batch.size` the data throughput increase significantly. Also, the performance increase with a higher number of documents, because of the set-up time of the source and sink connector. However, up to a certain number of documents, the set-up time is insignificant for the data throughput.   
 
 In summary, with the recommended parameter settings. The source and sink connector can achieve a data throughput between 5000 and 6000 documents per second. In combination, the end-to-end test results archieves a data rate between 4000 and 5000 documents per second.
-
 
 ## Configurations
 
 ### Test environment
-All performance tests have been executed on a local personal computer with the following hardware features
+All performance tests have been executed on a local computer with the following hardware features
 
 Parameter 		|Value
 :---------------|:--
@@ -40,7 +38,7 @@ Parameter 			|Describtion 	|Default Value 			|Performance Impact
 `replication`		|The used schema to create ID's for the Cloundant objects					|false	  |No
 
 ### Test results
-You can find all test results in the folder `performance/resources`. The file `results.ipynb` contains the diagrams of the test results. The file is a Jupyter Notebook and can be execute within the platform IBM Data Science Experience. Login credentials are masked and must be replace with your own Bluemix Account credentials.
+You can find the test results in the folder `performance/resources`. The file `results.ipynb` contains all diagrams of the test results. The file is a Jupyter Notebook and can be execute within the platform IBM Data Science Experience. Login credentials are masked in the file and must be replace with your own credentials.
 
 
 ## Results: Batch size
@@ -76,7 +74,7 @@ Up to a certain `batch.size` the number of documents per second increase signifi
 Sink Test	|5190	  |4768
 End2End Test|4153	  |3703
 
-The setting of the parameter `replication` has no significant impact on the data throughput of the sink connector. 
+The setting of the parameter `replication` has no significant impact on the data throughput of the sink connector. The connector performance with the parameter `replication = true` is mariginal higher, because the connector does not create new Cloudant IDs for the objects.      
 
 ## Results: Topics
 ![Alt text](images/topics.png?raw=true "Topics")
@@ -105,4 +103,4 @@ Documents  |Source Test|Sink Test|End2End Test
 100000	   |3431	   |3694	 |3028
 1000000	   |2952	   |3581	 |3544
 
-A higher number of documents increase the performance impact. This is because the set-up time of the source and sink connector are applied only once among a high number of documents.
+A higher number of documents increase the performance impact. This is because the set-up time of the source and sink connector are applied only once among a high number of documents. Up to a certain number of documents, the set-up time is insignificant for the data throughput. 
