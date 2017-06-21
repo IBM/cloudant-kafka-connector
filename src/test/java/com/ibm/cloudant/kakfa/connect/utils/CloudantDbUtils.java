@@ -3,6 +3,7 @@ package com.ibm.cloudant.kakfa.connect.utils;
 import com.cloudant.client.api.ClientBuilder;
 import com.cloudant.client.api.CloudantClient;
 import com.cloudant.client.api.Database;
+import com.cloudant.http.interceptors.Replay429Interceptor;
 
 public class CloudantDbUtils {
 	
@@ -23,6 +24,7 @@ public class CloudantDbUtils {
 					cantClient = ClientBuilder.account(account)
 							.username(username)
 							.password(password)
+							.interceptors(Replay429Interceptor.WITH_DEFAULTS)
 							.build();
 
 

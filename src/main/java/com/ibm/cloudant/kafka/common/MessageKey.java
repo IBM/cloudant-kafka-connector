@@ -31,6 +31,7 @@ public class MessageKey {
 	public static final String CLOUDANT_CONNECTION_USR_DISP = "CloudantConnectUsrDisp";
 	public static final String CLOUDANT_CONNECTION_PWD_DISP = "CloudantConnectPwdDisp";
 	public static final String CLOUDANT_LAST_SEQ_NUM_DISP = "CloudantLastSeqNumDisp";
+	public static final String CLOUDANT_LIMITATION = "CloudantLimitation";
 	
 	public static final String KAFKA_TOPIC_LIST_DOC = "KafkaTopicListDoc";
 	public static final String KAFKA_TOPIC_LIST_DISP = "KafkaTopicListDisp";
