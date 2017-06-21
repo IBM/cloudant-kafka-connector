@@ -86,7 +86,6 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
 		sinkTask = new CloudantSinkTask();
 	}
 	
-	//BATCHSIZE
 	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
 	@Test
 	public void testSourceAndSinkPerformance() throws Exception {
@@ -186,7 +185,6 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
 					  else {		 					  						  
 						  synchronized(tempRecords){
 							  sinkTask.put(tempRecords);
-							  //tempRecords.remove(x);
 							  tempRecords.clear();
 						  }							  
 					  }
@@ -216,8 +214,7 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
 		}	
 		
 		long endTime = System.currentTimeMillis();
-		
-		
+			
 		// 6. Stop Threads
 		threadSourceTask.interrupt();
 		threadSinkTask.interrupt();

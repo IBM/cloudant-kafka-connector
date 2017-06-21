@@ -58,34 +58,6 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
         sourceConnector.initialize(context);
 	}
 					
-	/*@BenchmarkOptions(benchmarkRounds = 1, warmupRounds = 0)
-	@Test
-	public void testSourcePerformance() throws Exception {
-		//set parameter => init(topic, batch.size, tasks.max)
-		init("t1", 10000, 1);
-		long testTime = runTest();
-		testResults1 = addResults(testResults1, testTime);
-	}
-	
-	@BenchmarkOptions(benchmarkRounds = 1, warmupRounds = 0)
-	@Test
-	public void testSourcePerformance2() throws Exception {
-		//set parameter => init(topic, batch.size, tasks.max)
-		init("t1, t2, t3, t4, t5, t6", 10000, 1);
-		long testTime = runTest();
-		testResults2 = addResults(testResults2, testTime);
-	}
-	
-	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
-	@Test
-	public void testSourcePerformance3() throws Exception {
-		//set parameter => init(topic, batch.size, tasks.max)
-		init("t3", 10000, 1);
-		long testTime = runTest();
-		testResults3 = addResults(testResults3, testTime);
-	}*/
-		
-	//TASKS
 	@BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
 	@Test
 	public void testSourcePerformance() throws Exception {
@@ -142,8 +114,6 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 	
 	public long runTest() throws Exception {											
 		sourceConnector.start(sourceProperties);       
-        //int tasks_max = new Integer(sourceProperties.get(InterfaceConst.TASKS_MAX)).intValue();
-        //List<Map<String, String>> taskConfigs = sourceConnector.taskConfigs(tasks_max);
                       
 		// 1. Create Connector and Trigger sourceTask to get a batch of records		
 		sourceTask = ConnectorUtils.createCloudantSourceConnector(sourceProperties);
