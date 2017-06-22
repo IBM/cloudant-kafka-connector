@@ -1,14 +1,15 @@
 # Performance Report
-The report measures the data throughput of the kafka-connect-cloudant connector with different parameter settings. The aim is to show the performance impact of the individual parameters.
+The report demonstrates the data throughput of the kafka-connect-cloudant connector with different parameter settings. The objective is to show the performance impact of the individual parameters such as `topics`, `replication` or `batch.size`
 
-In the results, you can see that the number of `topics` and the type of `replication` has no significant impact of the performance. This insight is applicable for the source and sink connector. The parameters `batch.size` as well as the number of documents have a significant impact of the connector performance. Up to a certain `batch.size` the data throughput increase significantly. Also, the performance increase with a higher number of documents, because of the set-up time of the source and sink connector. However, up to a certain number of documents, the set-up time is insignificant for the data throughput.   
+In the result section, you can see that the number of `topics` and the type of `replication` has no significant impact on the performance. This finding is applicable for the source and sink connector. The parameters `batch.size` as well as the number of documents have a significant impact of the connector performance. Up to a certain `batch.size` the data throughput increase significantly. Also, the performance increase with a higher number of documents, because of the set-up time of the source and sink connector. However, up to a certain number of documents, the set-up time is insignificant for the data throughput.   
 
 In summary, with the recommended parameter settings. The source and sink connector can achieve a data throughput between 5000 and 6000 documents per second. In combination, the end-to-end test results archieves a data rate between 4000 and 5000 documents per second.
 
 ## Configurations
 
 ### Test environment
-All performance tests have been executed on a local computer with the following hardware features
+All performance tests have been executed on a local computer with the 
+following hardware features
 
 Parameter 		|Value
 :---------------|:--
