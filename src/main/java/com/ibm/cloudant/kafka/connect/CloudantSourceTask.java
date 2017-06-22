@@ -35,7 +35,6 @@ import com.cloudant.client.api.CloudantClient;
 import com.cloudant.client.api.Database;
 import com.cloudant.client.api.model.ChangesResult;
 import com.cloudant.client.api.model.ChangesResult.Row;
-import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
@@ -57,18 +56,18 @@ public class CloudantSourceTask extends SourceTask {
 	String userName = null;
 	String password = null;
 	List<String> topics = null;
+	int taskNumber;
 	
 	private static String latestSequenceNumber = null;
 	private static int batch_size = 0;
-
-	int task_number = 0;
-	int tasks_max = 0;
 
 	private static CloudantClient cantClient = null;
 	private ChangesResult cantChangeResult = null;
 	private static Database cantDB = null; 
 	private static String cantDBName = null;
 	
+	public int counter = 0;
+		
 	@Override
 	public List<SourceRecord> poll() throws InterruptedException {
 		
@@ -78,7 +77,7 @@ public class CloudantSourceTask extends SourceTask {
 		while (!stop.get()) {
 			_running.set(true);
 			
-			// the array to be returend
+			// the array to be returned
 			ArrayList<SourceRecord> records = new ArrayList<SourceRecord>();
 
 			LOG.debug("Process lastSeq: " + latestSequenceNumber);
@@ -103,11 +102,16 @@ public class CloudantSourceTask extends SourceTask {
 							.includeDocs(true)
 							.since(latestSequenceNumber)
 							.limit(batch_size)
-							.continuousChanges()
+							//.continuousChanges() 
+								/*
+								 * => Removed because of performance (waiting time)
+								 * Requests Change notifications of feed type continuous. 
+								 * Feed notifications are accessed in an iterator style.
+								 * This method will connect to the changes feed; any configuration options applied after calling it will be ignored.	 
+								 */
 							.heartBeat(FEED_SLEEP_MILLISEC)
 							.getChanges();
 				}
-
 
 				LOG.debug("Got " + cantChangeResult.getResults().size() + " changes");
 				latestSequenceNumber = cantChangeResult.getLastSeq();
@@ -119,7 +123,9 @@ public class CloudantSourceTask extends SourceTask {
 					// Emit the record to every topic configured
 					for (String topic : topics) {
 						SourceRecord sourceRecord = new SourceRecord(offsetKey(url), 
-								offsetValue(latestSequenceNumber), topic,
+								offsetValue(latestSequenceNumber), 
+								topic, // topics 
+								//Integer.valueOf(row_.getId())%3, // partition
 								Schema.STRING_SCHEMA, // key schema
 								row_.getId(), // key
 								Schema.STRING_SCHEMA, // value schema
@@ -153,17 +159,15 @@ public class CloudantSourceTask extends SourceTask {
 			userName = config.getString(InterfaceConst.USER_NAME);
 			password = config.getPassword(InterfaceConst.PASSWORD).value();
 			topics = config.getList(InterfaceConst.TOPIC);
+			taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
 
 			latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
-			task_number = config.getInt(InterfaceConst.TASK_NUMBER);
-			tasks_max =  config.getInt(InterfaceConst.TASKS_MAX);			
-			batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? CloudantConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
+			batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? InterfaceConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
 				
-			if (tasks_max > 1) {
+			/*if (tasks_max > 1) {
 				throw new ConfigException("CouchDB _changes API only supports 1 thread. Configure tasks.max=1");
-			}
-			// Use like a semaphore to allow synchronization
-			// between poll() and stop() methods
+			}*/
+												
 			_running = new AtomicBoolean(false);
 			stop = new AtomicBoolean(false);
 			

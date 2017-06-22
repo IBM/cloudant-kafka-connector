@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
@@ -36,6 +37,7 @@ import com.google.gson.JsonParser;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloudant.kakfa.connect.utils.CloudantDbUtils;
+import com.ibm.cloudant.kakfa.connect.utils.ConnectorUtils;
 
 import junit.framework.TestCase;
 
@@ -46,8 +48,8 @@ import junit.framework.TestCase;
 public class CloudantSinkTaskTest extends TestCase {
 
 	private CloudantSinkTask task;
-	private HashMap<String, String> targetProperties;
-	
+	private Map<String, String> targetProperties;
+
 	JSONArray data = null;
 	
 	JsonParser parser;
@@ -63,6 +65,7 @@ public class CloudantSinkTaskTest extends TestCase {
 		
 		testProperties = new Properties();
 		testProperties.load(new FileReader(new File("src/test/resources/test.properties")));
+		targetProperties = ConnectorUtils.getTargetProperties(testProperties);
 		
 		task = new CloudantSinkTask();
 	      
@@ -205,7 +208,7 @@ public class CloudantSinkTaskTest extends TestCase {
 	/**
 	 * @return the targetProperties
 	 */
-	public HashMap<String, String> getTargetProperties() {
+	public Map<String, String> getTargetProperties() {
 		return targetProperties;
 	}
 

@@ -20,15 +20,18 @@ import java.util.Map;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
 
-import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 
 public class CloudantSinkTaskConfig extends CloudantSinkConnectorConfig {
 
 	// Expand this ConfigDef with task specific parameters	
 	static org.apache.kafka.common.config.ConfigDef config = baseConfigDef()
-		      .define(InterfaceConst.BATCH_SIZE, Type.INT, CloudantConst.DEFAULT_BATCH_SIZE,
+		      .define(InterfaceConst.BATCH_SIZE, Type.INT, InterfaceConst.DEFAULT_BATCH_SIZE,
 		    		  Importance.LOW, InterfaceConst.BATCH_SIZE)
+		      .define(InterfaceConst.TASK_NUMBER, 
+		    		  Type.INT, InterfaceConst.DEFAULT_TASK_NUMBER, Importance.HIGH, InterfaceConst.TASK_NUMBER)
+		      .define(InterfaceConst.TASKS_MAX, Type.INT, InterfaceConst.DEFAULT_TASKS_MAX,
+		    		  Importance.LOW, InterfaceConst.TASKS_MAX)
 		      .define(InterfaceConst.REPLICATION, Type.BOOLEAN, InterfaceConst.DEFAULT_REPLICATION,
 		    		  Importance.LOW, InterfaceConst.REPLICATION);
 	

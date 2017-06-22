@@ -17,16 +17,11 @@ package com.ibm.cloudant.kafka.connect;
 
 import java.io.File;
 import java.io.FileReader;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.kafka.connect.connector.ConnectorContext;
 import org.apache.kafka.connect.source.SourceRecord;
-import org.apache.kafka.connect.source.SourceTaskContext;
-import org.apache.kafka.connect.storage.OffsetStorageReader;
-import org.easymock.EasyMock;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -36,17 +31,14 @@ import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloudant.kakfa.connect.utils.CloudantDbUtils;
+import com.ibm.cloudant.kakfa.connect.utils.ConnectorUtils;
 
 import junit.framework.TestCase;
 
 public class CloudantSourceTaskTest extends TestCase {
 
-	private CloudantSourceConnector connector;
 	private CloudantSourceTask task;
-	private ConnectorContext context;
-	SourceTaskContext taskContext;
 	private Map<String, String> sourceProperties;
-	OffsetStorageReader offsetReader;
 
 	JSONArray data = null;
 	
@@ -70,42 +62,12 @@ public class CloudantSourceTaskTest extends TestCase {
 				testProperties.getProperty(InterfaceConst.USER_NAME), 
 				testProperties.getProperty(InterfaceConst.PASSWORD), 
 				data);
-
-		if (results != null) {
-			for (int i = 0; i < results.length(); i++) {
-				JSONObject result = (JSONObject) results.get(i);
-				// System.out.println(result.toString());
-			}
-		}
-
+		
 		/*
 		 * 2. Create connector
-		 */
-		connector = new CloudantSourceConnector();
-		context = EasyMock.mock(ConnectorContext.class);
-
-		connector.initialize(context);
-
-		sourceProperties = new HashMap<String, String>();
-		sourceProperties.put(InterfaceConst.URL,testProperties.getProperty(InterfaceConst.URL));
-		sourceProperties.put(InterfaceConst.USER_NAME, testProperties.getProperty(InterfaceConst.USER_NAME));
-		sourceProperties.put(InterfaceConst.PASSWORD, testProperties.getProperty(InterfaceConst.PASSWORD));
-
-		sourceProperties.put(InterfaceConst.TOPIC, testProperties.getProperty(InterfaceConst.TOPIC));
-		sourceProperties.put(InterfaceConst.TASKS_MAX, testProperties.getProperty(InterfaceConst.TASKS_MAX));
-		sourceProperties.put(InterfaceConst.BATCH_SIZE, testProperties.getProperty(InterfaceConst.BATCH_SIZE)==null?"500":testProperties.getProperty(InterfaceConst.BATCH_SIZE));
-
-		sourceProperties.put(InterfaceConst.LAST_CHANGE_SEQ, testProperties.getProperty(InterfaceConst.LAST_CHANGE_SEQ));
-
-		connector.start(sourceProperties);
-
-		taskContext = EasyMock.mock(SourceTaskContext.class);
-
-		task = new CloudantSourceTask();
-		offsetReader = PowerMock.createMock(OffsetStorageReader.class);
-
-		task.initialize(taskContext);
-
+		 */ 
+		sourceProperties = ConnectorUtils.getSourceProperties(testProperties);
+		task = ConnectorUtils.createCloudantSourceConnector(sourceProperties);	
 	}
 
 	private void expectOffsetLookupReturnNone() {
@@ -121,7 +83,7 @@ public class CloudantSourceTaskTest extends TestCase {
 		task.start(sourceProperties);
 		List<SourceRecord> records = task.poll();
 		assertTrue(records.size() > 0);
-		assertEquals( new Integer(testProperties.getProperty(InterfaceConst.BATCH_SIZE)==null?"500":testProperties.getProperty(InterfaceConst.BATCH_SIZE)).intValue(), records.size());
+		assertEquals(999, records.size());
 		
 		// Inspect the first record and make sure it is a valid Cloudant doc
 		SourceRecord firstRecord = records.get(0);

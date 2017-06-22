@@ -14,7 +14,7 @@
 	
 	<groupId>com.ibm.cloudant</groupId>
 	<artifactId>kafka-connect-cloudant</artifactId>
-	<version>2017-05-15</version>
+	<version>0.10.2.0</version>
 	<name>kafka-connect-cloudant</name>
 	<description>Kafka Connect Cloudant connector</description>
 
@@ -90,6 +90,13 @@
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
+		
+		<dependency>
+   			<groupId>com.carrotsearch</groupId>
+    		<artifactId>junit-benchmarks</artifactId>
+    		<version>0.7.2</version>
+    		<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -111,6 +118,17 @@
 					</descriptorRefs>
 				</configuration>
 			</plugin>
+			 <plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-surefire-plugin</artifactId>
+		        <configuration>
+		            <excludes>
+						<exclude>**/CloudantSourcePerformanceTest.java</exclude>
+						<exclude>**/CloudantSinkPerformanceTest.java</exclude>
+						<exclude>**/CloudantSourceAndSinkPerformanceTest.java</exclude>
+					</excludes>
+		        </configuration>
+		      </plugin>	
 		</plugins>
 	</build>
 

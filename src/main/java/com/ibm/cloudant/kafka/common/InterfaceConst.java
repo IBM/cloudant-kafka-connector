@@ -28,6 +28,10 @@ public class InterfaceConst {
 	public final static String TASKS_MAX = "tasks.max";
 	public final static String TASK_NUMBER = "task.number";
 	public final static String BATCH_SIZE = "batch.size";
+		
+	public static final int DEFAULT_BATCH_SIZE = 1000;
+	public static final int DEFAULT_TASKS_MAX = 1;
+	public static final int DEFAULT_TASK_NUMBER = 0;
 	
 	public final static String REPLICATION = "replication";	
 	public final static Boolean DEFAULT_REPLICATION = false;

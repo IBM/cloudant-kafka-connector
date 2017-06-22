@@ -15,13 +15,15 @@
 *******************************************************************************/
 package com.ibm.cloudant.kafka.common.utils;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
 
-import com.ibm.cloudant.kafka.connect.CloudantSourceTask;
+import com.ibm.cloudant.kafka.common.InterfaceConst;
 
 public class ResourceBundleUtil {
 	
@@ -47,6 +49,32 @@ public class ResourceBundleUtil {
 
 	public static String get(String key){
 		return getRb().getString(key);
+	}
+	
+	public static int numberOfTopics(Map<String, String> configProperties) {
+		return configProperties.get(InterfaceConst.TOPIC).split(",").length;
+	}
+	
+	/***
+	 * Generate topics to be consumed considering number of 
+	 * tasks 
+	 * @param maxTasks - max number of tasks
+	 * @return
+	 */
+	public static ArrayList<String> balanceTopicsTasks(Map<String, String> configProperties, int maxTasks) {
+		// Get topics
+		String[] topics = configProperties.get(InterfaceConst.TOPIC).split(",");
+		
+		int topicsLength = numberOfTopics(configProperties);  
+		ArrayList<String> topicsInTask = new ArrayList<String>();
+		for (int n=0; n < topicsLength; n++){
+			if (n < maxTasks) {
+				topicsInTask.add(topics[n]);
+			} else {
+				topicsInTask.set(n % maxTasks, topicsInTask.get(n % maxTasks) + "," + topics[n]);
+			}
+		}	
+		return topicsInTask;
 	}
 
 }

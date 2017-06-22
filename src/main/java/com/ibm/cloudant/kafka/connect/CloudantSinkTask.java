@@ -16,6 +16,7 @@
 package com.ibm.cloudant.kafka.connect;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.kafka.common.TopicPartition;
@@ -33,7 +34,6 @@ import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
-import com.ibm.cloudant.kafka.common.utils.JsonUtil;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 
 
@@ -46,22 +46,28 @@ public class CloudantSinkTask extends SinkTask {
 	private String url = null;
 	private String userName = null;
 	private String password = null;
+	List<String> topics = null;
 	
-	private static int batch_size = 0;
+	public static int batch_size = 0;
+	private int taskNumber;
+	public static String guid_schema = null;
 	private Boolean replication;
-	private JSONArray jsonArray = new JSONArray();
-		
+	public static volatile JSONArray jsonArray = new JSONArray();
+
+	
+	@Override
 	public String version() {
 		 return new CloudantSinkConnector().version();
 	}
 
+	
+	//TODO: all sinkRecords in first Thread
 	@Override
 	public void put(Collection<SinkRecord> sinkRecords) {
 	
 		LOG.info("Thread[" + Thread.currentThread().getId() + "].sinkRecords = " + sinkRecords.size());
 		
-		for (SinkRecord record : sinkRecords) {
-		
+		for (SinkRecord record : sinkRecords) {		
 			JSONObject jsonRecord;
 		
 			JSONTokener tokener = new JSONTokener(record.value().toString());		
@@ -110,8 +116,12 @@ public class CloudantSinkTask extends SinkTask {
 		// reader.finish();
 	}
 
-	
- 	@Override
+	/**
+    * Start the Task. Handles configuration parsing and one-time setup of the task.
+    *
+    * @param props initial configuration
+    */
+	@Override
 	public void start(Map<String, String> props) {
  		
  		try {
@@ -120,14 +130,16 @@ public class CloudantSinkTask extends SinkTask {
 			url = config.getString(InterfaceConst.URL);
 			userName = config.getString(InterfaceConst.USER_NAME);
             password = config.getPassword(InterfaceConst.PASSWORD).value();
-			
-			batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? CloudantConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);			
+            taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
+            
+            //TODO: split topics from Connector
+            topics = config.getList(InterfaceConst.TOPIC);
+            
+            batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? InterfaceConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);			
 			replication = config.getBoolean(InterfaceConst.REPLICATION) == null ? InterfaceConst.DEFAULT_REPLICATION : config.getBoolean(InterfaceConst.REPLICATION); 
-						
 		} catch (ConfigException e) {
 			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION), e);
 		}
-
 	}
 
 	@Override
@@ -162,6 +174,18 @@ public class CloudantSinkTask extends SinkTask {
 			// Release memory (regardless if documents got committed or not)
 			jsonArray = new JSONArray(); ;
 		}
+	}
+	
+	@Override
+	public void open(Collection<TopicPartition> partitions) {
+		LOG.info("Committed ");
+		TopicPartition partition = new TopicPartition(topics.get(taskNumber), taskNumber);		
+		partitions.add(partition);
+	}
+	
+	@Override
+	public void close(Collection<TopicPartition> partitions) {
+		LOG.info("Committed ");
 	}
 
 }

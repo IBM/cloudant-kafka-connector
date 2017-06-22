@@ -39,15 +39,8 @@ public class CloudantSinkConnectorConfig extends AbstractConfig {
 
 	public static ConfigDef baseConfigDef() {
 		
-		return new ConfigDef()
-				
-				  // Kafka topic
-				  .define(InterfaceConst.TOPIC, Type.LIST,
-						  Importance.HIGH, 
-						  ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DOC), 
-						  DATABASE_GROUP, 1, Width.LONG,
-						  ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DISP))
-		
+		return new ConfigDef()			  
+				 
 				  // Cloudant URL
 				  .define(InterfaceConst.URL, Type.STRING, Importance.HIGH, 
 						  ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_URL_DOC), 
@@ -68,8 +61,14 @@ public class CloudantSinkConnectorConfig extends AbstractConfig {
 						  Importance.LOW, 
 						  ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC), 
 						  DATABASE_GROUP, 1, Width.LONG,
-						  ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC));
-				
+						  ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC))
+		
+				// Kafka topic
+				  .define(InterfaceConst.TOPIC, Type.LIST,
+						  Importance.HIGH, 
+						  ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DOC), 
+						  DATABASE_GROUP, 1, Width.LONG,
+						  ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DISP));	  			
 	}
 	
 	public CloudantSinkConnectorConfig(Map<String, String> originals) {
