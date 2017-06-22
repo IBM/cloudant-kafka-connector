@@ -1,9 +1,9 @@
 # Performance Report
-The report demonstrates the data throughput of the kafka-connect-cloudant connector with different parameter settings. The objective is to show the performance impact of the individual parameters such as `topics`, `replication` or `batch.size`
+The report demonstrates the performance of the kafka-connect-cloudant connector with different parameter settings. The performance tests measuring the time and data throughtput rate of the source and sink connector. The objective is to show the performance impact of the individual parameters such as `topics`, `replication` or `batch.size`.
 
-In the result section, you can see that the number of `topics` and the type of `replication` has no significant impact on the performance. This finding is applicable for the source and sink connector. The parameters `batch.size` as well as the number of documents have a significant impact of the connector performance. Up to a certain `batch.size` the data throughput increase significantly. Also, the performance increase with a higher number of documents, because of the set-up time of the source and sink connector. However, up to a certain number of documents, the set-up time is insignificant for the data throughput.   
+In the result section, you can see that the number of `topics` and the type of `replication` has no significant impact on the performance. This finding is applicable for the source and sink connector. The parameters `batch.size` as well as the number of documents have a significant impact of the connector performance. Up to a certain `batch.size`, the data throughput increase significantly. Also, the performance increase with a higher number of documents due to the set-up time of the source and sink connector. However, up to a certain number of documents, the set-up time is insignificant for the data throughput.   
 
-In summary, with the recommended parameter settings. The source and sink connector can achieve a data throughput between 5000 and 6000 documents per second. In combination, the end-to-end test results archieves a data rate between 4000 and 5000 documents per second.
+In summary, with the recommended parameter settings. The source and sink connector can achieve a data throughput between 5000 and 6000 documents per second. In combination, the end-to-end test results archieves a data throughput rate between 4000 and 5000 documents per second.
 
 ## Configurations
 
@@ -19,13 +19,13 @@ Memory 			|16.0 GB
 
 ### Test execution
 
-The package `com.ibm.cloudant.kafka.performance` contains the performance tests of the connector. The package includes the test cases `CloudantSourcePerformanceTest`, `CloudantSinkPerformanceTest` and `CloudantSourceAndSinkPerformanceTest`   
+The package `com.ibm.cloudant.kafka.performance` contains the performance tests of the source and sink connector. The package includes the test cases `CloudantSourcePerformanceTest`, `CloudantSinkPerformanceTest` and `CloudantSourceAndSinkPerformanceTest`   
 
 Test 									|Description|Results
 :--------------------------------------:|:--:|:--:
-`CloudantSource PerformanceTest`		|Writes documents from a Cloudant database into Kafka topics|Time, Docs/Sec, Data/Sec
-`CloudantSink PerformanceTest`			|Writes documents from Kafka topics into a Cloudant database|Time, Docs/Sec, Data/Sec
-`CloudantSourceAndSink PerformanceTest` |Writes documents from a Cloudant database into Kafka topics and subsequently into another Cloudant database (End-to-End Test)|Time, Docs/Sec, Data/Sec  
+`CloudantSource PerformanceTest`		|Writes documents from a Cloudant database into Apache Kafka topics|Time, Docs/Sec, Data/Sec
+`CloudantSink PerformanceTest`			|Writes documents from Apache Kafka topics into a Cloudant database|Time, Docs/Sec, Data/Sec
+`CloudantSourceAndSink PerformanceTest` |Writes documents from a Cloudant database into Apache Kafka topics and subsequently into another Cloudant database (End-to-End Test)|Time, Docs/Sec, Data/Sec  
 
 The performance tests were executed 3 times each. The mean was taken from the 3 test runs respectively. All tests were executed with the default values listed in the table below. For your own individual performance tests, you may adapt the parameters in the test package `com.ibm.cloudant.kafka.performance` or the `test.properties`.
 
@@ -33,13 +33,13 @@ Parameter 			|Describtion 	|Default Value 			|Performance Impact
 :-------------------|:--------------------------------------------------------------------------|:-------:|:--:
 `benchmarkRounds`	|number of test rounds 														|3 	 	  |-
 `warmupRounds`		|gives the JVM a chance to optimize the code 								|0   	  |-
-`topics`			|A list of topics which are written in or read from kafka					|"topic1" |No
+`topics`			|A list of topics which are written in or read from Apache Kafka			|"topic1" |No
 `batch.size`		|The batch size used to bulk read/write from a Cloudant database 			|10000	  |Yes
 `tasks.max`			|number of concurrent threads for parallel operations				 		|1		  |Yes
 `replication`		|The used schema to create ID's for the Cloundant objects					|false	  |No
 
 ### Test results
-You can find the test results in the folder `performance/resources`. The file `results.ipynb` contains all diagrams of the test results. The file is a Jupyter Notebook and can be execute within the platform IBM Data Science Experience. Login credentials are masked in the file and must be replace with your own credentials.
+You can find the test results in the folder `performance/resources`. The file `results.ipynb` contains all results and diagrams of the test results. The file can be execute and edit within the platform IBM Data Science Experience. For your own test results, the masked login credentials in the file must be replace with your own IBM Bluemix credentials.
 
 
 ## Results: Batch size
