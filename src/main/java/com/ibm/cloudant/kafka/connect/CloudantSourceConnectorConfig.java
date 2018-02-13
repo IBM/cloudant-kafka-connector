@@ -15,7 +15,9 @@
 *******************************************************************************/
 package com.ibm.cloudant.kafka.connect;
 
-import java.util.Map;
+import com.ibm.cloudant.kafka.common.InterfaceConst;
+import com.ibm.cloudant.kafka.common.MessageKey;
+import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
@@ -24,9 +26,7 @@ import org.apache.kafka.common.config.ConfigDef.Type;
 import org.apache.kafka.common.config.ConfigDef.Width;
 import org.apache.log4j.Logger;
 
-import com.ibm.cloudant.kafka.common.InterfaceConst;
-import com.ibm.cloudant.kafka.common.MessageKey;
-import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
+import java.util.Map;
 
 public class CloudantSourceConnectorConfig extends AbstractConfig {
 	
@@ -34,41 +34,47 @@ public class CloudantSourceConnectorConfig extends AbstractConfig {
 
 	public static final String DATABASE_GROUP = "Database";
 	public static final String CLOUDANT_LAST_SEQ_NUM_DEFAULT = null;
-	
 	public static final ConfigDef CONFIG_DEF = baseConfigDef();
 
 	public static ConfigDef baseConfigDef() {
-		
 		return new ConfigDef()
-				  
-				  // Cloudant URL
-				  .define(InterfaceConst.URL, Type.STRING, Importance.HIGH, 
-						  ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_URL_DOC), 
-						  DATABASE_GROUP, 1, Width.LONG,
-						  ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_URL_DISP))
-				  // Cloudant Username
-				  .define(InterfaceConst.USER_NAME, Type.STRING, Importance.HIGH, 
-						  ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_USR_DOC), 
-						  DATABASE_GROUP, 1, Width.LONG,
-						  ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_USR_DISP))
-				  // Cloudant Password
-				  .define(InterfaceConst.PASSWORD, Type.PASSWORD, Importance.HIGH, 
-						  ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_PWD_DOC), 
-						  DATABASE_GROUP, 1, Width.LONG,
-						  ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_PWD_DISP))
-				  // Cloudant last change sequence
-				  .define(InterfaceConst.LAST_CHANGE_SEQ, Type.STRING, CLOUDANT_LAST_SEQ_NUM_DEFAULT, 
-						  Importance.LOW, 
-						  ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC), 
-						  DATABASE_GROUP, 1, Width.LONG,
-						  ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC))
-				  
-				  // Kafka topic
-				  .define(InterfaceConst.TOPIC, Type.LIST,
-						  Importance.HIGH, 
-						  ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DOC), 
-						  DATABASE_GROUP, 1, Width.LONG,
-						  ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DISP));
+
+				// Cloudant URL
+				.define(InterfaceConst.URL, Type.STRING, Importance.HIGH,
+						ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_URL_DOC),
+						DATABASE_GROUP, 1, Width.LONG,
+						ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_URL_DISP))
+				// Cloudant Username
+				.define(InterfaceConst.USER_NAME, Type.STRING, Importance.HIGH,
+						ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_USR_DOC),
+						DATABASE_GROUP, 1, Width.LONG,
+						ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_USR_DISP))
+				// Cloudant Password
+				.define(InterfaceConst.PASSWORD, Type.PASSWORD, Importance.HIGH,
+						ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_PWD_DOC),
+						DATABASE_GROUP, 1, Width.LONG,
+						ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_PWD_DISP))
+				// Cloudant last change sequence
+				.define(InterfaceConst.LAST_CHANGE_SEQ, Type.STRING, CLOUDANT_LAST_SEQ_NUM_DEFAULT,
+						Importance.LOW,
+						ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC),
+						DATABASE_GROUP, 1, Width.LONG,
+						ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC))
+
+				// Kafka topic
+				.define(InterfaceConst.TOPIC, Type.LIST,
+						Importance.HIGH,
+						ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DOC),
+						DATABASE_GROUP, 1, Width.LONG,
+						ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DISP))
+
+				// Whether to generate a struct Schema
+				.define(InterfaceConst.USE_VALUE_SCHEMA_STRUCT, Type.BOOLEAN,
+						false,
+						Importance.HIGH,
+						ResourceBundleUtil.get(MessageKey.CLOUDANT_STRUCT_SCHEMA_DOC),
+						DATABASE_GROUP, 1, Width.NONE,
+						ResourceBundleUtil.get(MessageKey.CLOUDANT_STRUCT_SCHEMA_DISP));
 	}
 	
 	public CloudantSourceConnectorConfig(Map<String, String> originals) {

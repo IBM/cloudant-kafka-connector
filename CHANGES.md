@@ -1,5 +1,7 @@
 # Unreleased
 
+- [NEW] Configuration option `cloudant.value.schema.struct` to send the Cloudant document message
+ with a `org.apache.kafka.connect.data.Struct` value schema instead of as a `String`.
 - [BREAKING CHANGE] Changed build tooling to Gradle.
 - [NOTE] Version number format. The kafka-connect-cloudant version is no longer identical
  to an Apache Kafka version. The Apache Kafka version is appended to the kafka-cloudant-connect

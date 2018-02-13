@@ -100,6 +100,9 @@ public class CloudantSourceConnectorTest extends TestCase {
         Assert.assertEquals(sourceProperties.get(InterfaceConst.BATCH_SIZE), taskConfigs.get(0)
                 .get(InterfaceConst.BATCH_SIZE));
 
+        Assert.assertEquals(sourceProperties.get(InterfaceConst.USE_VALUE_SCHEMA_STRUCT), taskConfigs.get(0)
+                .get(InterfaceConst.USE_VALUE_SCHEMA_STRUCT));
+
         PowerMock.verifyAll();
     }
 }

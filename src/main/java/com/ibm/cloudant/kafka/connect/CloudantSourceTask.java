@@ -15,12 +15,16 @@
 *******************************************************************************/
 package com.ibm.cloudant.kafka.connect;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.cloudant.client.api.ClientBuilder;
+import com.cloudant.client.api.CloudantClient;
+import com.cloudant.client.api.Database;
+import com.cloudant.client.api.model.ChangesResult;
+import com.cloudant.client.api.model.ChangesResult.Row;
+import com.google.gson.JsonObject;
+import com.ibm.cloudant.kafka.common.InterfaceConst;
+import com.ibm.cloudant.kafka.common.MessageKey;
+import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
+import com.ibm.cloudant.kafka.schema.JsonStruct;
 
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.data.Schema;
@@ -30,14 +34,12 @@ import org.apache.kafka.connect.source.SourceTask;
 import org.apache.kafka.connect.storage.OffsetStorageReader;
 import org.apache.log4j.Logger;
 
-import com.cloudant.client.api.ClientBuilder;
-import com.cloudant.client.api.CloudantClient;
-import com.cloudant.client.api.Database;
-import com.cloudant.client.api.model.ChangesResult;
-import com.cloudant.client.api.model.ChangesResult.Row;
-import com.ibm.cloudant.kafka.common.InterfaceConst;
-import com.ibm.cloudant.kafka.common.MessageKey;
-import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CloudantSourceTask extends SourceTask {
 	
@@ -57,6 +59,7 @@ public class CloudantSourceTask extends SourceTask {
 	String password = null;
 	List<String> topics = null;
 	int taskNumber;
+	boolean generateStructSchema = false;
 	
 	private static String latestSequenceNumber = null;
 	private static int batch_size = 0;
@@ -119,6 +122,16 @@ public class CloudantSourceTask extends SourceTask {
 				// process the results into the array to be returned
 				for (ListIterator<Row> it = cantChangeResult.getResults().listIterator(); it.hasNext(); ) {
 					Row row_ = it.next();
+					JsonObject doc = row_.getDoc();
+					Schema docSchema;
+					Object docValue;
+					if (generateStructSchema) {
+						docSchema = JsonStruct.jsonObjectToSchema(doc);
+						docValue = JsonStruct.jsonObjectToStruct(doc, docSchema);
+					} else {
+						docSchema = Schema.STRING_SCHEMA;
+						docValue = doc.toString();
+					}
 
 					// Emit the record to every topic configured
 					for (String topic : topics) {
@@ -128,8 +141,8 @@ public class CloudantSourceTask extends SourceTask {
 								//Integer.valueOf(row_.getId())%3, // partition
 								Schema.STRING_SCHEMA, // key schema
 								row_.getId(), // key
-								Schema.STRING_SCHEMA, // value schema
-								row_.getDoc().toString()); // value
+								docSchema, // value schema
+								docValue); // value
 						records.add(sourceRecord);
 					}
 				}
@@ -146,7 +159,8 @@ public class CloudantSourceTask extends SourceTask {
 
 		// Only in case of shutdown
 		return null;
-	}	
+	}
+
 
 
 	@Override
@@ -160,6 +174,7 @@ public class CloudantSourceTask extends SourceTask {
 			password = config.getPassword(InterfaceConst.PASSWORD).value();
 			topics = config.getList(InterfaceConst.TOPIC);
 			taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
+			generateStructSchema = config.getBoolean(InterfaceConst.USE_VALUE_SCHEMA_STRUCT);
 
 			latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
 			batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? InterfaceConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);

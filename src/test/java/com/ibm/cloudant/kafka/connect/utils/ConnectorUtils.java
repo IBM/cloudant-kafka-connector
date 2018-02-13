@@ -162,12 +162,19 @@ public class ConnectorUtils {
                     .URL));
             connectorProperties.put(InterfaceConst.USER_NAME, testProperties.getProperty
                     (InterfaceConst.USER_NAME));
-            connectorProperties.put(InterfaceConst.PASSWORD, testProperties.getProperty(InterfaceConst.PASSWORD));
+            connectorProperties.put(InterfaceConst.PASSWORD, testProperties.getProperty
+                    (InterfaceConst.PASSWORD));
         }
 
         // Topic and tasks max are common to both configurations
-        connectorProperties.put(InterfaceConst.TOPIC, testProperties.getProperty(InterfaceConst.TOPIC));
-        connectorProperties.put(InterfaceConst.TASKS_MAX, testProperties.getProperty(InterfaceConst.TASKS_MAX));
+        connectorProperties.put(InterfaceConst.TOPIC, testProperties.getProperty(InterfaceConst
+                .TOPIC));
+        connectorProperties.put(InterfaceConst.TASKS_MAX, testProperties.getProperty
+                (InterfaceConst.TASKS_MAX));
+
+        // Schema options
+        connectorProperties.put(InterfaceConst.USE_VALUE_SCHEMA_STRUCT, testProperties
+                .getProperty(InterfaceConst.USE_VALUE_SCHEMA_STRUCT));
 
         // Add the performance URL
         connectorProperties.put(PERFORMANCE_URL, testProperties.getProperty(PERFORMANCE_URL));
