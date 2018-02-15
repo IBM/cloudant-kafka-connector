@@ -108,10 +108,10 @@ and add log settings like
 
 ## Building from Source
 
-The project requires Java 8 and Maven 2 to build from source. Execute the following command in the project directory:
+The project requires Java 8 to build from source. Execute the following command in the project directory:
 
-```
-mvn clean install
+```sh
+./gradlew clean assemble
 ```
 
 ## Test execution
@@ -123,86 +123,6 @@ Junit tests are available in `src/test/java`. To execute, please modify values i
 
 The settings in `test.properties` have to include Cloudant database credentials and Kafka topic details as above.
 
-## Release Notes
-
-A release manager will need to do the following steps to create a release.
-* [Maven Repository Initial Setup](#maven-repository-initial-setup)
-* [Create GPG Signing Key](#create-gpg-signing-key)
-* [Configure Maven Credentials](#configure-maven-credentials)
-* [Use Release Script](#use-release-script)
-
-### Maven Repository Initial Setup
-
-Create a ticket with Sonatype. [This link] (http://central.sonatype.org/pages/ossrh-guide.html) will provide more details and direct links with some helpful videos in the Initial Setup section. Basically, you need to do 2 things:
-
-1. Create a JIRA account
-2. Create an issue that creates a repository for your project.
-
-If a repository already exists you need to request access to it by creating an issue
-and referencing this project.
-
-### Create GPG Signing Key
-
-Every release manager MUST create its own signing key that is going to be used to sign all release artifacts.
-
-Here are some steps to set up GPG on a Mac.
-
-1. Download and Install [GPG] (https://www.gnupg.org/download/)
-2. Follow steps to generate a key using a passphrase
-3. Set a public server that the maven repository can communicate with.
-  * Go to Preferences/Key Server. hkp://pgp.mit.edu is an acceptable server.
-4. Select your key. Right click and then choose Send public key to key server.
-5. Export environment variable GPG_PASSPHRASE. This will be used by the [release script](#use-release-script). It is recommended that you add this to your profile (bashrc, bash_profile).
-```
-Example:
-
-export  GPG_PASSPHRASE=mypassphrase
-```
-
-Details will vary depending on the OS. [Here] (https://cwiki.apache.org/confluence/display/TUSCANYxDOCx2x/Create+Signing+Key) is an additional link for Windows.
-
-### Configure Maven Credentials
-
-After creating an account in the [Maven repository](#maven-repository-initial-setup), configuring maven credentials for staging repositories is needed. Please ensure your ~/.m2/settings.xml file has the following server settings adding your username and password from your Maven repository account (create this file if you don't have it).
-
-``` XML
-<settings>
-   <servers>
-       <!-- To publish a snapshot of some part of Maven -->
-       <server>
-           <id>sonatype-nexus-staging</id>
-           <username></username>
-           <password></password>
-       </server>
-   </servers>
-</settings>
-```
-
-### Use Release Script
-
-A ```release.sh``` script is provided inside the ```dev``` directory of this project
-that automates repetitive release steps.
-
-Running ```release.sh``` will provide usage, description, options and examples on how to
-use it.
-
-The release prepare option ```--release-prepare``` and ```--release-publish``` will be the two
-options to run in this order when doing a release.
-
-Release prepare will:
-* Create a release tag in the repository
-* Update the pom with the proper release version and new development version
-
-```
-Example:
-
-release.sh --release-prepare --releaseVersion="1.0.0" --developmentVersion="1.1.0-SNAPSHOT" --tag="v1.0.0"
-```
-
-Release publish will publish maven artifacts to the maven staging repository.
-
-```
-Example:
-
-release.sh --release-publish --gitTag="v1.0.0"
+```sh
+./gradlew test
 ```
