@@ -29,6 +29,8 @@ dependencies {
     testCompile group: 'org.powermock', name: 'powermock-api-easymock', version: '1.6.4'
     testCompile group: 'org.easymock', name: 'easymock', version: '3.4'
     testCompile group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.2'
+    testCompile group: 'org.apache.kafka', name: "kafka_${scalaVersion}", version: "${kafkaVersion}"
+    testCompile group: 'org.apache.kafka', name: 'connect-api', version: "${kafkaVersion}"
 }
 
 // Java versions
@@ -154,4 +156,14 @@ uploadArchives {
             }
         }
     }
+}
+
+test {
+    // Exclude the performance tests
+    exclude 'com/ibm/cloudant/kakfa/performance/**'
+}
+
+tasks.withType(Test) {
+    // Transfer all gradle System properties to the test JVM
+    systemProperties = System.getProperties()
 }

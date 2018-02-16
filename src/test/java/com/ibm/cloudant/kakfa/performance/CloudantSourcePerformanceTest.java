@@ -1,18 +1,17 @@
+/*
+ * Copyright © 2017, 2018 IBM Corp. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
 package com.ibm.cloudant.kakfa.performance;
-
-import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import org.apache.kafka.connect.connector.ConnectorContext;
-import org.apache.kafka.connect.source.SourceRecord;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.powermock.api.easymock.PowerMock;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
@@ -25,36 +24,42 @@ import com.ibm.cloudant.kafka.connect.CloudantSourceConnector;
 import com.ibm.cloudant.kafka.connect.CloudantSourceTask;
 import com.ibm.cloudant.kakfa.connect.utils.ConnectorUtils;
 
+import org.apache.kafka.connect.connector.ConnectorContext;
+import org.apache.kafka.connect.source.SourceRecord;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
+import org.powermock.api.easymock.PowerMock;
+
+import java.util.List;
+import java.util.Map;
+
 public class CloudantSourcePerformanceTest extends AbstractBenchmark {	
 	private static Database sourceDb;
 	private static JsonObject testResults1 = new JsonObject();
 	private static JsonObject testResults2 = new JsonObject();
 	private static JsonObject testResults3 = new JsonObject();
-	
-	private Properties defaultProperties;
-	private Map<String, String> sourceProperties;  	
-	private CloudantSourceTask sourceTask;
-	
-	private CloudantSourceConnector sourceConnector;
-	private ConnectorContext context;
-				
-	@Before
+
+	private Map<String, String> sourceProperties;
+
+    private CloudantSourceConnector sourceConnector;
+
+    @Before
 	public void setUp() throws Exception {	
 		//Set properties
-		defaultProperties = new Properties();
-		defaultProperties.load(new FileReader(new File("src/test/resources/test.properties")));
 		
-		sourceProperties = ConnectorUtils.getSourceProperties(defaultProperties);
-		sourceProperties.put(InterfaceConst.URL, defaultProperties.getProperty("performance.url"));
+		sourceProperties = ConnectorUtils.getSourceProperties();
+		// Update to use the performance URL
+		sourceProperties.put(InterfaceConst.URL, sourceProperties.get(ConnectorUtils.PERFORMANCE_URL));
 		
 		// Get the source database handle
 		sourceDb = JavaCloudantUtil.getDBInst(
-				defaultProperties.getProperty("performance.url"), 
-				defaultProperties.get(InterfaceConst.USER_NAME).toString(),
-				defaultProperties.get(InterfaceConst.PASSWORD).toString());	
+				sourceProperties.get(InterfaceConst.URL),
+				sourceProperties.get(InterfaceConst.USER_NAME),
+				sourceProperties.get(InterfaceConst.PASSWORD));
 			
 		sourceConnector = new CloudantSourceConnector();
-        context = PowerMock.createMock(ConnectorContext.class);
+        ConnectorContext context = PowerMock.createMock(ConnectorContext.class);
         sourceConnector.initialize(context);
 	}
 					
@@ -85,14 +90,13 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 		testResults3 = addResults(testResults3, testTime);
 	}
 	
-	public void init(String topics, int batch_size, int tasks_max) {
-		sourceProperties.put(InterfaceConst.URL, defaultProperties.getProperty("performance.url"));
+	private void init(String topics, int batch_size, int tasks_max) {
 		sourceProperties.put(InterfaceConst.TOPIC, topics);
 		sourceProperties.put(InterfaceConst.BATCH_SIZE, Integer.toString(batch_size));
 		sourceProperties.put(InterfaceConst.TASKS_MAX, Integer.toString(tasks_max));
 	}
 	
-	public JsonObject addResults(JsonObject results, long testTime) {
+	private JsonObject addResults(JsonObject results, long testTime) {
 		if(results.size() == 0){			
 			JsonArray testTimes = new JsonArray();
 			testTimes.add(testTime);								
@@ -112,13 +116,13 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 		return results;
 	}
 	
-	public long runTest() throws Exception {											
+	private long runTest() throws Exception {
 		sourceConnector.start(sourceProperties);       
                       
 		// 1. Create Connector and Trigger sourceTask to get a batch of records		
-		sourceTask = ConnectorUtils.createCloudantSourceConnector(sourceProperties);
+        CloudantSourceTask sourceTask = ConnectorUtils.createCloudantSourceConnector(sourceProperties);
 		sourceTask.start(sourceProperties);		
-		List<SourceRecord> records = new ArrayList<SourceRecord>();
+		List<SourceRecord> records;
 		
 		// 2. Measure SourceRecords
 		long startTime = System.currentTimeMillis();		
