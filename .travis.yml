@@ -6,23 +6,12 @@ jdk:
 ### SET PARAMETERS
 ##########################
 before_script:
-  - sed -ie 's/<account>/'"$CLOUDANT_ACCOUNT"'/g' src/test/resources/test.properties
-  - sed -ie 's/<database>/'"$CLOUDANT_DB"'/g' src/test/resources/test.properties
-  - sed -ie 's/<username>/'"$CLOUDANT_USERNAME"'/g' src/test/resources/test.properties
-  - sed -ie 's/<password>/'"$CLOUDANT_PASSWORD"'/g' src/test/resources/test.properties
+  - sed -ie 's/examples/'"$CLOUDANT_ACCOUNT"'/g' src/test/resources/test.properties
+  - sed -ie 's/animaldb/'"$CLOUDANT_DB"'/g' src/test/resources/test.properties
+  - sed -ie 's/testuser/'"$CLOUDANT_USERNAME"'/g' src/test/resources/test.properties
+  - sed -ie 's/testpassword/'"$CLOUDANT_PASSWORD"'/g' src/test/resources/test.properties
 ##########################
-### BUILD WITH MAVEN
+### BUILD WITH GRADLE
 ##########################
 script:
-# Once tests are properly set up remove skip tests
-- mvn clean install
-
-##########################
-### SEND NOTIFICATIONS
-##########################
-
-#We should use secure notifications. Send to channel datahub-dev-connector
-notifications:
-  slack:
-    rooms:
-      secure: b49K3ZQsKXU7PaxEDzxp7eO5+h5X6TfLUPJOerts2U08sPzh1EWwliQGV2oYI+L95yN1QMCCvEYc0le4QYNGdDaU0jux9/WS1b8RWwhrhwVI06sVRlt6wJ/jYQwQZTXcgJZTbiOBAmkht3DW5AOAJDW1+zdU+bNv8LCwJyBCpTuakm02CTxtruD2yWc5dFtKIj4DqwMi8jBH/bE6CK1Vra6Nqo6RC06ueTMdoN11b+86VQWgxKkCpg46tdcgowzKFlJYL/WsyV9XJF7flo4Chw+cScmYLwREgOQNjjSa1oiQLjsSmglieWAlJMXC6gVqfOQYa9EEGyjkl0z+I0MCoUwPr0Jt1nMpUkw2a33Pj6QPxbLYozMHIqjqNyf9uoPCeQnQ7KuIU9Ff0LKbDxTJDdZ/OrWdFhpuggmL/Yl9+RUQjgOYSwRFVPkDUwYLhix1A//N1LtK/JgLg9zfLfaW/76PP78GuDiYvYG0kJaiZdb6tCc3F8LVeP4oHZxX56UceuYqGghElrUbjWOVBtTPRhkykoS96ZJG+ECC0nkfB8U7DTw6rywVikQDxR9/OCEiiIJqZHW5FgBOBJqc+aO0tHSf4lXIFeycf1PgGkOMxaIiG95qX2YhX6lYppoDpse0jA1MWi/x8JfhZU4IDxHFZBUtN5pR/xVHyVx80+VV2DM=
+- ./gradlew test
