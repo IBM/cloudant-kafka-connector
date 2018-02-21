@@ -1,0 +1,169 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+// Kafka/scala versions
+def kafkaVersion = '1.0.0'
+def scalaVersion = '2.11'
+
+group = 'com.cloudant'
+version = new File(rootDir, 'VERSION').text.trim() + "-kafka-${kafkaVersion}"
+// If the version says "snapshot" anywhere assume it is not a release
+ext.isReleaseVersion = !version.toUpperCase(Locale.ENGLISH).contains("SNAPSHOT")
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        // Confluent repo
+        url 'http://packages.confluent.io/maven/'
+    }
+}
+
+dependencies {
+    compile group: 'com.cloudant', name: 'cloudant-client', version: '2.12.0'
+    compile group: 'org.json', name: 'json', version: '20160810'
+    compileOnly group: 'org.apache.kafka', name: "kafka_${scalaVersion}", version: "${kafkaVersion}"
+    compileOnly group: 'org.apache.kafka', name: 'connect-api', version: "${kafkaVersion}"
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.powermock', name: 'powermock-api-easymock', version: '1.6.4'
+    testCompile group: 'org.easymock', name: 'easymock', version: '3.4'
+    testCompile group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.2'
+    testCompile group: 'org.apache.kafka', name: "kafka_${scalaVersion}", version: "${kafkaVersion}"
+    testCompile group: 'org.apache.kafka', name: 'connect-api', version: "${kafkaVersion}"
+}
+
+// Java versions
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+// Always UTF-8
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+// modify the jar task to pull in required dependencies
+jar {
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+// We also want a sources jar ...
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    sourceSets.all {
+        into(name + "/java", { from allJava })
+        into(name + "/resources", { from resources })
+    }
+}
+
+// ... and a javadoc jar
+javadoc {
+    options.encoding 'UTF-8'
+    options.setMemberLevel JavadocMemberLevel.PROTECTED
+    // Add a logging listener to check for javadoc warnings and fail the build if there are any
+    boolean hasJavaDocWarnings = false;
+    doFirst {
+        getLogging().addStandardErrorListener(new StandardOutputListener() {
+            void onOutput(CharSequence output) {
+                if (output =~ "warning:") {
+                    hasJavaDocWarnings = true
+                }
+            }
+        })
+    }
+    doLast {
+        if (hasJavaDocWarnings) {
+            throw new GradleException("Build failed due to javadoc warnings.");
+        }
+    }
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar, javadocJar
+}
+
+// Load signing and repository parameters from system properties
+['signing.keyId', 'signing.password', 'signing.secretKeyRingFile', 'ossrhUsername', 'ossrhPassword']
+        .each { propName ->
+    //set a property with the given name if the system property is set
+    //if the system property is not set then set the property to null if it isn't a signing one
+    if (System.properties.(propName.toString()) != null || !propName.startsWith("signing")) {
+        ext.(propName.toString()) = System.properties.(propName.toString())
+    }
+}
+
+signing {
+    // Only apply signing when it is a release and is being published
+    required {
+        isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives")
+    }
+    // When signing, sign the archives
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+
+            // When publishing sign the pom
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            // Augment the pom with additional information
+            pom.project {
+                name rootProject.name
+                packaging 'jar'
+                url 'https://cloudant.com'
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+                scm {
+                    connection 'scm:git:git@github.com:cloudant-labs/kafka-connect-cloudant.git'
+                    developerConnection 'scm:git:git@github.com:cloudant-labs/kafka-connect-cloudant.git'
+                    url 'scm:git:git@github.com:cloudant-labs/kafka-connect-cloudant.git'
+                    tag 'preview'
+                }
+                properties {
+                    'project.build.sourceEncoding' 'UTF-8'
+                }
+                developers {
+                    developer {
+                        name 'IBM Cloudant'
+                        email 'support@cloudant.com'
+                        url 'https://cloudant.com'
+                        organization 'IBM'
+                        organizationUrl 'http://www.ibm.com'
+                    }
+                }
+            }
+        }
+    }
+}
+
+test {
+    // Exclude the performance tests
+    exclude 'com/ibm/cloudant/kakfa/performance/**'
+}
+
+tasks.withType(Test) {
+    // Transfer all gradle System properties to the test JVM
+    systemProperties = System.getProperties()
+}
