@@ -11,7 +11,7 @@
  * either express or implied. See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.ibm.cloudant.kakfa.connect.utils;
+package com.ibm.cloudant.kafka.connect.utils;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
