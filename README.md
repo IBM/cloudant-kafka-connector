@@ -46,6 +46,7 @@ cloudant.db.username|\<username\>|YES|None|The Cloudant username to use for auth
 cloudant.db.password|\<password\>|YES|None|The Cloudant password to use for authentication.
 cloudant.db.since|1-g1AAAAETeJzLYWBgYMlgTmGQT0lKzi9..|NO|0|The first change sequence to process from the Cloudant database above. 0 will apply all available document changes.
 batch.size|400|NO|1000|The batch size used to bulk read from the Cloudant database.
+cloudant.value.schema.struct|false|NO|false| _EXPERIMENTAL_ Set to true to generate a `org.apache.kafka.connect.data.Schema.Type.STRUCT` schema and send the Cloudant document payload as a `org.apache.kafka.connect.data.Struct` using the schema instead of the default of a string of the JSON document content when using the Cloudant source connector.
 
 ### Cloudant as sink
 
@@ -66,7 +67,6 @@ cloudant.db.password|\<password\>|YES|None|The Cloudant password to use for auth
 tasks.max|5|NO|1|The number of concurrent threads to use for parallel bulk insert into Cloudant.
 batch.size|400|NO|1000|The maximum number of documents to commit with a single bulk insert.
 replication|false|NO|false|Managed object schema in sink database <br>*true: duplicate objects from source <br>false: adjust objects from source (\_id = [\<topic-name\>\_\<partition\>\_\<offset>\_\<sourceCloudantObjectId\>], kc\_schema = Kafka value schema)*
-cloudant.value.schema.struct|false|NO|false| _EXPERIMENTAL_ Set to true to generate a `org.apache.kafka.connect.data.Schema.Type.STRUCT` schema and send the Cloudant document payload as a `org.apache.kafka.connect.data.Struct` using the schema instead of the default of a string of the JSON document content when using the Cloudant source connector.
 
 ## Usage
 
