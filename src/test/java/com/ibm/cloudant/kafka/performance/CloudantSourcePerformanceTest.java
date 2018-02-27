@@ -11,7 +11,7 @@
  * either express or implied. See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.ibm.cloudant.kakfa.performance;
+package com.ibm.cloudant.kafka.performance;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
@@ -22,7 +22,7 @@ import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloudant.kafka.connect.CloudantSourceConnector;
 import com.ibm.cloudant.kafka.connect.CloudantSourceTask;
-import com.ibm.cloudant.kakfa.connect.utils.ConnectorUtils;
+import com.ibm.cloudant.kafka.connect.utils.ConnectorUtils;
 
 import org.apache.kafka.connect.connector.ConnectorContext;
 import org.apache.kafka.connect.source.SourceRecord;

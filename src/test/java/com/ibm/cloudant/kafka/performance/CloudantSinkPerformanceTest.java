@@ -11,7 +11,7 @@
  * either express or implied. See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.ibm.cloudant.kakfa.performance;
+package com.ibm.cloudant.kafka.performance;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
@@ -22,8 +22,8 @@ import com.google.gson.JsonParser;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloudant.kafka.connect.CloudantSinkTask;
-import com.ibm.cloudant.kakfa.connect.utils.CloudantDbUtils;
-import com.ibm.cloudant.kakfa.connect.utils.ConnectorUtils;
+import com.ibm.cloudant.kafka.connect.utils.CloudantDbUtils;
+import com.ibm.cloudant.kafka.connect.utils.ConnectorUtils;
 
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;

@@ -14,27 +14,29 @@
  * and limitations under the License.
  */
 
-commonStages.buildInDocker([imageName: 'openjdk:8'],
-        {
-            sh './gradlew clean assemble'
-        }
-)
+stage('Build') {
+    // Checkout, build and assemble the source and doc
+    node {
+        checkout scm
+        sh './gradlew clean assemble'
+        stash name: 'built'
+    }
+}
 
 stage('QA') {
-    runIn.dockerEnv([imageName: 'openjdk:8'],
-                    {
-                        unstash name: 'built'
-                        withCredentials([usernamePassword(credentialsId: 'clientlibs-test',
-                                usernameVariable: 'DB_USER',
-                                passwordVariable: 'DB_PASSWORD')]) {
+    node {
+        unstash name: 'built'
+        withCredentials([usernamePassword(credentialsId: 'clientlibs-test',
+                usernameVariable: 'DB_USER',
+                passwordVariable: 'DB_PASSWORD')]) {
 
-                            try {
-                                sh './gradlew -Dcloudant.account=https://clientlibs-test.cloudant.com -Dcloudant.user=$DB_USER -Dcloudant.pass=$DB_PASSWORD test'
-                            } finally {
-                                junit '**/build/test-results/test/*.xml'
-                            }
-                        }
-                    })
+            try {
+                sh './gradlew -Dcloudant.account=https://clientlibs-test.cloudant.com -Dcloudant.user=$DB_USER -Dcloudant.pass=$DB_PASSWORD test'
+            } finally {
+                junit '**/build/test-results/test/*.xml'
+            }
+        }
+    }
 }
 
 // Publish the master branch

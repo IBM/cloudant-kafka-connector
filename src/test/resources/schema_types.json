@@ -1,0 +1,30 @@
+{
+  "_id": "00065ff1-d60f-48cc-89f0-46c8838cd49d",
+  "_rev": "2-280a5bddacae45eab509e7332fa4db3c",
+  "string": "燑홁큒ꑧ쑤∹肷켏죬㹹땀샔퀷䕽",
+  "double": 0.8394783663178513,
+  "integer": -192741966,
+  "float": 0.032276213,
+  "long": -2044357298457380400,
+  "boolean": false,
+  "null": null,
+  "array_string": [
+    "Aberystwyth",
+    "Bangor",
+    "Cardiff",
+    "Dorchester"
+  ],
+  "array_number": [
+    0.8394783663178513,
+    -192741966,
+    0.032276213,
+    -2044357298457380400
+  ],
+  "array_boolean": [
+    false,
+    true
+  ],
+  "object": {
+    "nestedKey": "㸪𞑛钽麳볬ऻ⨝쪔］猵ઘᷛ鱽"
+  }
+}

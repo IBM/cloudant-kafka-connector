@@ -14,7 +14,7 @@
 package com.ibm.cloudant.kafka.connect;
 
 import com.ibm.cloudant.kafka.common.InterfaceConst;
-import com.ibm.cloudant.kakfa.connect.utils.ConnectorUtils;
+import com.ibm.cloudant.kafka.connect.utils.ConnectorUtils;
 
 import junit.framework.TestCase;
 
@@ -99,6 +99,9 @@ public class CloudantSourceConnectorTest extends TestCase {
                 .get(InterfaceConst.TASKS_MAX));
         Assert.assertEquals(sourceProperties.get(InterfaceConst.BATCH_SIZE), taskConfigs.get(0)
                 .get(InterfaceConst.BATCH_SIZE));
+
+        Assert.assertEquals(sourceProperties.get(InterfaceConst.USE_VALUE_SCHEMA_STRUCT), taskConfigs.get(0)
+                .get(InterfaceConst.USE_VALUE_SCHEMA_STRUCT));
 
         PowerMock.verifyAll();
     }

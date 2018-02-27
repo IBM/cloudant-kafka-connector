@@ -16,11 +16,12 @@ package com.ibm.cloudant.kafka.connect;
 import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
-import com.ibm.cloudant.kakfa.connect.utils.CloudantDbUtils;
-import com.ibm.cloudant.kakfa.connect.utils.ConnectorUtils;
+import com.ibm.cloudant.kafka.connect.utils.CloudantDbUtils;
+import com.ibm.cloudant.kafka.connect.utils.ConnectorUtils;
 
 import junit.framework.TestCase;
 
+import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -115,6 +116,30 @@ public class CloudantSourceTaskTest extends TestCase {
         // (even though database has 999 + 20 documents now)
         records2 = task.poll();
         assertEquals(new_changes, records2.size());
+    }
+
+    public void testStructMessage() throws InterruptedException {
+        PowerMock.replayAll();
+
+        // Use the struct message format
+        sourceProperties.put(InterfaceConst.USE_VALUE_SCHEMA_STRUCT, "true");
+
+        // Run the task and process all documents currently in the _changes feed
+        task.start(sourceProperties);
+        List<SourceRecord> records = task.poll();
+        assertTrue(records.size() > 0);
+        assertEquals(999, records.size());
+
+        // Inspect the first record and make sure it is a struct
+        SourceRecord firstRecord = records.get(0);
+
+        assertEquals("The key schema should be a string", Schema.STRING_SCHEMA, firstRecord.keySchema());
+
+        Schema schema = firstRecord.valueSchema();
+
+        // The default is a String schema, so it should not be that with the option enabled
+        assertEquals("The value schema type should be a struct schema", Schema.Type.STRUCT, schema.type());
+        assertTrue("There should be multiple fields in the schema", schema.fields().size() > 1);
     }
 
     /**

@@ -160,7 +160,7 @@ uploadArchives {
 
 test {
     // Exclude the performance tests
-    exclude 'com/ibm/cloudant/kakfa/performance/**'
+    exclude 'com/ibm/cloudant/kafka/performance/**'
 }
 
 tasks.withType(Test) {
