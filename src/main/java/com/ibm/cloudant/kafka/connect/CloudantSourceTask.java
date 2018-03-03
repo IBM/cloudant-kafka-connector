@@ -22,10 +22,11 @@ import com.google.gson.JsonObject;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
-import com.ibm.cloudant.kafka.schema.JsonStruct;
+import com.ibm.cloudant.kafka.schema.DocumentAsSchemaStruct;
 
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
@@ -50,24 +51,15 @@ public class CloudantSourceTask extends SourceTask {
     private AtomicBoolean stop;
     private AtomicBoolean _running;
 
-    private CloudantSourceTaskConfig config;
-
-    String url = null;
-    String userName = null;
-    String password = null;
-    List<String> topics = null;
-    int taskNumber;
-    boolean generateStructSchema = false;
+    private String url = null;
+    private List<String> topics = null;
+    private boolean generateStructSchema = false;
+    private boolean flattenStructSchema = false;
 
     private static String latestSequenceNumber = null;
     private static int batch_size = 0;
 
-    private static CloudantClient cantClient = null;
-    private ChangesResult cantChangeResult = null;
     private static Database cantDB = null;
-    private static String cantDBName = null;
-
-    public int counter = 0;
 
     @Override
     public List<SourceRecord> poll() throws InterruptedException {
@@ -84,7 +76,7 @@ public class CloudantSourceTask extends SourceTask {
             LOG.debug("Process lastSeq: " + latestSequenceNumber);
 
             // the changes feed for initial processing (not continuous yet)
-            cantChangeResult = cantDB.changes()
+            ChangesResult cantChangeResult = cantDB.changes()
                     .includeDocs(true)
                     .since(latestSequenceNumber)
                     .limit(batch_size)
@@ -126,8 +118,9 @@ public class CloudantSourceTask extends SourceTask {
                     Schema docSchema;
                     Object docValue;
                     if (generateStructSchema) {
-                        docSchema = JsonStruct.jsonObjectToSchema(doc);
-                        docValue = JsonStruct.jsonObjectToStruct(doc, docSchema);
+                        Struct docStruct = DocumentAsSchemaStruct.convert(doc, flattenStructSchema);
+                        docSchema = docStruct.schema();
+                        docValue = docStruct;
                     } else {
                         docSchema = Schema.STRING_SCHEMA;
                         docValue = doc.toString();
@@ -166,14 +159,14 @@ public class CloudantSourceTask extends SourceTask {
     public void start(Map<String, String> props) {
 
         try {
-            config = new CloudantSourceTaskConfig(props);
+            CloudantSourceTaskConfig config = new CloudantSourceTaskConfig(props);
 
             url = config.getString(InterfaceConst.URL);
-            userName = config.getString(InterfaceConst.USER_NAME);
-            password = config.getPassword(InterfaceConst.PASSWORD).value();
+            String userName = config.getString(InterfaceConst.USER_NAME);
+            String password = config.getPassword(InterfaceConst.PASSWORD).value();
             topics = config.getList(InterfaceConst.TOPIC);
-            taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
             generateStructSchema = config.getBoolean(InterfaceConst.USE_VALUE_SCHEMA_STRUCT);
+            flattenStructSchema = config.getBoolean(InterfaceConst.FLATTEN_VALUE_SCHEMA_STRUCT);
 
             latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
             batch_size = config.getInt(InterfaceConst.BATCH_SIZE) == null ? InterfaceConst
@@ -188,7 +181,7 @@ public class CloudantSourceTask extends SourceTask {
             stop = new AtomicBoolean(false);
 
             if (latestSequenceNumber == null) {
-                latestSequenceNumber = new String(DEFAULT_CLOUDANT_LAST_SEQ);
+                latestSequenceNumber = DEFAULT_CLOUDANT_LAST_SEQ;
 
                 OffsetStorageReader offsetReader = context.offsetStorageReader();
 
@@ -207,13 +200,13 @@ public class CloudantSourceTask extends SourceTask {
             String urlWithoutProtocal = url.substring(url.indexOf("://") + 3);
             String account = urlWithoutProtocal.substring(0, urlWithoutProtocal.indexOf("."));
 
-            cantClient = ClientBuilder.account(account)
+            CloudantClient cantClient = ClientBuilder.account(account)
                     .username(userName)
                     .password(password)
                     .build();
 
             // Create a database instance
-            cantDBName = url.substring(url.lastIndexOf("/") + 1);
+            String cantDBName = url.substring(url.lastIndexOf("/") + 1);
 
             // Create a database instance
             cantDB = cantClient.database(cantDBName, false);
@@ -242,7 +235,7 @@ public class CloudantSourceTask extends SourceTask {
                 return;
             }
 
-            while (_running.get() == true) {
+            while (_running.get()) {
                 try {
                     Thread.sleep(SHUTDOWN_DELAY_MILLISEC);
                 } catch (InterruptedException e) {
