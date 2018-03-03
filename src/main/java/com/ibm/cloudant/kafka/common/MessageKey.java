@@ -40,5 +40,9 @@ public class MessageKey {
 	public static final String CLOUDANT_STRUCT_SCHEMA_FLATTEN_DISP = "CloudantSchemaFlattenDisp";
 	public static final String CLOUDANT_STRUCT_SCHEMA_FLATTEN_DOC = "CloudantSchemaFlattenDoc";
 
+	public static final String CLOUDANT_STRUCT_SCHEMA_JSON_ELEMENT = "CloudantSchemaUnknownJsonElement";
+	public static final String CLOUDANT_STRUCT_SCHEMA_JSON_PRIMITIVE = "CloudantSchemaUnknownJsonPrimitive";
+	public static final String CLOUDANT_STRUCT_SCHEMA_JSON_MIXED_ARRAY = "CloudantSchemaMixedArrays";
+
 	public static final String GUID_SCHEMA = "GuidSchema";
 }
