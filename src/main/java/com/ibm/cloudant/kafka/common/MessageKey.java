@@ -37,5 +37,8 @@ public class MessageKey {
 	public static final String CLOUDANT_STRUCT_SCHEMA_DISP = "CloudantSchemaDisp";
 	public static final String CLOUDANT_STRUCT_SCHEMA_DOC = "CloudantSchemaDoc";
 
+	public static final String CLOUDANT_STRUCT_SCHEMA_FLATTEN_DISP = "CloudantSchemaFlattenDisp";
+	public static final String CLOUDANT_STRUCT_SCHEMA_FLATTEN_DOC = "CloudantSchemaFlattenDoc";
+
 	public static final String GUID_SCHEMA = "GuidSchema";
 }

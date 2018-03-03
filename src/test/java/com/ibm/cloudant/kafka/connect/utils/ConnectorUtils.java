@@ -60,6 +60,12 @@ public class ConnectorUtils {
         sourceProperties.put(InterfaceConst.LAST_CHANGE_SEQ, testProperties.getProperty
                 (InterfaceConst.LAST_CHANGE_SEQ));
 
+        // Schema options
+        sourceProperties.put(InterfaceConst.USE_VALUE_SCHEMA_STRUCT, testProperties
+                .getProperty(InterfaceConst.USE_VALUE_SCHEMA_STRUCT));
+        sourceProperties.put(InterfaceConst.FLATTEN_VALUE_SCHEMA_STRUCT, testProperties
+                .getProperty(InterfaceConst.FLATTEN_VALUE_SCHEMA_STRUCT));
+
         return sourceProperties;
     }
 
@@ -171,10 +177,6 @@ public class ConnectorUtils {
                 .TOPIC));
         connectorProperties.put(InterfaceConst.TASKS_MAX, testProperties.getProperty
                 (InterfaceConst.TASKS_MAX));
-
-        // Schema options
-        connectorProperties.put(InterfaceConst.USE_VALUE_SCHEMA_STRUCT, testProperties
-                .getProperty(InterfaceConst.USE_VALUE_SCHEMA_STRUCT));
 
         // Add the performance URL
         connectorProperties.put(PERFORMANCE_URL, testProperties.getProperty(PERFORMANCE_URL));
