@@ -166,4 +166,6 @@ test {
 tasks.withType(Test) {
     // Transfer all gradle System properties to the test JVM
     systemProperties = System.getProperties()
+    // Make sure it is UTF-8 for tests
+    systemProperty "file.encoding", "UTF-8"
 }

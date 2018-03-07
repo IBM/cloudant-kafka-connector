@@ -1,0 +1,479 @@
+{
+  "_id": "7dd89edf04a23560b96aff93c7e97d17",
+  "_rev": "1-ff2638e18ddf496fabc3bd1c1f7b8f13",
+  "doc": {
+    "cde": {
+      "author": {
+        "gender": "unknown",
+        "parenthood": {
+          "isParent": "unknown",
+          "evidence": ""
+        },
+        "location": {
+          "country": "United States",
+          "city": "Denver",
+          "state": "Colorado"
+        },
+        "maritalStatus": {
+          "isMarried": "unknown",
+          "evidence": ""
+        }
+      },
+      "content": {
+        "sentiment": {
+          "evidence": [],
+          "polarity": "NEUTRAL"
+        }
+      }
+    },
+    "_rev": "1-722e0d627d75290bf4f1d064ee16aba2",
+    "cdeInternal": {
+      "tracks": [{
+        "id": "2713720a-f341-4ca0-acd1-f8b1e6c0d00f"
+      }]
+    },
+    "_id": "010c7ac05bfbe411d19c80d684ffcc2f",
+    "message": {
+      "twitter_extended_entities": {
+        "media": [{
+          "display_url": "pic.twitter.com/523aI70uQe",
+          "indices": [139, 140],
+          "sizes": {
+            "small": {
+              "w": 340,
+              "h": 208,
+              "resize": "fit"
+            },
+            "large": {
+              "w": 500,
+              "h": 307,
+              "resize": "fit"
+            },
+            "thumb": {
+              "w": 150,
+              "h": 150,
+              "resize": "crop"
+            },
+            "medium": {
+              "w": 500,
+              "h": 307,
+              "resize": "fit"
+            }
+          },
+          "id_str": "627529741302546432",
+          "expanded_url": "http://twitter.com/Libertea2012/status/627529741512282112/photo/1",
+          "source_status_id_str": "627529741512282112",
+          "media_url_https": "https://pbs.twimg.com/media/CLVu-ZRUwAAlccF.jpg",
+          "id": 627529741302546432,
+          "type": "photo",
+          "source_status_id": 627529741512282112,
+          "media_url": "http://pbs.twimg.com/media/CLVu-ZRUwAAlccF.jpg",
+          "url": "http://t.co/523aI70uQe"
+        }, {
+          "display_url": "pic.twitter.com/WAHopHwl8I",
+          "indices": [78, 100],
+          "sizes": {
+            "small": {
+              "w": 340,
+              "h": 208,
+              "resize": "fit"
+            },
+            "large": {
+              "w": 500,
+              "h": 307,
+              "resize": "fit"
+            },
+            "thumb": {
+              "w": 150,
+              "h": 150,
+              "resize": "crop"
+            },
+            "medium": {
+              "w": 500,
+              "h": 307,
+              "resize": "fit"
+            }
+          },
+          "id_str": "627499321693376513",
+          "expanded_url": "http://twitter.com/LegalizationFl/status/627499322905653248/photo/1",
+          "source_status_id_str": "627499322905653248",
+          "media_url_https": "https://pbs.twimg.com/media/CLVTTvZVEAE_jrn.jpg",
+          "id": 627499321693376513,
+          "type": "photo",
+          "source_status_id": 627499322905653248,
+          "media_url": "http://pbs.twimg.com/media/CLVTTvZVEAE_jrn.jpg",
+          "url": "http://t.co/WAHopHwl8I"
+        }]
+      },
+      "postedTime": "2015-08-01T17:23:03.000Z",
+      "verb": "share",
+      "link": "http://twitter.com/Colorado4Bernie/statuses/627529990771310592",
+      "generator": {
+        "displayName": "Twitter Web Client",
+        "link": "http://twitter.com"
+      },
+      "body": "RT @Libertea2012: RT: The day will come when the 99% wakes up ! #Election2016 http://t.co/WAHopHwl8I: The day will come… #UniteBlue http://t.co/523aI70uQe",
+      "favoritesCount": 0,
+      "objectType": "activity",
+      "actor": {
+        "image": "https://pbs.twimg.com/profile_images/608744237899747329/BnEDnLXp_normal.png",
+        "statusesCount": 4439,
+        "utcOffset": "-21600",
+        "languages": ["en"],
+        "preferredUsername": "Colorado4Bernie",
+        "displayName": "Colorado4Bernie",
+        "postedTime": "2015-06-10T21:07:18.000Z",
+        "link": "http://www.twitter.com/Colorado4Bernie",
+        "verified": false,
+        "friendsCount": 2001,
+        "twitterTimeZone": "Mountain Time (US & Canada)",
+        "favoritesCount": 36,
+        "listedCount": 38,
+        "objectType": "person",
+        "links": [{
+          "rel": "me"
+        }],
+        "location": {
+          "displayName": "Denver, CO",
+          "objectType": "place"
+        },
+        "followersCount": 1621,
+        "id": "id:twitter.com:3241726321"
+      },
+      "provider": {
+        "displayName": "Twitter",
+        "link": "http://www.twitter.com",
+        "objectType": "service"
+      },
+      "twitter_filter_level": "low",
+      "twitter_entities": {
+        "urls": [],
+        "hashtags": [{
+          "indices": [64, 77],
+          "text": "Election2016"
+        }, {
+          "indices": [121, 131],
+          "text": "UniteBlue"
+        }],
+        "media": [{
+          "display_url": "pic.twitter.com/523aI70uQe",
+          "indices": [139, 140],
+          "sizes": {
+            "small": {
+              "w": 340,
+              "h": 208,
+              "resize": "fit"
+            },
+            "large": {
+              "w": 500,
+              "h": 307,
+              "resize": "fit"
+            },
+            "thumb": {
+              "w": 150,
+              "h": 150,
+              "resize": "crop"
+            },
+            "medium": {
+              "w": 500,
+              "h": 307,
+              "resize": "fit"
+            }
+          },
+          "id_str": "627529741302546432",
+          "expanded_url": "http://twitter.com/Libertea2012/status/627529741512282112/photo/1",
+          "source_status_id_str": "627529741512282112",
+          "media_url_https": "https://pbs.twimg.com/media/CLVu-ZRUwAAlccF.jpg",
+          "id": 627529741302546432,
+          "type": "photo",
+          "source_status_id": 627529741512282112,
+          "media_url": "http://pbs.twimg.com/media/CLVu-ZRUwAAlccF.jpg",
+          "url": "http://t.co/523aI70uQe"
+        }, {
+          "display_url": "pic.twitter.com/WAHopHwl8I",
+          "indices": [78, 100],
+          "sizes": {
+            "small": {
+              "w": 340,
+              "h": 208,
+              "resize": "fit"
+            },
+            "large": {
+              "w": 500,
+              "h": 307,
+              "resize": "fit"
+            },
+            "thumb": {
+              "w": 150,
+              "h": 150,
+              "resize": "crop"
+            },
+            "medium": {
+              "w": 500,
+              "h": 307,
+              "resize": "fit"
+            }
+          },
+          "id_str": "627499321693376513",
+          "expanded_url": "http://twitter.com/LegalizationFl/status/627499322905653248/photo/1",
+          "source_status_id_str": "627499322905653248",
+          "media_url_https": "https://pbs.twimg.com/media/CLVTTvZVEAE_jrn.jpg",
+          "id": 627499321693376513,
+          "type": "photo",
+          "source_status_id": 627499322905653248,
+          "media_url": "http://pbs.twimg.com/media/CLVTTvZVEAE_jrn.jpg",
+          "url": "http://t.co/WAHopHwl8I"
+        }],
+        "user_mentions": [{
+          "indices": [3, 16],
+          "screen_name": "Libertea2012",
+          "id_str": "607558430",
+          "name": "The Progressive Mind",
+          "id": 607558430
+        }],
+        "symbols": [],
+        "trends": []
+      },
+      "twitter_lang": "en",
+      "id": "tag:search.twitter.com,2005:627529990771310592",
+      "retweetCount": 2,
+      "gnip": {
+        "urls": [{
+          "expanded_url": "http://twitter.com/LegalizationFl/status/627499322905653248/photo/1",
+          "expanded_status": 200,
+          "url": "http://t.co/WAHopHwl8I"
+        }, {
+          "expanded_url": "http://twitter.com/Libertea2012/status/627529741512282112/photo/1",
+          "expanded_status": 200,
+          "url": "http://t.co/523aI70uQe"
+        }],
+        "profileLocations": [{
+          "geo": {
+            "coordinates": [-104.9847, 39.73915],
+            "type": "point"
+          },
+          "address": {
+            "country": "United States",
+            "subRegion": "Denver County",
+            "countryCode": "US",
+            "locality": "Denver",
+            "region": "Colorado"
+          },
+          "displayName": "Denver, Colorado, United States",
+          "objectType": "place"
+        }],
+        "language": {
+          "value": "en"
+        }
+      },
+      "object": {
+        "twitter_extended_entities": {
+          "media": [{
+            "display_url": "pic.twitter.com/523aI70uQe",
+            "indices": [114, 136],
+            "sizes": {
+              "small": {
+                "w": 340,
+                "h": 208,
+                "resize": "fit"
+              },
+              "large": {
+                "w": 500,
+                "h": 307,
+                "resize": "fit"
+              },
+              "thumb": {
+                "w": 150,
+                "h": 150,
+                "resize": "crop"
+              },
+              "medium": {
+                "w": 500,
+                "h": 307,
+                "resize": "fit"
+              }
+            },
+            "id_str": "627529741302546432",
+            "expanded_url": "http://twitter.com/Libertea2012/status/627529741512282112/photo/1",
+            "media_url_https": "https://pbs.twimg.com/media/CLVu-ZRUwAAlccF.jpg",
+            "id": 627529741302546432,
+            "type": "photo",
+            "media_url": "http://pbs.twimg.com/media/CLVu-ZRUwAAlccF.jpg",
+            "url": "http://t.co/523aI70uQe"
+          }, {
+            "display_url": "pic.twitter.com/WAHopHwl8I",
+            "indices": [60, 82],
+            "sizes": {
+              "small": {
+                "w": 340,
+                "h": 208,
+                "resize": "fit"
+              },
+              "large": {
+                "w": 500,
+                "h": 307,
+                "resize": "fit"
+              },
+              "thumb": {
+                "w": 150,
+                "h": 150,
+                "resize": "crop"
+              },
+              "medium": {
+                "w": 500,
+                "h": 307,
+                "resize": "fit"
+              }
+            },
+            "id_str": "627499321693376513",
+            "expanded_url": "http://twitter.com/LegalizationFl/status/627499322905653248/photo/1",
+            "source_status_id_str": "627499322905653248",
+            "media_url_https": "https://pbs.twimg.com/media/CLVTTvZVEAE_jrn.jpg",
+            "id": 627499321693376513,
+            "type": "photo",
+            "source_status_id": 627499322905653248,
+            "media_url": "http://pbs.twimg.com/media/CLVTTvZVEAE_jrn.jpg",
+            "url": "http://t.co/WAHopHwl8I"
+          }]
+        },
+        "postedTime": "2015-08-01T17:22:03.000Z",
+        "verb": "post",
+        "link": "http://twitter.com/Libertea2012/statuses/627529741512282112",
+        "generator": {
+          "displayName": "dlvr.it",
+          "link": "http://dlvr.it"
+        },
+        "body": "RT: The day will come when the 99% wakes up ! #Election2016 http://t.co/WAHopHwl8I: The day will come… #UniteBlue http://t.co/523aI70uQe",
+        "favoritesCount": 0,
+        "objectType": "activity",
+        "actor": {
+          "summary": "Progressive policies are the only remedy to the sickness of the current system. #Bernie2016 #p2 #UniteBlue #LibCrib        \nRT ARE NOT ENDORSEMENTS!!!",
+          "image": "https://pbs.twimg.com/profile_images/592486610131791873/tTyg78JU_normal.png",
+          "statusesCount": 40534,
+          "utcOffset": "-14400",
+          "languages": ["en"],
+          "preferredUsername": "Libertea2012",
+          "displayName": "The Progressive Mind",
+          "postedTime": "2012-06-13T21:15:43.000Z",
+          "link": "http://www.twitter.com/Libertea2012",
+          "verified": false,
+          "friendsCount": 18457,
+          "twitterTimeZone": "Eastern Time (US & Canada)",
+          "favoritesCount": 2189,
+          "listedCount": 305,
+          "objectType": "person",
+          "links": [{
+            "rel": "me",
+            "href": "http://progressivemind.ucoz.com"
+          }],
+          "location": {
+            "displayName": "ProgressiveLand",
+            "objectType": "place"
+          },
+          "followersCount": 20325,
+          "id": "id:twitter.com:607558430"
+        },
+        "provider": {
+          "displayName": "Twitter",
+          "link": "http://www.twitter.com",
+          "objectType": "service"
+        },
+        "twitter_filter_level": "low",
+        "twitter_entities": {
+          "urls": [],
+          "hashtags": [{
+            "indices": [46, 59],
+            "text": "Election2016"
+          }, {
+            "indices": [103, 113],
+            "text": "UniteBlue"
+          }],
+          "media": [{
+            "display_url": "pic.twitter.com/523aI70uQe",
+            "indices": [114, 136],
+            "sizes": {
+              "small": {
+                "w": 340,
+                "h": 208,
+                "resize": "fit"
+              },
+              "large": {
+                "w": 500,
+                "h": 307,
+                "resize": "fit"
+              },
+              "thumb": {
+                "w": 150,
+                "h": 150,
+                "resize": "crop"
+              },
+              "medium": {
+                "w": 500,
+                "h": 307,
+                "resize": "fit"
+              }
+            },
+            "id_str": "627529741302546432",
+            "expanded_url": "http://twitter.com/Libertea2012/status/627529741512282112/photo/1",
+            "media_url_https": "https://pbs.twimg.com/media/CLVu-ZRUwAAlccF.jpg",
+            "id": 627529741302546432,
+            "type": "photo",
+            "media_url": "http://pbs.twimg.com/media/CLVu-ZRUwAAlccF.jpg",
+            "url": "http://t.co/523aI70uQe"
+          }, {
+            "display_url": "pic.twitter.com/WAHopHwl8I",
+            "indices": [60, 82],
+            "sizes": {
+              "small": {
+                "w": 340,
+                "h": 208,
+                "resize": "fit"
+              },
+              "large": {
+                "w": 500,
+                "h": 307,
+                "resize": "fit"
+              },
+              "thumb": {
+                "w": 150,
+                "h": 150,
+                "resize": "crop"
+              },
+              "medium": {
+                "w": 500,
+                "h": 307,
+                "resize": "fit"
+              }
+            },
+            "id_str": "627499321693376513",
+            "expanded_url": "http://twitter.com/LegalizationFl/status/627499322905653248/photo/1",
+            "source_status_id_str": "627499322905653248",
+            "media_url_https": "https://pbs.twimg.com/media/CLVTTvZVEAE_jrn.jpg",
+            "id": 627499321693376513,
+            "type": "photo",
+            "source_status_id": 627499322905653248,
+            "media_url": "http://pbs.twimg.com/media/CLVTTvZVEAE_jrn.jpg",
+            "url": "http://t.co/WAHopHwl8I"
+          }],
+          "user_mentions": [],
+          "symbols": [],
+          "trends": []
+        },
+        "twitter_lang": "en",
+        "id": "tag:search.twitter.com,2005:627529741512282112",
+        "object": {
+          "summary": "RT: The day will come when the 99% wakes up ! #Election2016 http://t.co/WAHopHwl8I: The day will come… #UniteBlue http://t.co/523aI70uQe",
+          "postedTime": "2015-08-01T17:22:03.000Z",
+          "link": "http://twitter.com/Libertea2012/statuses/627529741512282112",
+          "id": "object:search.twitter.com,2005:627529741512282112",
+          "objectType": "note"
+        }
+      }
+    }
+  },
+  "id": "010c7ac05bfbe411d19c80d684ffcc2f",
+  "value": {
+    "rev": "1-722e0d627d75290bf4f1d064ee16aba2"
+  },
+  "key": "010c7ac05bfbe411d19c80d684ffcc2f"
+}

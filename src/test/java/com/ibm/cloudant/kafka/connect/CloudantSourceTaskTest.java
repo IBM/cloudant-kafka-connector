@@ -22,6 +22,8 @@ import com.ibm.cloudant.kafka.connect.utils.ConnectorUtils;
 import junit.framework.TestCase;
 
 import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.errors.DataException;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -118,12 +120,27 @@ public class CloudantSourceTaskTest extends TestCase {
         assertEquals(new_changes, records2.size());
     }
 
-    public void testStructMessage() throws InterruptedException {
+    public void testStructMessage() throws Exception {
         PowerMock.replayAll();
 
         // Use the struct message format
         sourceProperties.put(InterfaceConst.USE_VALUE_SCHEMA_STRUCT, "true");
 
+        runAndAssertDocStructField(false);
+    }
+
+    public void testFlattenedStructMessage() throws Exception {
+        PowerMock.replayAll();
+
+        // Use the struct message format
+        sourceProperties.put(InterfaceConst.USE_VALUE_SCHEMA_STRUCT, "true");
+        // with flattening
+        sourceProperties.put(InterfaceConst.FLATTEN_VALUE_SCHEMA_STRUCT, "true");
+
+        runAndAssertDocStructField(true);
+    }
+
+    private void runAndAssertDocStructField(boolean isFlattened) throws Exception {
         // Run the task and process all documents currently in the _changes feed
         task.start(sourceProperties);
         List<SourceRecord> records = task.poll();
@@ -131,15 +148,47 @@ public class CloudantSourceTaskTest extends TestCase {
         assertEquals(999, records.size());
 
         // Inspect the first record and make sure it is a struct
-        SourceRecord firstRecord = records.get(0);
+        for (int i = 0; i <= 2; i++) {
+            SourceRecord record = records.get(i);
 
-        assertEquals("The key schema should be a string", Schema.STRING_SCHEMA, firstRecord.keySchema());
+            assertEquals("The key schema should be a string", Schema.STRING_SCHEMA, record
+                    .keySchema());
 
-        Schema schema = firstRecord.valueSchema();
+            Schema schema = record.valueSchema();
 
-        // The default is a String schema, so it should not be that with the option enabled
-        assertEquals("The value schema type should be a struct schema", Schema.Type.STRUCT, schema.type());
-        assertTrue("There should be multiple fields in the schema", schema.fields().size() > 1);
+            // The default is a String schema, so it should not be that with the option enabled
+            assertEquals("The value schema type should be a struct schema", Schema.Type.STRUCT,
+                    schema.type());
+
+            if (isFlattened) {
+                // The exact record we receive first is undefined, so we don't know how mnany
+                // fields there will be, but we can check we have more fields than in the
+                // non-flattened case
+                assertTrue("There should be more fields than an unflattened doc", schema
+                        .fields().size() > 6);
+            } else {
+                assertEquals("There should be the correct number of fields in the schema", 6, schema
+                        .fields().size());
+            }
+
+            // The exact record we receive is undefined, but we can check for a non-null value
+            Struct s = (Struct) record.value();
+            assertNotNull("The struct should not be null", s);
+            try {
+                if (isFlattened) {
+                    assertNotNull("A value should be present", s.getString("doc.message.body"));
+                } else {
+                    assertNotNull("A value should be present", s.getStruct("doc").getStruct("message")
+                            .getString("body"));
+                }
+                break;
+            } catch(DataException e) {
+                // There are two documents in the dataset that don't have a message, since the order
+                // is undefined we might get one of these and end up here, if we do we should try
+                // again with the next record.
+                continue;
+            }
+        }
     }
 
     /**

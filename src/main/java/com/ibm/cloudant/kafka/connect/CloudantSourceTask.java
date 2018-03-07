@@ -1,18 +1,16 @@
-/*******************************************************************************
-* Copyright (c) 2016 IBM Corp.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*******************************************************************************/
+/*
+ * Copyright © 2016, 2018 IBM Corp. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
 package com.ibm.cloudant.kafka.connect;
 
 import com.cloudant.client.api.ClientBuilder;
@@ -24,10 +22,11 @@ import com.google.gson.JsonObject;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
-import com.ibm.cloudant.kafka.schema.JsonStruct;
+import com.ibm.cloudant.kafka.schema.DocumentAsSchemaStruct;
 
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
@@ -42,210 +41,210 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CloudantSourceTask extends SourceTask {
-	
-	private static Logger LOG = Logger.getLogger(CloudantSourceTask.class);
 
-	private static long FEED_SLEEP_MILLISEC = 5000;
-	private static long SHUTDOWN_DELAY_MILLISEC = 10;
-	private static String DEFAULT_CLOUDANT_LAST_SEQ = "0";
-	
-	private AtomicBoolean stop;
-	private AtomicBoolean _running;
-	
-	private CloudantSourceTaskConfig config;
-	
-	String url = null;
-	String userName = null;
-	String password = null;
-	List<String> topics = null;
-	int taskNumber;
-	boolean generateStructSchema = false;
-	
-	private static String latestSequenceNumber = null;
-	private static int batch_size = 0;
+    private static Logger LOG = Logger.getLogger(CloudantSourceTask.class);
 
-	private static CloudantClient cantClient = null;
-	private ChangesResult cantChangeResult = null;
-	private static Database cantDB = null; 
-	private static String cantDBName = null;
-	
-	public int counter = 0;
-		
-	@Override
-	public List<SourceRecord> poll() throws InterruptedException {
-		
-				
-		// stop will be set but can be honored only after we release
-		// the changes() feed
-		while (!stop.get()) {
-			_running.set(true);
-			
-			// the array to be returned
-			ArrayList<SourceRecord> records = new ArrayList<SourceRecord>();
+    private static long FEED_SLEEP_MILLISEC = 5000;
+    private static long SHUTDOWN_DELAY_MILLISEC = 10;
+    private static String DEFAULT_CLOUDANT_LAST_SEQ = "0";
 
-			LOG.debug("Process lastSeq: " + latestSequenceNumber);
-			
-			// the changes feed for initial processing (not continuous yet)
-			cantChangeResult = cantDB.changes()
-					.includeDocs(true)
-					.since(latestSequenceNumber)
-					.limit(batch_size)
-					.getChanges();
+    private AtomicBoolean stop;
+    private AtomicBoolean _running;
 
-			if (cantDB.changes() != null) {
-				
-				// This indicates that we have exhausted the initial feed
-				// and can request a continuous feed next
-				if (cantChangeResult.getResults().size() == 0) {
+    private String url = null;
+    private List<String> topics = null;
+    private boolean generateStructSchema = false;
+    private boolean flattenStructSchema = false;
 
-					LOG.debug("Get continuous feed for lastSeq: " + latestSequenceNumber);
+    private static String latestSequenceNumber = null;
+    private static int batch_size = 0;
 
-					// the continuous changes feed
-					cantChangeResult = cantDB.changes()
-							.includeDocs(true)
-							.since(latestSequenceNumber)
-							.limit(batch_size)
-							//.continuousChanges() 
-								/*
-								 * => Removed because of performance (waiting time)
-								 * Requests Change notifications of feed type continuous. 
-								 * Feed notifications are accessed in an iterator style.
-								 * This method will connect to the changes feed; any configuration options applied after calling it will be ignored.	 
-								 */
-							.heartBeat(FEED_SLEEP_MILLISEC)
-							.getChanges();
-				}
+    private static Database cantDB = null;
 
-				LOG.debug("Got " + cantChangeResult.getResults().size() + " changes");
-				latestSequenceNumber = cantChangeResult.getLastSeq();
-
-				// process the results into the array to be returned
-				for (ListIterator<Row> it = cantChangeResult.getResults().listIterator(); it.hasNext(); ) {
-					Row row_ = it.next();
-					JsonObject doc = row_.getDoc();
-					Schema docSchema;
-					Object docValue;
-					if (generateStructSchema) {
-						docSchema = JsonStruct.jsonObjectToSchema(doc);
-						docValue = JsonStruct.jsonObjectToStruct(doc, docSchema);
-					} else {
-						docSchema = Schema.STRING_SCHEMA;
-						docValue = doc.toString();
-					}
-
-					// Emit the record to every topic configured
-					for (String topic : topics) {
-						SourceRecord sourceRecord = new SourceRecord(offsetKey(url), 
-								offsetValue(latestSequenceNumber), 
-								topic, // topics 
-								//Integer.valueOf(row_.getId())%3, // partition
-								Schema.STRING_SCHEMA, // key schema
-								row_.getId(), // key
-								docSchema, // value schema
-								docValue); // value
-						records.add(sourceRecord);
-					}
-				}
-
-				LOG.info("Return " + records.size() / topics.size() + " records with last offset " 
-				+ latestSequenceNumber);
-
-				cantChangeResult = null;
-				
-				_running.set(false);
-				return records;
-			}
-		}
-
-		// Only in case of shutdown
-		return null;
-	}
+    @Override
+    public List<SourceRecord> poll() throws InterruptedException {
 
 
+        // stop will be set but can be honored only after we release
+        // the changes() feed
+        while (!stop.get()) {
+            _running.set(true);
 
-	@Override
-	public void start(Map<String, String> props) {
+            // the array to be returned
+            ArrayList<SourceRecord> records = new ArrayList<SourceRecord>();
 
-		try {
-			config = new CloudantSourceTaskConfig(props);
+            LOG.debug("Process lastSeq: " + latestSequenceNumber);
 
-			url = config.getString(InterfaceConst.URL);
-			userName = config.getString(InterfaceConst.USER_NAME);
-			password = config.getPassword(InterfaceConst.PASSWORD).value();
-			topics = config.getList(InterfaceConst.TOPIC);
-			taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
-			generateStructSchema = config.getBoolean(InterfaceConst.USE_VALUE_SCHEMA_STRUCT);
+            // the changes feed for initial processing (not continuous yet)
+            ChangesResult cantChangeResult = cantDB.changes()
+                    .includeDocs(true)
+                    .since(latestSequenceNumber)
+                    .limit(batch_size)
+                    .getChanges();
 
-			latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
-			batch_size = config.getInt(InterfaceConst.BATCH_SIZE)==null ? InterfaceConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
+            if (cantDB.changes() != null) {
+
+                // This indicates that we have exhausted the initial feed
+                // and can request a continuous feed next
+                if (cantChangeResult.getResults().size() == 0) {
+
+                    LOG.debug("Get continuous feed for lastSeq: " + latestSequenceNumber);
+
+                    // the continuous changes feed
+                    cantChangeResult = cantDB.changes()
+                            .includeDocs(true)
+                            .since(latestSequenceNumber)
+                            .limit(batch_size)
+                            //.continuousChanges()
+                            /*
+                             * => Removed because of performance (waiting time)
+                             * Requests Change notifications of feed type continuous.
+                             * Feed notifications are accessed in an iterator style.
+                             * This method will connect to the changes feed; any configuration
+                             * options applied after calling it will be ignored.
+                             */
+                            .heartBeat(FEED_SLEEP_MILLISEC)
+                            .getChanges();
+                }
+
+                LOG.debug("Got " + cantChangeResult.getResults().size() + " changes");
+                latestSequenceNumber = cantChangeResult.getLastSeq();
+
+                // process the results into the array to be returned
+                for (ListIterator<Row> it = cantChangeResult.getResults().listIterator(); it
+                        .hasNext(); ) {
+                    Row row_ = it.next();
+                    JsonObject doc = row_.getDoc();
+                    Schema docSchema;
+                    Object docValue;
+                    if (generateStructSchema) {
+                        Struct docStruct = DocumentAsSchemaStruct.convert(doc, flattenStructSchema);
+                        docSchema = docStruct.schema();
+                        docValue = docStruct;
+                    } else {
+                        docSchema = Schema.STRING_SCHEMA;
+                        docValue = doc.toString();
+                    }
+
+                    // Emit the record to every topic configured
+                    for (String topic : topics) {
+                        SourceRecord sourceRecord = new SourceRecord(offsetKey(url),
+                                offsetValue(latestSequenceNumber),
+                                topic, // topics
+                                //Integer.valueOf(row_.getId())%3, // partition
+                                Schema.STRING_SCHEMA, // key schema
+                                row_.getId(), // key
+                                docSchema, // value schema
+                                docValue); // value
+                        records.add(sourceRecord);
+                    }
+                }
+
+                LOG.info("Return " + records.size() / topics.size() + " records with last offset "
+                        + latestSequenceNumber);
+
+                cantChangeResult = null;
+
+                _running.set(false);
+                return records;
+            }
+        }
+
+        // Only in case of shutdown
+        return null;
+    }
+
+
+    @Override
+    public void start(Map<String, String> props) {
+
+        try {
+            CloudantSourceTaskConfig config = new CloudantSourceTaskConfig(props);
+
+            url = config.getString(InterfaceConst.URL);
+            String userName = config.getString(InterfaceConst.USER_NAME);
+            String password = config.getPassword(InterfaceConst.PASSWORD).value();
+            topics = config.getList(InterfaceConst.TOPIC);
+            generateStructSchema = config.getBoolean(InterfaceConst.USE_VALUE_SCHEMA_STRUCT);
+            flattenStructSchema = config.getBoolean(InterfaceConst.FLATTEN_VALUE_SCHEMA_STRUCT);
+
+            latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
+            batch_size = config.getInt(InterfaceConst.BATCH_SIZE) == null ? InterfaceConst
+                    .DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
 				
 			/*if (tasks_max > 1) {
-				throw new ConfigException("CouchDB _changes API only supports 1 thread. Configure tasks.max=1");
+				throw new ConfigException("CouchDB _changes API only supports 1 thread. Configure
+				tasks.max=1");
 			}*/
-												
-			_running = new AtomicBoolean(false);
-			stop = new AtomicBoolean(false);
-			
-			if (latestSequenceNumber == null) {
-				latestSequenceNumber = new String(DEFAULT_CLOUDANT_LAST_SEQ);
-				
-				OffsetStorageReader offsetReader = context.offsetStorageReader();
 
-				if (offsetReader != null) {
-					Map<String, Object> offset = offsetReader.offset(Collections.singletonMap(InterfaceConst.URL, url));
-					if (offset != null) {
-						latestSequenceNumber = (String) offset.get(InterfaceConst.LAST_CHANGE_SEQ);
-						LOG.info("Start with current offset (last sequence): " + latestSequenceNumber);
-					}
-				}
-			}
+            _running = new AtomicBoolean(false);
+            stop = new AtomicBoolean(false);
 
-			// Create a new CloudantClient instance for account endpoint account.cloudant.com
-			String urlWithoutProtocal = url.substring(url.indexOf("://") +3);
-			String account = urlWithoutProtocal.substring(0,urlWithoutProtocal.indexOf("."));
-			
-			cantClient = ClientBuilder.account(account)
-			                          .username(userName)
-			                          .password(password)
-			                          .build();
-			
-			// Create a database instance
-			cantDBName = url.substring(url.lastIndexOf("/")+1);
-			
-			// Create a database instance
-			cantDB = cantClient.database(cantDBName, false);
-			
-		} catch (ConfigException e) {
-			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION), e);
-		}
+            if (latestSequenceNumber == null) {
+                latestSequenceNumber = DEFAULT_CLOUDANT_LAST_SEQ;
 
-	}
+                OffsetStorageReader offsetReader = context.offsetStorageReader();
 
-	@Override
-	public void stop() {
-		if (stop != null) {
-			stop.set(true);
-		}
-		
-		// terminate the changes feed
-		// Careful: this is an asynchronous call
-		if (cantDB.changes() != null) {		
-			cantDB.changes().stop();
-			
-			// graceful shutdown
-			// allow the poll() method to flush records first
-			if (_running == null) return;
-			
-			while (_running.get() == true) {
-				try {
-					Thread.sleep(SHUTDOWN_DELAY_MILLISEC);
-				} catch (InterruptedException e) {
-					LOG.error(e);
-				}
-			}
-		}
-	}
-	
+                if (offsetReader != null) {
+                    Map<String, Object> offset = offsetReader.offset(Collections.singletonMap
+                            (InterfaceConst.URL, url));
+                    if (offset != null) {
+                        latestSequenceNumber = (String) offset.get(InterfaceConst.LAST_CHANGE_SEQ);
+                        LOG.info("Start with current offset (last sequence): " +
+                                latestSequenceNumber);
+                    }
+                }
+            }
+
+            // Create a new CloudantClient instance for account endpoint account.cloudant.com
+            String urlWithoutProtocal = url.substring(url.indexOf("://") + 3);
+            String account = urlWithoutProtocal.substring(0, urlWithoutProtocal.indexOf("."));
+
+            CloudantClient cantClient = ClientBuilder.account(account)
+                    .username(userName)
+                    .password(password)
+                    .build();
+
+            // Create a database instance
+            String cantDBName = url.substring(url.lastIndexOf("/") + 1);
+
+            // Create a database instance
+            cantDB = cantClient.database(cantDBName, false);
+
+        } catch (ConfigException e) {
+            throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION)
+                    , e);
+        }
+
+    }
+
+    @Override
+    public void stop() {
+        if (stop != null) {
+            stop.set(true);
+        }
+
+        // terminate the changes feed
+        // Careful: this is an asynchronous call
+        if (cantDB.changes() != null) {
+            cantDB.changes().stop();
+
+            // graceful shutdown
+            // allow the poll() method to flush records first
+            if (_running == null) {
+                return;
+            }
+
+            while (_running.get()) {
+                try {
+                    Thread.sleep(SHUTDOWN_DELAY_MILLISEC);
+                } catch (InterruptedException e) {
+                    LOG.error(e);
+                }
+            }
+        }
+    }
+
 
     private Map<String, String> offsetKey(String url) {
         return Collections.singletonMap(InterfaceConst.URL, url);
@@ -255,8 +254,8 @@ public class CloudantSourceTask extends SourceTask {
         return Collections.singletonMap(InterfaceConst.LAST_CHANGE_SEQ, lastSeqNumber);
     }
 
-	public String version() {
-		 return new CloudantSourceConnector().version();
-	}
-	
+    public String version() {
+        return new CloudantSourceConnector().version();
+    }
+
 }

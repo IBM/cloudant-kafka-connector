@@ -8,23 +8,23 @@
   "long": -2044357298457380400,
   "boolean": false,
   "null": null,
-  "array_string": [
+  "z_array_string": [
     "Aberystwyth",
     "Bangor",
     "Cardiff",
     "Dorchester"
   ],
-  "array_number": [
+  "z_array_number": [
     0.8394783663178513,
     -192741966,
     0.032276213,
     -2044357298457380400
   ],
-  "array_boolean": [
+  "z_array_boolean": [
     false,
     true
   ],
-  "object": {
+  "z_object": {
     "nestedKey": "㸪𞑛钽麳볬ऻ⨝쪔］猵ઘᷛ鱽"
   }
 }
