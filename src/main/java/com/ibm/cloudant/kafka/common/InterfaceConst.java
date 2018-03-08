@@ -35,6 +35,9 @@ public class InterfaceConst {
 	public final static Boolean DEFAULT_REPLICATION = false;
 	public final static String KC_SCHEMA = "kc_schema";
 
+	// Whether to omit design documents
+	public final static String OMIT_DESIGN_DOCS = "cloudant.omit.design.docs";
+
 	// Whether to use a struct schema for the message values
 	public final static String USE_VALUE_SCHEMA_STRUCT = "cloudant.value.schema.struct";
 	public final static String FLATTEN_VALUE_SCHEMA_STRUCT = "cloudant.value.schema.struct.flatten";

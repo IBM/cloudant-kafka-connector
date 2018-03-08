@@ -66,6 +66,14 @@ public class CloudantSourceConnectorConfig extends AbstractConfig {
                         DATABASE_GROUP, 1, Width.LONG,
                         ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DISP))
 
+                // Whether to omit design documents
+                .define(InterfaceConst.OMIT_DESIGN_DOCS, Type.BOOLEAN,
+                        false,
+                        Importance.LOW,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_OMIT_DDOC_DOC),
+                        DATABASE_GROUP, 1, Width.NONE,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_OMIT_DDOC_DISP))
+
                 // Whether to generate a struct Schema
                 .define(InterfaceConst.USE_VALUE_SCHEMA_STRUCT, Type.BOOLEAN,
                         false,

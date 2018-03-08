@@ -31,6 +31,7 @@ import org.json.JSONTokener;
 import org.powermock.api.easymock.PowerMock;
 
 import java.io.FileReader;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -138,6 +139,28 @@ public class CloudantSourceTaskTest extends TestCase {
         sourceProperties.put(InterfaceConst.FLATTEN_VALUE_SCHEMA_STRUCT, "true");
 
         runAndAssertDocStructField(true);
+    }
+
+    public void testOmitDesignDoc() throws Exception {
+        // Add an additional doc, specifically a design doc
+        JSONArray ddocArray = new JSONArray();
+        ddocArray.put(Collections.singletonMap("_id", "_design/test"));
+        JavaCloudantUtil.batchWrite(sourceProperties.get(InterfaceConst.URL),
+                sourceProperties.get(InterfaceConst.USER_NAME),
+                sourceProperties.get(InterfaceConst.PASSWORD),ddocArray);
+
+        PowerMock.replayAll();
+
+        // Omit design docs
+        sourceProperties.put(InterfaceConst.OMIT_DESIGN_DOCS, "true");
+
+        task.start(sourceProperties);
+        List<SourceRecord> records = task.poll();
+
+        // We have 1000 docs in the database at this point, but 1 is the design doc which should
+        // be omitted so assert on 999.
+        assertEquals(999, records.size());
+
     }
 
     private void runAndAssertDocStructField(boolean isFlattened) throws Exception {
