@@ -60,6 +60,10 @@ public class ConnectorUtils {
         sourceProperties.put(InterfaceConst.LAST_CHANGE_SEQ, testProperties.getProperty
                 (InterfaceConst.LAST_CHANGE_SEQ));
 
+        // Whether to omit design documents
+        sourceProperties.put(InterfaceConst.OMIT_DESIGN_DOCS, testProperties.getProperty
+                (InterfaceConst.OMIT_DESIGN_DOCS));
+
         // Schema options
         sourceProperties.put(InterfaceConst.USE_VALUE_SCHEMA_STRUCT, testProperties
                 .getProperty(InterfaceConst.USE_VALUE_SCHEMA_STRUCT));

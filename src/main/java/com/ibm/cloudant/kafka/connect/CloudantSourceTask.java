@@ -55,6 +55,7 @@ public class CloudantSourceTask extends SourceTask {
     private List<String> topics = null;
     private boolean generateStructSchema = false;
     private boolean flattenStructSchema = false;
+    private boolean omitDesignDocs = false;
 
     private static String latestSequenceNumber = null;
     private static int batch_size = 0;
@@ -126,17 +127,20 @@ public class CloudantSourceTask extends SourceTask {
                         docValue = doc.toString();
                     }
 
-                    // Emit the record to every topic configured
-                    for (String topic : topics) {
-                        SourceRecord sourceRecord = new SourceRecord(offsetKey(url),
-                                offsetValue(latestSequenceNumber),
-                                topic, // topics
-                                //Integer.valueOf(row_.getId())%3, // partition
-                                Schema.STRING_SCHEMA, // key schema
-                                row_.getId(), // key
-                                docSchema, // value schema
-                                docValue); // value
-                        records.add(sourceRecord);
+                    String id = row_.getId();
+                    if (!omitDesignDocs || !id.startsWith("_design/")) {
+                        // Emit the record to every topic configured
+                        for (String topic : topics) {
+                            SourceRecord sourceRecord = new SourceRecord(offsetKey(url),
+                                    offsetValue(latestSequenceNumber),
+                                    topic, // topics
+                                    //Integer.valueOf(row_.getId())%3, // partition
+                                    Schema.STRING_SCHEMA, // key schema
+                                    id, // key
+                                    docSchema, // value schema
+                                    docValue); // value
+                            records.add(sourceRecord);
+                        }
                     }
                 }
 
@@ -165,6 +169,7 @@ public class CloudantSourceTask extends SourceTask {
             String userName = config.getString(InterfaceConst.USER_NAME);
             String password = config.getPassword(InterfaceConst.PASSWORD).value();
             topics = config.getList(InterfaceConst.TOPIC);
+            omitDesignDocs = config.getBoolean(InterfaceConst.OMIT_DESIGN_DOCS);
             generateStructSchema = config.getBoolean(InterfaceConst.USE_VALUE_SCHEMA_STRUCT);
             flattenStructSchema = config.getBoolean(InterfaceConst.FLATTEN_VALUE_SCHEMA_STRUCT);
 
