@@ -18,6 +18,7 @@ import com.cloudant.client.api.CloudantClient;
 import com.cloudant.client.api.Database;
 import com.cloudant.client.api.model.Response;
 import com.cloudant.http.interceptors.Replay429Interceptor;
+import com.cloudant.http.internal.interceptors.UserAgentInterceptor;
 import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 
@@ -26,11 +27,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class JavaCloudantUtil {
 
+	private static final UserAgentInterceptor UA_INTERCEPTOR = new UserAgentInterceptor
+			(JavaCloudantUtil.class.getClassLoader(), "META-INF/com.ibm.cloudant.kafka.client.properties");
 	private static Logger LOG = Logger.getLogger(JavaCloudantUtil.class.toString());
 	
 	public static JSONArray batchWrite(String url, String userName, String password, JSONArray data) throws JSONException {
@@ -41,10 +46,7 @@ public class JavaCloudantUtil {
 		try {
 			// get database object
 			Database cantDB = getDBInst(url, userName, password);
-			if (cantDB == null) {
-				throw new RuntimeException(String.format(ResourceBundleUtil.get(
-						MessageKey.CLOUDANT_DATABASE_ERROR), url));
-			}
+
 			List<Object> entryObj = new ArrayList<Object>();
 			for(int i=0; i < data.length();i++){											
 				entryObj.add(data.getJSONObject(i).toMap());
@@ -77,10 +79,6 @@ public class JavaCloudantUtil {
 					MessageKey.CLOUDANT_LIMITATION)))){
 				// get database object
 				Database cantDB = getDBInst(url, userName, password);
-				if (cantDB == null) {
-					throw new RuntimeException(String.format(ResourceBundleUtil.get(
-							MessageKey.CLOUDANT_DATABASE_ERROR), url));
-				}
 							
 				List<Object> entryObj = new ArrayList<Object>();
 				JSONArray tempData = new JSONArray(data.toString());			
@@ -123,35 +121,53 @@ public class JavaCloudantUtil {
 	    return result;
 	}
 
-	public static Database getDBInst(String url, String username, String password) {
-		
-		CloudantClient cantClient = null;
-		Database cantDB = null; 
-		
+	public static CloudantClient getClientInstanceFromDBUrl(String url, String username, String
+			password) throws MalformedURLException {
 		// Create a new CloudantClient instance for account endpoint account.cloudant.com
-		// url: https://account.cloudant.com/dbname
-		// length of "://" is 3
-		if (url != null) {
-			String urlWithoutProtocal = url.substring(url.indexOf("://") +3);
-			
-			if (urlWithoutProtocal != null) {
-				String account = urlWithoutProtocal.substring(0,urlWithoutProtocal.indexOf("."));
-				if (account != null) {
-					cantClient = ClientBuilder.account(account)
-							.username(username)
-							.password(password)
-							.interceptors(Replay429Interceptor.WITH_DEFAULTS)
-							.build();
-		
-					String cantDBName = url.substring(url.lastIndexOf("/")+1);
-					
-					if (cantDBName != null) {
-						// create a database instance (create it if database doesn't exist)
-						cantDB = cantClient.database(cantDBName, true);
-					}
-				}
+		// In future this should be changed so that we don't assume the URL has a path element for
+		// the database because some use cases proxy a database to a URL without a path element.
+		// dbUrl: https://account.cloudant.com/dbname
+		// serverUrl: https://account.cloudant.com/
+		URL dbUrl = new URL(url);
+		URL serverUrl = new URL(dbUrl.getProtocol(), dbUrl.getHost(), dbUrl.getPort(), "");
+		return ClientBuilder.url(serverUrl)
+				.username(username)
+				.password(password)
+				.interceptors(UA_INTERCEPTOR, Replay429Interceptor.WITH_DEFAULTS)
+				.build();
+	}
+
+	public static Database getDBInst(String url, String username, String password) {
+		return getDBInst(url, username, password, true);
+	}
+
+	public static Database getDBInst(String url, String username, String password, boolean
+			create) {
+		RuntimeException error = new RuntimeException(String.format(ResourceBundleUtil.get
+				(MessageKey.CLOUDANT_DATABASE_ERROR), url));
+		try {
+			CloudantClient cloudantClient = getClientInstanceFromDBUrl(url, username, password);
+			String cloudantDbName = getDbNameFromUrl(url);
+			if (cloudantDbName != null) {
+				// create a database instance (create it if database doesn't exist)
+				return cloudantClient.database(cloudantDbName, create);
+			} else {
+				throw error;
 			}
+		} catch (MalformedURLException e) {
+			throw error;
 		}
-		return cantDB;
+	}
+
+	public static String getDbNameFromUrl(String dbUrl) throws MalformedURLException {
+		String dbName = new URL(dbUrl).getPath();
+		// A path might have leading or trailing slashes, remove them
+		if (dbName.startsWith("/")) {
+			dbName = dbName.replaceFirst("/", "");
+		}
+		if (dbName.endsWith("/")) {
+			dbName = dbName.substring(0, dbName.length() - 1);
+		}
+		return dbName;
 	}
 }

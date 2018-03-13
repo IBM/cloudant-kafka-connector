@@ -13,14 +13,13 @@
  */
 package com.ibm.cloudant.kafka.connect;
 
-import com.cloudant.client.api.ClientBuilder;
-import com.cloudant.client.api.CloudantClient;
 import com.cloudant.client.api.Database;
 import com.cloudant.client.api.model.ChangesResult;
 import com.cloudant.client.api.model.ChangesResult.Row;
 import com.google.gson.JsonObject;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
+import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 import com.ibm.cloudant.kafka.schema.DocumentAsSchemaStruct;
 
@@ -60,7 +59,7 @@ public class CloudantSourceTask extends SourceTask {
     private static String latestSequenceNumber = null;
     private static int batch_size = 0;
 
-    private static Database cantDB = null;
+    private static Database cloudantDb = null;
 
     @Override
     public List<SourceRecord> poll() throws InterruptedException {
@@ -77,22 +76,22 @@ public class CloudantSourceTask extends SourceTask {
             LOG.debug("Process lastSeq: " + latestSequenceNumber);
 
             // the changes feed for initial processing (not continuous yet)
-            ChangesResult cantChangeResult = cantDB.changes()
+            ChangesResult cloudantChangesResult = cloudantDb.changes()
                     .includeDocs(true)
                     .since(latestSequenceNumber)
                     .limit(batch_size)
                     .getChanges();
 
-            if (cantDB.changes() != null) {
+            if (cloudantDb.changes() != null) {
 
                 // This indicates that we have exhausted the initial feed
                 // and can request a continuous feed next
-                if (cantChangeResult.getResults().size() == 0) {
+                if (cloudantChangesResult.getResults().size() == 0) {
 
                     LOG.debug("Get continuous feed for lastSeq: " + latestSequenceNumber);
 
                     // the continuous changes feed
-                    cantChangeResult = cantDB.changes()
+                    cloudantChangesResult = cloudantDb.changes()
                             .includeDocs(true)
                             .since(latestSequenceNumber)
                             .limit(batch_size)
@@ -108,11 +107,11 @@ public class CloudantSourceTask extends SourceTask {
                             .getChanges();
                 }
 
-                LOG.debug("Got " + cantChangeResult.getResults().size() + " changes");
-                latestSequenceNumber = cantChangeResult.getLastSeq();
+                LOG.debug("Got " + cloudantChangesResult.getResults().size() + " changes");
+                latestSequenceNumber = cloudantChangesResult.getLastSeq();
 
                 // process the results into the array to be returned
-                for (ListIterator<Row> it = cantChangeResult.getResults().listIterator(); it
+                for (ListIterator<Row> it = cloudantChangesResult.getResults().listIterator(); it
                         .hasNext(); ) {
                     Row row_ = it.next();
                     JsonObject doc = row_.getDoc();
@@ -147,7 +146,7 @@ public class CloudantSourceTask extends SourceTask {
                 LOG.info("Return " + records.size() / topics.size() + " records with last offset "
                         + latestSequenceNumber);
 
-                cantChangeResult = null;
+                cloudantChangesResult = null;
 
                 _running.set(false);
                 return records;
@@ -201,20 +200,7 @@ public class CloudantSourceTask extends SourceTask {
                 }
             }
 
-            // Create a new CloudantClient instance for account endpoint account.cloudant.com
-            String urlWithoutProtocal = url.substring(url.indexOf("://") + 3);
-            String account = urlWithoutProtocal.substring(0, urlWithoutProtocal.indexOf("."));
-
-            CloudantClient cantClient = ClientBuilder.account(account)
-                    .username(userName)
-                    .password(password)
-                    .build();
-
-            // Create a database instance
-            String cantDBName = url.substring(url.lastIndexOf("/") + 1);
-
-            // Create a database instance
-            cantDB = cantClient.database(cantDBName, false);
+            cloudantDb = JavaCloudantUtil.getDBInst(url, userName, password, false);
 
         } catch (ConfigException e) {
             throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION)
@@ -231,8 +217,8 @@ public class CloudantSourceTask extends SourceTask {
 
         // terminate the changes feed
         // Careful: this is an asynchronous call
-        if (cantDB.changes() != null) {
-            cantDB.changes().stop();
+        if (cloudantDb.changes() != null) {
+            cloudantDb.changes().stop();
 
             // graceful shutdown
             // allow the poll() method to flush records first

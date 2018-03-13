@@ -7,6 +7,7 @@
  - [NEW] Configuration option `cloudant.omit.design.docs` to suppress message production for design
  documents.
 - [BREAKING CHANGE] Changed build tooling to Gradle.
+- [IMPROVED] Added `kafka-connect-cloudant` User-Agent header to requests.
 - [UPGRADED] Upgraded for Kafka 1.0.0
 - [NOTE] Version number format. The kafka-connect-cloudant version is no longer identical
  to an Apache Kafka version. The Apache Kafka version is appended to the kafka-cloudant-connect

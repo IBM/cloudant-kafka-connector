@@ -36,6 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.powermock.api.easymock.PowerMock;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -254,7 +255,7 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws MalformedURLException {
         CloudantDbUtils.dropDatabase(
                 targetProperties.get(InterfaceConst.URL),
                 targetProperties.get(InterfaceConst.USER_NAME),
