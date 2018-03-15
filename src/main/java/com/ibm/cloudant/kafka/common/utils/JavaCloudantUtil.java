@@ -27,17 +27,37 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class JavaCloudantUtil {
 
+	public static final String VERSION;
+
+	private static final String PROPS_FILE = "META-INF/com.ibm.cloudant.kafka.client.properties";
 	private static final UserAgentInterceptor UA_INTERCEPTOR = new UserAgentInterceptor
-			(JavaCloudantUtil.class.getClassLoader(), "META-INF/com.ibm.cloudant.kafka.client.properties");
+			(JavaCloudantUtil.class.getClassLoader(), PROPS_FILE);
 	private static Logger LOG = Logger.getLogger(JavaCloudantUtil.class.toString());
-	
+
+	static {
+		String v = "UNKNOWN";
+		Properties p = new Properties();
+		try(InputStream is = JavaCloudantUtil.class.getResourceAsStream(PROPS_FILE)) {
+			if (is != null) {
+				p.load(is);
+				v = p.getProperty("user.agent.version", "UNKNOWN");
+			}
+		} catch(IOException e) {
+			LOG.warn(PROPS_FILE, e);
+		}
+		VERSION = v;
+	}
+
 	public static JSONArray batchWrite(String url, String userName, String password, JSONArray data) throws JSONException {
 		LOG.debug(data.toString());
 		// wrap result to JSONArray
