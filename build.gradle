@@ -80,7 +80,7 @@ task generateClientPropertiesFile(type: ClientProperties) {
     outputs.upToDateWhen {
         if (clientPropsPath.exists()) {
             it.load()
-            return project.clientName.equals(it.getPropertyValue("user.agent.name")) && project.version.equals(it.getPropertyValue("user.agent.version"))
+            return project.name.equals(it.getPropertyValue("user.agent.name")) && project.version.equals(it.getPropertyValue("user.agent.version"))
         } else {
             return false
         }
