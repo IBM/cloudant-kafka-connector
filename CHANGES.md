@@ -1,4 +1,4 @@
-# Unreleased
+# 0.100.0 (2018-03-16)
 
 - [NEW] Configuration option `cloudant.value.schema.struct` to send the Cloudant document message
  with a `org.apache.kafka.connect.data.Struct` value schema instead of as a `String`.
