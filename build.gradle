@@ -173,7 +173,7 @@ uploadArchives {
 
             // Augment the pom with additional information
             pom.project {
-                name rootProject.name
+                name project.name
                 packaging 'jar'
                 url 'https://cloudant.com'
                 licenses {
