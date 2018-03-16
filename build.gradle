@@ -176,6 +176,8 @@ uploadArchives {
                 name project.name
                 packaging 'jar'
                 url 'https://cloudant.com'
+                description 'Apache Kafka Connect API connector for Cloudant'
+                inceptionYear '2016'
                 licenses {
                     license {
                         name 'The Apache Software License, Version 2.0'
