@@ -3,11 +3,12 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 // Kafka/scala versions
+// If you change this kafkaVersion, you must update the VERSION file to match
 def kafkaVersion = '1.0.0'
 def scalaVersion = '2.11'
 
 group = 'com.cloudant'
-version = new File(rootDir, 'VERSION').text.trim() + "-kafka-${kafkaVersion}"
+version = new File(rootDir, 'VERSION').text.trim()
 // If the version says "snapshot" anywhere assume it is not a release
 ext.isReleaseVersion = !version.toUpperCase(Locale.ENGLISH).contains("SNAPSHOT")
 
