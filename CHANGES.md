@@ -1,3 +1,7 @@
+# Unreleased
+
+- [FIXED] Corrected version number reported by the source and sink connectors and tasks.
+
 # 0.100.0-kafka-1.0.0 (2018-03-16)
 
 - [NEW] Configuration option `cloudant.value.schema.struct` to send the Cloudant document message
