@@ -47,12 +47,13 @@ public class JavaCloudantUtil {
 	static {
 		String v = "UNKNOWN";
 		Properties p = new Properties();
-		try(InputStream is = JavaCloudantUtil.class.getResourceAsStream(PROPS_FILE)) {
+		try (InputStream is = JavaCloudantUtil.class.getClassLoader().getResourceAsStream
+				(PROPS_FILE)) {
 			if (is != null) {
 				p.load(is);
 				v = p.getProperty("user.agent.version", "UNKNOWN");
 			}
-		} catch(IOException e) {
+		} catch (IOException e) {
 			LOG.warn(PROPS_FILE, e);
 		}
 		VERSION = v;
