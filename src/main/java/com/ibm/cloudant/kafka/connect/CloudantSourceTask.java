@@ -43,9 +43,9 @@ public class CloudantSourceTask extends SourceTask {
 
     private static Logger LOG = Logger.getLogger(CloudantSourceTask.class);
 
-    private static long FEED_SLEEP_MILLISEC = 5000;
-    private static long SHUTDOWN_DELAY_MILLISEC = 10;
-    private static String DEFAULT_CLOUDANT_LAST_SEQ = "0";
+    private static final long FEED_SLEEP_MILLISEC = 5000;
+    private static final long SHUTDOWN_DELAY_MILLISEC = 10;
+    private static final String DEFAULT_CLOUDANT_LAST_SEQ = "0";
 
     private AtomicBoolean stop;
     private AtomicBoolean _running;
@@ -56,10 +56,10 @@ public class CloudantSourceTask extends SourceTask {
     private boolean flattenStructSchema = false;
     private boolean omitDesignDocs = false;
 
-    private static String latestSequenceNumber = null;
-    private static int batch_size = 0;
+    private String latestSequenceNumber = null;
+    private int batch_size = 0;
 
-    private static Database cloudantDb = null;
+    private Database cloudantDb = null;
 
     @Override
     public List<SourceRecord> poll() throws InterruptedException {
