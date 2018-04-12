@@ -3,15 +3,7 @@ jdk:
 - oraclejdk8
 
 ##########################
-### SET PARAMETERS
-##########################
-before_script:
-  - sed -ie 's/examples/'"$CLOUDANT_ACCOUNT"'/g' src/test/resources/test.properties
-  - sed -ie 's/animaldb/'"$CLOUDANT_DB"'/g' src/test/resources/test.properties
-  - sed -ie 's/testuser/'"$CLOUDANT_USERNAME"'/g' src/test/resources/test.properties
-  - sed -ie 's/testpassword/'"$CLOUDANT_PASSWORD"'/g' src/test/resources/test.properties
-##########################
 ### BUILD WITH GRADLE
 ##########################
 script:
-- ./gradlew test
+- ./gradlew -Dcloudant.account=https://$CLOUDANT_ACCOUNT.cloudant.com -Dcloudant.user=$CLOUDANT_USERNAME -Dcloudant.pass=$CLOUDANT_PASSWORD test

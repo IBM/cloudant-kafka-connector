@@ -1,3 +1,8 @@
+# Unreleased
+
+- [FIXED] Issue where multiple source connector configurations overlapped causing incorrect message
+ publication or duplication.
+
 # 0.100.1-kafka-1.0.0 (2018-03-19)
 
 - [FIXED] Corrected version number reported by the source and sink connectors and tasks.

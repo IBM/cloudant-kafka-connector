@@ -34,6 +34,11 @@ import java.io.FileReader;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class CloudantSourceTaskTest extends TestCase {
 
@@ -211,6 +216,62 @@ public class CloudantSourceTaskTest extends TestCase {
                 // again with the next record.
                 continue;
             }
+        }
+    }
+
+    public void testMultipleConnectorInstances() throws Exception {
+
+        ExecutorService e = Executors.newFixedThreadPool(2);
+
+        // Second source properties
+        Map<String, String> sourceProps2 = ConnectorUtils.getSourceProperties();
+
+        try {
+            // Create a second database with different content to the first
+            JSONArray data2 = new JSONArray(new JSONTokener(new FileReader
+                    ("src/test/resources/data2.json")));
+            // Load data into the source database (create if it does not exist)
+            JavaCloudantUtil.batchWrite(sourceProps2.get(InterfaceConst.URL),
+                    sourceProps2.get(InterfaceConst.USER_NAME),
+                    sourceProps2.get(InterfaceConst.PASSWORD),
+                    data2);
+
+            // Create second connector
+            CloudantSourceTask task2 = ConnectorUtils.createCloudantSourceConnector(sourceProps2);
+
+            Future<List<SourceRecord>> fr1 = e.submit(new TaskCallable(task, sourceProperties));
+            Future<List<SourceRecord>> fr2 = e.submit(new TaskCallable(task2, sourceProps2));
+
+            // Wait up to 5 minutes for each of these
+            List<SourceRecord> r1 = fr1.get(5, TimeUnit.MINUTES);
+            List<SourceRecord> r2 = fr2.get(5, TimeUnit.MINUTES);
+
+            assertEquals(999, r1.size());
+            assertEquals(1639, r2.size());
+
+        } finally {
+            // Delete the second database
+            CloudantDbUtils.dropDatabase(sourceProps2.get(InterfaceConst.URL),
+                    sourceProps2.get(InterfaceConst.USER_NAME),
+                    sourceProps2.get(InterfaceConst.PASSWORD));
+            e.shutdown();
+        }
+    }
+
+    private static final class TaskCallable implements Callable<List<SourceRecord>> {
+
+        final CloudantSourceTask t;
+        final Map<String, String> config;
+
+        TaskCallable(CloudantSourceTask t, Map<String, String> config) {
+            this.t = t;
+            this.config = config;
+        }
+
+        @Override
+        public List<SourceRecord> call() throws Exception {
+            t.start(config);
+            return t.poll();
         }
     }
 

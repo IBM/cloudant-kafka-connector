@@ -60,7 +60,6 @@ public class JavaCloudantUtil {
 	}
 
 	public static JSONArray batchWrite(String url, String userName, String password, JSONArray data) throws JSONException {
-		LOG.debug(data.toString());
 		// wrap result to JSONArray
 		JSONArray result = new JSONArray();
 		
