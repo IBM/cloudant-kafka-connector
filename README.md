@@ -1,5 +1,8 @@
 # Kafka Connect Cloudant
 
+[![Build Status](https://travis-ci.org/cloudant-labs/kafka-connect-cloudant.svg?branch=master)](https://travis-ci.org/cloudant-labs/kafka-connect-cloudant)
+[![Maven Central](https://img.shields.io/maven-central/v/com.cloudant/kafka-connect-cloudant.svg)](http://search.maven.org/#search|ga|1|g:"com.cloudant"%20AND%20a:"kafka-connect-cloudant")
+
 Kafka Connect Cloudant Connector. This project includes source & sink connectors.
 
 ## Release Status
@@ -10,8 +13,6 @@ Experimental
 
 * Configuration
 * Usage
-* Building from Source
-* Test execution
 
 ## Configuration
 
@@ -72,6 +73,8 @@ replication|false|NO|false|Managed object schema in sink database <br>*true: dup
 
 ## Usage
 
+The kafka-cloudant-connect jar is available to download from [Maven Central](http://search.maven.org/#search|ga|1|g:"com.cloudant"%20AND%20a:"kafka-connect-cloudant").
+
 Kafka will use the $CLASSPATH to locate available connectors. Make sure to add the connector library to your $CLASSPATH first.
 
 Connector execution in Kafka is available through scripts in the Kafka install path:
@@ -108,29 +111,3 @@ INFO level logging is configured by default to the console. To change log levels
 and add log settings like
 
 `log4j.logger.com.ibm.cloudant.kafka=DEBUG, stdout`
-
-## Building from Source
-
-The project requires Java 8 to build from source. Execute the following command in the project directory:
-
-```sh
-./gradlew clean assemble
-```
-
-## Test execution
-
-Junit tests are available in `src/test/java`.
-
-To execute locally, please modify values in `src/test/resources`, including:
-
-- log4j.properties (optional)
-- test.properties (required)
-
-The settings in `test.properties` have to include Cloudant database credentials and Kafka topic details as above.
-At a minimum you will need to update the values of `cloudant.db.url` `cloudant.db.username` and `cloudant.db.password`.
-The Cloudant credentials must have `_admin` permission as the database referenced by `cloudant.db.url` will be
-created if it does not exist and will be deleted at the end of the tests.
-
-```sh
-./gradlew test
-```
