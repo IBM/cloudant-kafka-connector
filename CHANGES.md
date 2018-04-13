@@ -1,4 +1,4 @@
-# Unreleased
+# 0.100.2-kafka-1.0.0 (2018-04-13)
 
 - [FIXED] Issue where multiple source connector configurations overlapped causing incorrect message
  publication or duplication.
