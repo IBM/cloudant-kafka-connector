@@ -1,9 +1,21 @@
 language: java
 jdk:
-- oraclejdk8
+  - oraclejdk8
+
+services:
+  - docker
+
+before_install:
+  # Use docker to get and start a local apache/couchdb at "latest" on port 5984
+  - docker pull apache/couchdb
+  - docker run -d -p 5984:5984 --env COUCHDB_USER=$CLOUDANT_USERNAME --env COUCHDB_PASSWORD=$CLOUDANT_PASSWORD apache/couchdb
+
+before_script:
+  # Make sure CouchDB is up
+  - while [ $? -ne 0 ]; do sleep 1 && curl -v http://localhost:5984; done
 
 ##########################
 ### BUILD WITH GRADLE
 ##########################
 script:
-- ./gradlew -Dcloudant.account=https://$CLOUDANT_ACCOUNT.cloudant.com -Dcloudant.user=$CLOUDANT_USERNAME -Dcloudant.pass=$CLOUDANT_PASSWORD test
+- ./gradlew -Dcloudant.account=http://localhost:5984 -Dcloudant.user=$CLOUDANT_USERNAME -Dcloudant.pass=$CLOUDANT_PASSWORD test
