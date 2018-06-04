@@ -6,9 +6,9 @@ services:
   - docker
 
 before_install:
-  # Use docker to get and start a local apache/couchdb at "latest" on port 5984
-  - docker pull apache/couchdb
-  - docker run -d -p 5984:5984 --env COUCHDB_USER=$CLOUDANT_USERNAME --env COUCHDB_PASSWORD=$CLOUDANT_PASSWORD apache/couchdb
+  # Use docker to get and start a local Apache CouchDB at "2.x" on port 5984
+  - docker pull couchdb:2
+  - docker run -d -p 5984:5984 --env COUCHDB_USER=$CLOUDANT_USERNAME --env COUCHDB_PASSWORD=$CLOUDANT_PASSWORD couchdb:2
 
 before_script:
   # Make sure CouchDB is up
