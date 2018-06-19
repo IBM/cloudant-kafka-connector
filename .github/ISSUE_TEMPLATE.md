@@ -29,7 +29,7 @@ Got a 400 bad request
 - Version(s) that are affected by this issue.
     > 2.0.2
 - Java version including vendor and platform
-    >1.8.0_151 OpenJDK macOS
+    > 1.8.0_151 OpenJDK macOS
 - Apache Kafka versions (including Scala and any vendor or platform info)
-    >Apache Kafka 1.0.0 (Scala 2.11) connect-standalone.sh with IBM Cloud Message Hub
+    > Apache Kafka 1.0.0 (Scala 2.11) connect-standalone.sh with IBM Cloud Message Hub
 -->
