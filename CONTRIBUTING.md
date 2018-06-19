@@ -1,7 +1,19 @@
-Contributing
-=======
+# Contributing
 
-## Developer Certificate of Origin
+## Issues
+
+Please [read these guidelines](http://ibm.biz/cdt-issue-guide) before opening an issue.
+If you still need to open an issue then we ask that you complete the template as
+fully as possible.
+
+## Pull requests
+
+We welcome pull requests, but ask contributors to keep in mind the following:
+
+* Only PRs with the template completed will be accepted
+* We will not accept PRs for user specific functionality
+
+### Developer Certificate of Origin
 
 In order for us to accept pull-requests, the contributor must sign-off a
 [Developer Certificate of Origin (DCO)](DCO1.1.txt). This clarifies the
@@ -14,15 +26,23 @@ Please read the agreement and acknowledge it by ticking the appropriate box in t
 
 - [x] Tick to sign-off your agreement to the Developer Certificate of Origin (DCO) 1.1
 
-## Building from Source
+<!-- Append library specific information here
 
-The project requires Java 8 to build from source. Execute the following command in the project directory:
+## General information
+
+## Requirements
+
+- Java 8
+
+## Building
+
+Execute the following command in the project directory:
 
 ```sh
 ./gradlew clean assemble
 ```
 
-## Test execution
+## Testing
 
 Junit tests are available in `src/test/java`.
 
