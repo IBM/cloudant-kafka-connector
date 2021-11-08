@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2018 IBM Corp. All rights reserved.
+ * Copyright © 2016, 2021 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -13,20 +13,43 @@
  */
 package com.ibm.cloudant.kafka.connect.utils;
 
-import com.cloudant.client.api.CloudantClient;
+import com.ibm.cloud.cloudant.v1.Cloudant;
+import com.ibm.cloud.cloudant.v1.model.DatabaseInformation;
+import com.ibm.cloud.cloudant.v1.model.DeleteDatabaseOptions;
+import com.ibm.cloud.cloudant.v1.model.GetDatabaseInformationOptions;
+import com.ibm.cloud.cloudant.v1.model.Ok;
+import com.ibm.cloud.sdk.core.http.Response;
+import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
+import org.apache.log4j.Logger;
 
 import java.net.MalformedURLException;
+import java.util.Map;
 
 public class CloudantDbUtils {
 
-	public static void dropDatabase(String url, String username, String password) throws
-			MalformedURLException {
-		CloudantClient client = JavaCloudantUtil.getClientInstanceFromDBUrl(url, username,
-				password);
-		String dbName = JavaCloudantUtil.getDbNameFromUrl(url);
-		if (dbName != null) {
-			client.deleteDB(dbName);
+	private static Logger LOG = Logger.getLogger(CloudantDbUtils.class);
+
+
+	public static void dropDatabase(Map<String, String> props)
+		throws MalformedURLException {
+		Cloudant service = JavaCloudantUtil.getClientInstance(props);
+		String dbName = JavaCloudantUtil.getDbNameFromUrl(props.get(InterfaceConst.URL));
+		DeleteDatabaseOptions deleteDbOptions = new DeleteDatabaseOptions.Builder()
+			.db(dbName)
+			.build();
+		Response<Ok> result = service.deleteDatabase(deleteDbOptions).execute();
+		if (!result.getResult().isOk()) {
+			LOG.error(String.format("Error during deletion of database %s.  Error code: %d Error response: %s",
+				dbName, result.getStatusCode(), result.getStatusMessage()));
 		}
+	}
+
+	public static DatabaseInformation getDbInfo(String dbUrl, Cloudant service) {
+		GetDatabaseInformationOptions dbInfoOptions;
+		dbInfoOptions = new GetDatabaseInformationOptions.Builder()
+			.db(JavaCloudantUtil.getDbNameFromUrl(dbUrl))
+			.build();
+		return service.getDatabaseInformation(dbInfoOptions).execute().getResult();
 	}
 }

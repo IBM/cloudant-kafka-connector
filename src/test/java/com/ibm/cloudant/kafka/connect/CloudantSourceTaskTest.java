@@ -152,7 +152,8 @@ public class CloudantSourceTaskTest extends TestCase {
         ddocArray.put(Collections.singletonMap("_id", "_design/test"));
         JavaCloudantUtil.batchWrite(sourceProperties.get(InterfaceConst.URL),
                 sourceProperties.get(InterfaceConst.USER_NAME),
-                sourceProperties.get(InterfaceConst.PASSWORD),ddocArray);
+                sourceProperties.get(InterfaceConst.PASSWORD),
+                ddocArray);
 
         PowerMock.replayAll();
 
@@ -251,9 +252,7 @@ public class CloudantSourceTaskTest extends TestCase {
 
         } finally {
             // Delete the second database
-            CloudantDbUtils.dropDatabase(sourceProps2.get(InterfaceConst.URL),
-                    sourceProps2.get(InterfaceConst.USER_NAME),
-                    sourceProps2.get(InterfaceConst.PASSWORD));
+            CloudantDbUtils.dropDatabase(sourceProps2);
             e.shutdown();
         }
     }
@@ -292,9 +291,7 @@ public class CloudantSourceTaskTest extends TestCase {
     protected void tearDown() throws Exception {
 
         // Remove the created database
-        CloudantDbUtils.dropDatabase(sourceProperties.get(InterfaceConst.URL),
-                sourceProperties.get(InterfaceConst.USER_NAME),
-                sourceProperties.get(InterfaceConst.PASSWORD));
+        CloudantDbUtils.dropDatabase(sourceProperties);
 
         super.tearDown();
     }

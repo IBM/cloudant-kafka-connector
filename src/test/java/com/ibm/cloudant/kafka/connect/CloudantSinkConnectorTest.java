@@ -61,10 +61,9 @@ public class CloudantSinkConnectorTest extends TestCase {
         Assert.assertEquals(targetProperties.get(InterfaceConst.URL), taskConfigs.get(0).get
                 (InterfaceConst.URL));
         Assert.assertEquals(targetProperties.get(InterfaceConst.USER_NAME), taskConfigs.get(0)
-                .get(InterfaceConst.USER_NAME));
+            .get(InterfaceConst.USER_NAME));
         Assert.assertEquals(targetProperties.get(InterfaceConst.PASSWORD), taskConfigs.get(0).get
-                (InterfaceConst.PASSWORD));
-
+            (InterfaceConst.PASSWORD));
         Assert.assertEquals(targetProperties.get(InterfaceConst.TOPIC), taskConfigs.get(0).get
                 (InterfaceConst.TOPIC));
 

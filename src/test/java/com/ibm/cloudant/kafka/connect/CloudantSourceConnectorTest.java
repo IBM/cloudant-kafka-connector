@@ -86,9 +86,9 @@ public class CloudantSourceConnectorTest extends TestCase {
         Assert.assertEquals(sourceProperties.get(InterfaceConst.URL), taskConfigs.get(0).get
                 (InterfaceConst.URL));
         Assert.assertEquals(sourceProperties.get(InterfaceConst.USER_NAME), taskConfigs.get(0)
-                .get(InterfaceConst.USER_NAME));
+            .get(InterfaceConst.USER_NAME));
         Assert.assertEquals(sourceProperties.get(InterfaceConst.PASSWORD), taskConfigs.get(0).get
-                (InterfaceConst.PASSWORD));
+            (InterfaceConst.PASSWORD));
         Assert.assertEquals(sourceProperties.get(InterfaceConst.LAST_CHANGE_SEQ), taskConfigs.get
                 (0).get(InterfaceConst.LAST_CHANGE_SEQ));
 
