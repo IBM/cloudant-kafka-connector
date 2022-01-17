@@ -16,7 +16,7 @@
 
 stage('Build') {
     // Checkout, build and assemble the source and doc
-    node {
+    node('sdks-kafka-executor') {
         checkout scm
         sh './gradlew clean assemble'
         stash name: 'built'
@@ -24,7 +24,7 @@ stage('Build') {
 }
 
 stage('QA') {
-    node {
+    node('sdks-kafka-executor') {
         unstash name: 'built'
         withCredentials([usernamePassword(credentialsId: 'clientlibs-test',
                 usernameVariable: 'DB_USER',
@@ -42,7 +42,7 @@ stage('QA') {
 // Publish the master branch
 stage('Publish') {
     if (env.BRANCH_NAME == "master") {
-        node {
+        node('sdks-kafka-executor') {
             unstash name: 'built'
             // read the version name and determine if it is a release build
             version = readFile('VERSION').trim()
