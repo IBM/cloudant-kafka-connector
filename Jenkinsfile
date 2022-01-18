@@ -16,7 +16,7 @@
 
 stage('Build') {
     // Checkout, build and assemble the source and doc
-    node {
+    node('sdks-kafka-executor') {
         checkout scm
         sh './gradlew clean assemble'
         stash name: 'built'
@@ -24,14 +24,14 @@ stage('Build') {
 }
 
 stage('QA') {
-    node {
+    node('sdks-kafka-executor') {
         unstash name: 'built'
-        withCredentials([usernamePassword(credentialsId: 'clientlibs-test',
+        withCredentials([usernamePassword(credentialsId: 'testServerLegacy',
                 usernameVariable: 'DB_USER',
                 passwordVariable: 'DB_PASSWORD')]) {
 
             try {
-                sh './gradlew -Dcloudant.account=https://clientlibs-test.cloudant.com -Dcloudant.user=$DB_USER -Dcloudant.pass=$DB_PASSWORD test'
+                sh './gradlew -Dcloudant.account=$SDKS_TEST_SERVER_URL -Dcloudant.user=$DB_USER -Dcloudant.pass=$DB_PASSWORD test'
             } finally {
                 junit '**/build/test-results/test/*.xml'
             }
@@ -42,7 +42,7 @@ stage('QA') {
 // Publish the master branch
 stage('Publish') {
     if (env.BRANCH_NAME == "master") {
-        node {
+        node('sdks-kafka-executor') {
             unstash name: 'built'
             // read the version name and determine if it is a release build
             version = readFile('VERSION').trim()
