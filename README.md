@@ -16,9 +16,12 @@ Experimental
 
 ## Configuration
 
-The Cloudant Kafka connector can be configured in standalone or distributed mode according to the [Kafka Connector documentation](http://docs.confluent.io/3.0.1/connect/userguide.html#configuring-connectors).
+The Cloudant Kafka connector can be configured in standalone or distributed mode according to 
+the [Kafka Connector documentation](http://docs.confluent.io/3.0.1/connect/userguide.html#configuring-connectors). At a minimum it is necessary to configure:
 
-Make sure to include the following values for either configuration:
+1. `bootstrap.servers`
+2. If using a standalone worker `offset.storage.file.filename`.
+3. The following configuration when using the Cloudant connector as either a source or a sink:
 
 Parameter | Value
 ---:|:---
@@ -87,26 +90,26 @@ For example:
 - standalone execution with Cloudant as source:
 
   ```
-  $kafka_home/bin/connect-standalone connect-standalone.properties connect-cloudant-source.properties`
+  $kafka_home/bin/connect-standalone.sh connect-standalone.properties connect-cloudant-source.properties
   ```
 
 - standalone execution with Cloudant as sink:
 
   ```
-  $kafka_home/bin/connect-standalone connect-standalone.properties connect-cloudant-sink.properties
+  $kafka_home/bin/connect-standalone.sh connect-standalone.properties connect-cloudant-sink.properties
   ```
 
 - standalone execution with multiple configurations, one using Cloudant as source and one using Cloudant as sink:
 
   ```
-  $kafka_home/bin/connect-standalone connect-standalone.properties connect-cloudant-source.properties connect-cloudant-sink.properties
+  $kafka_home/bin/connect-standalone.sh connect-standalone.properties connect-cloudant-source.properties connect-cloudant-sink.properties
   ```
 
 Any number of connector configurations can be passed to the executing script.
 
 INFO level logging is configured by default to the console. To change log levels or settings, work with
 
-`$kafka_home/etc/kafka/connect-log4j.properties`
+`$kafka_home/config/connect-log4j.properties`
 
 and add log settings like
 
