@@ -27,7 +27,6 @@ import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 import com.ibm.cloudant.kafka.schema.DocumentAsSchemaStruct;
 
 import org.apache.kafka.common.config.ConfigException;
-import org.apache.kafka.common.config.types.Password;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.errors.ConnectException;
@@ -41,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CloudantSourceTask extends SourceTask {
@@ -150,18 +148,8 @@ public class CloudantSourceTask extends SourceTask {
 
             url = config.getString(InterfaceConst.URL);
             String userName = config.getString(InterfaceConst.USER_NAME);
-            if (!Objects.requireNonNull(userName).isEmpty()) {
-                String password;
-                //Password pass = config.getPassword(InterfaceConst.PASSWORD);
-                if (!Objects.requireNonNull(config.getPassword(InterfaceConst.PASSWORD)).value().isEmpty()) {
-                    password = config.getPassword(InterfaceConst.PASSWORD).value();
-                } else {
-                    throw new ConfigException("Password required in config.");
-                }
-                service = JavaCloudantUtil.getClientInstance(url, userName, password);
-            }  else {
-                throw new ConfigException("Username and password required in config.");
-            }
+            String password = config.getPassword(InterfaceConst.PASSWORD).value();
+            service = JavaCloudantUtil.getClientInstance(url, userName, password);
             topics = config.getList(InterfaceConst.TOPIC);
             omitDesignDocs = config.getBoolean(InterfaceConst.OMIT_DESIGN_DOCS);
             generateStructSchema = config.getBoolean(InterfaceConst.USE_VALUE_SCHEMA_STRUCT);

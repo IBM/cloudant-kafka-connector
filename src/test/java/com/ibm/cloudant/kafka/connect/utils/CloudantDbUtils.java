@@ -22,6 +22,7 @@ import com.ibm.cloud.sdk.core.http.Response;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 
 import java.net.MalformedURLException;
 import java.util.Map;
@@ -39,10 +40,7 @@ public class CloudantDbUtils {
 			.db(dbName)
 			.build();
 		Response<Ok> result = service.deleteDatabase(deleteDbOptions).execute();
-		if (!result.getResult().isOk()) {
-			LOG.error(String.format("Error during deletion of database %s.  Error code: %d Error response: %s",
-				dbName, result.getStatusCode(), result.getStatusMessage()));
-		}
+		Assert.assertTrue(result.getResult().isOk());
 	}
 
 	public static DatabaseInformation getDbInfo(String dbUrl, Cloudant service) {
