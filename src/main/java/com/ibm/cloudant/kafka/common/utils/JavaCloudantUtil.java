@@ -146,8 +146,7 @@ public class JavaCloudantUtil {
 		// dbUrl: https://account.cloudant.com/dbname
 		// serverUrl: https://account.cloudant.com/
 		Authenticator authenticator = null;
-		String[] paths = url.split("/");
-		String serviceUrl = url.substring(0, url.indexOf(paths[paths.length-1]));
+		String serviceUrl = url.substring(0, url.lastIndexOf("/", url.length()-2));
 		if ((username == null || username.isEmpty())
 			&& (password == null || password.isEmpty())) {
 			authenticator = new NoAuthAuthenticator();
