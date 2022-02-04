@@ -1,5 +1,5 @@
 # UNRELEASED
-- [NEW] The underlying Cloudant client library is now EOL. Refactored implementation and test suite to
+- [UPGRADED] Refactored to use the new `cloudant-java-sdk` library.
  use the new `cloudant-java-sdk` library. 
 - [FIXED] README to align with the 2.8.0 Kafka version.
 
