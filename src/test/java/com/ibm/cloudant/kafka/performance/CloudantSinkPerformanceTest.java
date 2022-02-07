@@ -1,5 +1,5 @@
 /*
- * Copyright © 2017, 2018 IBM Corp. All rights reserved.
+ * Copyright © 2017, 2022 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -15,10 +15,11 @@ package com.ibm.cloudant.kafka.performance;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
-import com.cloudant.client.api.Database;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.ibm.cloud.cloudant.v1.Cloudant;
+import com.ibm.cloud.cloudant.v1.model.DatabaseInformation;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloudant.kafka.connect.CloudantSinkTask;
@@ -41,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CloudantSinkPerformanceTest extends AbstractBenchmark {
-    private static Database targetDb;
+    private static Cloudant targetService;
     private static JsonObject testResults1 = new JsonObject();
     private static JsonObject testResults2 = new JsonObject();
     private static JsonObject testResults3 = new JsonObject();
@@ -60,9 +61,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
                 .PERFORMANCE_URL) + "_target");
 
         // Create a _target database to replicate data into
-        targetDb = JavaCloudantUtil.getDBInst(targetProperties.get(InterfaceConst.URL),
-                targetProperties.get(InterfaceConst.USER_NAME),
-                targetProperties.get(InterfaceConst.PASSWORD));
+        targetService = JavaCloudantUtil.getClientInstance(targetProperties);
 
         //Create Connector
         sinkTask = new CloudantSinkTask();
@@ -125,8 +124,10 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
             JsonArray testTimes = new JsonArray();
             testTimes.add(testTime);
             results.addProperty("testRounds", 1);
-            results.addProperty("diskSize", targetDb.info().getDiskSize());
-            results.addProperty("documents", targetDb.info().getDocCount());
+            DatabaseInformation dbInfo = CloudantDbUtils.getDbInfo(
+                targetProperties.get(InterfaceConst.URL), targetService);
+            results.addProperty("diskSize", dbInfo.getSizes().getFile());
+            results.addProperty("documents",dbInfo.getDocCount());
 
             results.addProperty(InterfaceConst.TOPIC, targetProperties.get(InterfaceConst.TOPIC));
             results.addProperty(InterfaceConst.BATCH_SIZE, targetProperties.get(InterfaceConst
@@ -166,10 +167,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
 
     @After
     public void tearDown() throws MalformedURLException {
-        CloudantDbUtils.dropDatabase(
-                targetProperties.get(InterfaceConst.URL),
-                targetProperties.get(InterfaceConst.USER_NAME),
-                targetProperties.get(InterfaceConst.PASSWORD));
+        CloudantDbUtils.dropDatabase(targetProperties);
     }
 
     @AfterClass

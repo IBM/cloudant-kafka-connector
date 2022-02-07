@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2018 IBM Corp. All rights reserved.
+ * Copyright © 2016, 2022 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -13,7 +13,8 @@
  */
 package com.ibm.cloudant.kafka.connect;
 
-import com.cloudant.client.api.Database;
+import com.ibm.cloud.cloudant.v1.Cloudant;
+import com.ibm.cloud.cloudant.v1.model.GetDatabaseInformationOptions;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 
@@ -33,8 +34,11 @@ public class CloudantSourceAndSinkTest extends TestCase {
     private CloudantSourceTaskTest sourceTask;
     private CloudantSinkTaskTest sinkTask;
 
-    private Database sourceDb;
-    private Database targetDb;
+    private Cloudant sourceService;
+    private Cloudant targetService;
+
+    private String sourceDbName;
+    private String targetDbName;
 
     /* (non-Javadoc)
      * @see junit.framework.TestCase#setUp()
@@ -50,19 +54,18 @@ public class CloudantSourceAndSinkTest extends TestCase {
 
 
         // Get the source database handle
-        sourceDb = JavaCloudantUtil.getDBInst(
-                sourceTask.getSourceProperties().get(InterfaceConst.URL),
-                sourceTask.getSourceProperties().get(InterfaceConst.USER_NAME),
-                sourceTask.getSourceProperties().get(InterfaceConst.PASSWORD));
+        sourceService = JavaCloudantUtil.getClientInstance(sourceTask.getSourceProperties());
+
+        sourceDbName = JavaCloudantUtil.getDbNameFromUrl(sourceTask.getSourceProperties().get(InterfaceConst.URL));
 
         // Create a _target database to replicate data into
         sinkTask.getTargetProperties().put(InterfaceConst.URL,
                 sinkTask.getTargetProperties().get(InterfaceConst.URL) + "_target");
+        targetDbName = JavaCloudantUtil.getDbNameFromUrl(
+            sinkTask.getTargetProperties().get(InterfaceConst.URL));
+        JavaCloudantUtil.createTargetDb(sourceService, targetDbName);
 
-        targetDb = JavaCloudantUtil.getDBInst(
-                sinkTask.getTargetProperties().get(InterfaceConst.URL),
-                sinkTask.getTargetProperties().get(InterfaceConst.USER_NAME),
-                sinkTask.getTargetProperties().get(InterfaceConst.PASSWORD));
+        targetService = JavaCloudantUtil.getClientInstance(sinkTask.getTargetProperties());
     }
 
     public void testReplicateAll() throws Exception {
@@ -111,8 +114,14 @@ public class CloudantSourceAndSinkTest extends TestCase {
         sinkTask.getTask().stop();
 
         // 5. Compare the number of documents in the source and target dbs
-        long sourceDocCount = sourceDb.info().getDocCount();
-        long targetDocCount = targetDb.info().getDocCount();
+        GetDatabaseInformationOptions sourceDbOptions = new GetDatabaseInformationOptions.Builder()
+            .db(sourceDbName)
+            .build();
+        GetDatabaseInformationOptions targetDbOptions = new GetDatabaseInformationOptions.Builder()
+            .db(targetDbName)
+            .build();
+        long sourceDocCount = sourceService.getDatabaseInformation(sourceDbOptions).execute().getResult().getDocCount();
+        long targetDocCount = targetService.getDatabaseInformation(targetDbOptions).execute().getResult().getDocCount();
 
         assertTrue(sourceDocCount > 0);
         assertTrue(targetDocCount > 0);

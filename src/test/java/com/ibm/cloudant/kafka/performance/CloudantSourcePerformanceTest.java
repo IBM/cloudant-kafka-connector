@@ -1,5 +1,5 @@
 /*
- * Copyright © 2017, 2018 IBM Corp. All rights reserved.
+ * Copyright © 2017, 2022 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -15,13 +15,15 @@ package com.ibm.cloudant.kafka.performance;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
-import com.cloudant.client.api.Database;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.ibm.cloud.cloudant.v1.Cloudant;
+import com.ibm.cloud.cloudant.v1.model.DatabaseInformation;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloudant.kafka.connect.CloudantSourceConnector;
 import com.ibm.cloudant.kafka.connect.CloudantSourceTask;
+import com.ibm.cloudant.kafka.connect.utils.CloudantDbUtils;
 import com.ibm.cloudant.kafka.connect.utils.ConnectorUtils;
 
 import org.apache.kafka.connect.connector.ConnectorContext;
@@ -32,10 +34,11 @@ import org.junit.Test;
 import org.powermock.api.easymock.PowerMock;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class CloudantSourcePerformanceTest extends AbstractBenchmark {	
-	private static Database sourceDb;
+	private static Cloudant sourceService;
 	private static JsonObject testResults1 = new JsonObject();
 	private static JsonObject testResults2 = new JsonObject();
 	private static JsonObject testResults3 = new JsonObject();
@@ -53,10 +56,10 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 		sourceProperties.put(InterfaceConst.URL, sourceProperties.get(ConnectorUtils.PERFORMANCE_URL));
 		
 		// Get the source database handle
-		sourceDb = JavaCloudantUtil.getDBInst(
-				sourceProperties.get(InterfaceConst.URL),
-				sourceProperties.get(InterfaceConst.USER_NAME),
-				sourceProperties.get(InterfaceConst.PASSWORD));
+		sourceService = JavaCloudantUtil.getClientInstance(
+			sourceProperties.get(InterfaceConst.URL),
+			sourceProperties.get(InterfaceConst.USER_NAME),
+			sourceProperties.get(InterfaceConst.PASSWORD));
 			
 		sourceConnector = new CloudantSourceConnector();
         ConnectorContext context = PowerMock.createMock(ConnectorContext.class);
@@ -101,8 +104,9 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 			JsonArray testTimes = new JsonArray();
 			testTimes.add(testTime);								
 			results.addProperty("testRounds", 1);
-			results.addProperty("diskSize", sourceDb.info().getDiskSize());
-			results.addProperty("documents", sourceDb.info().getDocCount());
+			DatabaseInformation dbInfo = CloudantDbUtils.getDbInfo(InterfaceConst.URL, sourceService);
+			results.addProperty("diskSize", dbInfo.getSizes().getFile());
+			results.addProperty("documents",dbInfo.getDocCount());
 			
 			results.addProperty(InterfaceConst.TOPIC, sourceProperties.get(InterfaceConst.TOPIC));
 			results.addProperty(InterfaceConst.BATCH_SIZE, sourceProperties.get(InterfaceConst.BATCH_SIZE));

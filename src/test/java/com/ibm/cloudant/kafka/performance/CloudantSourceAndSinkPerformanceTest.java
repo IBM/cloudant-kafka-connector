@@ -1,5 +1,5 @@
 /*
- * Copyright © 2017, 2018 IBM Corp. All rights reserved.
+ * Copyright © 2017, 2022 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -15,9 +15,10 @@ package com.ibm.cloudant.kafka.performance;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
-import com.cloudant.client.api.Database;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.ibm.cloud.cloudant.v1.Cloudant;
+import com.ibm.cloud.cloudant.v1.model.DatabaseInformation;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloudant.kafka.connect.CloudantSinkConnector;
@@ -44,7 +45,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
-    private static Database targetDb;
+    private static Cloudant targetService;
     private static JsonObject testResults1 = new JsonObject();
     private static JsonObject testResults2 = new JsonObject();
     private static JsonObject testResults3 = new JsonObject();
@@ -83,9 +84,10 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
         sourceConnector.initialize(context);
 
         // Create a _target database to replicate data into
-        targetDb = JavaCloudantUtil.getDBInst(targetProperties.get(InterfaceConst.URL),
-                targetProperties.get(InterfaceConst.USER_NAME),
-                targetProperties.get(InterfaceConst.PASSWORD));
+        targetService = JavaCloudantUtil.getClientInstance(
+            targetProperties.get(InterfaceConst.URL) + "_target",
+            targetProperties.get(InterfaceConst.USER_NAME),
+            targetProperties.get(InterfaceConst.PASSWORD));
 
         //Create Sink Connector
         sourceTask = new CloudantSourceTask();
@@ -189,8 +191,10 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
                         }
                     }
                 }
-                while (sourceRecords.size() > 0 || tempRecords.size() > 0 || targetDb.info()
-                        .getDocCount() == 0);
+                while (sourceRecords.size() > 0 || tempRecords.size() > 0 ||
+                    CloudantDbUtils.getDbInfo(
+                        targetProperties.get(InterfaceConst.URL),
+                        targetService).getDocCount() == 0);
 
                 _runningSinkThread.set(false);
             } catch (InterruptedException e) {
@@ -235,8 +239,11 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
             JsonArray testTimes = new JsonArray();
             testTimes.add(testTime);
             results.addProperty("testRounds", 1);
-            results.addProperty("diskSize", targetDb.info().getDiskSize());
-            results.addProperty("documents", targetDb.info().getDocCount());
+            DatabaseInformation dbInfo = CloudantDbUtils.getDbInfo(
+                targetProperties.get(InterfaceConst.URL) + "_target",
+                targetService);
+            results.addProperty("diskSize", dbInfo.getSizes().getFile());
+            results.addProperty("documents",dbInfo.getDocCount());
 
             //SourceProperties and TargetProperties should be equal
             results.addProperty(InterfaceConst.TOPIC, targetProperties.get(InterfaceConst.TOPIC));
@@ -256,10 +263,7 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
 
     @After
     public void tearDown() throws MalformedURLException {
-        CloudantDbUtils.dropDatabase(
-                targetProperties.get(InterfaceConst.URL),
-                targetProperties.get(InterfaceConst.USER_NAME),
-                targetProperties.get(InterfaceConst.PASSWORD));
+        CloudantDbUtils.dropDatabase(targetProperties);
     }
 
     @AfterClass

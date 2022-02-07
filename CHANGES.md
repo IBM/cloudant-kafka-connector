@@ -1,4 +1,5 @@
 # UNRELEASED
+- [UPGRADED] Refactored to use the new `cloudant-java-sdk` library.
 - [FIXED] README to align with the 2.8.0 Kafka version.
 
 # 0.100.2-kafka-1.0.0 (2018-04-13)

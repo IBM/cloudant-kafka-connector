@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2018 IBM Corp. All rights reserved.
+ * Copyright © 2016, 2022 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -13,10 +13,13 @@
  */
 package com.ibm.cloudant.kafka.connect;
 
-import com.cloudant.client.api.Database;
-import com.cloudant.client.api.model.ChangesResult;
-import com.cloudant.client.api.model.ChangesResult.Row;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.ibm.cloud.cloudant.v1.Cloudant;
+import com.ibm.cloud.cloudant.v1.model.ChangesResult;
+import com.ibm.cloud.cloudant.v1.model.ChangesResultItem;
+import com.ibm.cloud.cloudant.v1.model.Document;
+import com.ibm.cloud.cloudant.v1.model.PostChangesOptions;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
@@ -32,10 +35,10 @@ import org.apache.kafka.connect.source.SourceTask;
 import org.apache.kafka.connect.storage.OffsetStorageReader;
 import org.apache.log4j.Logger;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -59,7 +62,8 @@ public class CloudantSourceTask extends SourceTask {
     private String latestSequenceNumber = null;
     private int batch_size = 0;
 
-    private Database cloudantDb = null;
+    private Cloudant service = null;
+    private ChangesResult cloudantChangesResult = null;
 
     @Override
     public List<SourceRecord> poll() throws InterruptedException {
@@ -76,49 +80,27 @@ public class CloudantSourceTask extends SourceTask {
             LOG.debug("Process lastSeq: " + latestSequenceNumber);
 
             // the changes feed for initial processing (not continuous yet)
-            ChangesResult cloudantChangesResult = cloudantDb.changes()
-                    .includeDocs(true)
-                    .since(latestSequenceNumber)
-                    .limit(batch_size)
-                    .getChanges();
+            PostChangesOptions postChangesOptions = new PostChangesOptions.Builder()
+                .db(JavaCloudantUtil.getDbNameFromUrl(url))
+                .includeDocs(true)
+                .since(latestSequenceNumber)
+                .limit(batch_size)
+                .build();
+            cloudantChangesResult = service.postChanges(postChangesOptions).execute().getResult();
 
-            if (cloudantDb.changes() != null) {
-
-                // This indicates that we have exhausted the initial feed
-                // and can request a continuous feed next
-                if (cloudantChangesResult.getResults().size() == 0) {
-
-                    LOG.debug("Get continuous feed for lastSeq: " + latestSequenceNumber);
-
-                    // the continuous changes feed
-                    cloudantChangesResult = cloudantDb.changes()
-                            .includeDocs(true)
-                            .since(latestSequenceNumber)
-                            .limit(batch_size)
-                            //.continuousChanges()
-                            /*
-                             * => Removed because of performance (waiting time)
-                             * Requests Change notifications of feed type continuous.
-                             * Feed notifications are accessed in an iterator style.
-                             * This method will connect to the changes feed; any configuration
-                             * options applied after calling it will be ignored.
-                             */
-                            .heartBeat(FEED_SLEEP_MILLISEC)
-                            .getChanges();
-                }
-
+            if (cloudantChangesResult != null) {
                 LOG.debug("Got " + cloudantChangesResult.getResults().size() + " changes");
                 latestSequenceNumber = cloudantChangesResult.getLastSeq();
 
                 // process the results into the array to be returned
-                for (ListIterator<Row> it = cloudantChangesResult.getResults().listIterator(); it
-                        .hasNext(); ) {
-                    Row row_ = it.next();
-                    JsonObject doc = row_.getDoc();
+                for (ChangesResultItem row : cloudantChangesResult.getResults()) {
+                    Document doc = row.getDoc();
                     Schema docSchema;
                     Object docValue;
                     if (generateStructSchema) {
-                        Struct docStruct = DocumentAsSchemaStruct.convert(doc, flattenStructSchema);
+                        Struct docStruct = DocumentAsSchemaStruct.convert(
+                            new Gson().fromJson(doc.toString(), JsonObject.class),
+                            flattenStructSchema);
                         docSchema = docStruct.schema();
                         docValue = docStruct;
                     } else {
@@ -126,7 +108,7 @@ public class CloudantSourceTask extends SourceTask {
                         docValue = doc.toString();
                     }
 
-                    String id = row_.getId();
+                    String id = row.getId();
                     if (!omitDesignDocs || !id.startsWith("_design/")) {
                         // Emit the record to every topic configured
                         for (String topic : topics) {
@@ -167,6 +149,7 @@ public class CloudantSourceTask extends SourceTask {
             url = config.getString(InterfaceConst.URL);
             String userName = config.getString(InterfaceConst.USER_NAME);
             String password = config.getPassword(InterfaceConst.PASSWORD).value();
+            service = JavaCloudantUtil.getClientInstance(url, userName, password);
             topics = config.getList(InterfaceConst.TOPIC);
             omitDesignDocs = config.getBoolean(InterfaceConst.OMIT_DESIGN_DOCS);
             generateStructSchema = config.getBoolean(InterfaceConst.USE_VALUE_SCHEMA_STRUCT);
@@ -200,9 +183,8 @@ public class CloudantSourceTask extends SourceTask {
                 }
             }
 
-            cloudantDb = JavaCloudantUtil.getDBInst(url, userName, password, false);
-
-        } catch (ConfigException e) {
+        } catch (ConfigException | MalformedURLException e) {
+            // TODO remove this catch block to throw config exceptions when properties don't exist
             throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION)
                     , e);
         }
@@ -211,27 +193,24 @@ public class CloudantSourceTask extends SourceTask {
 
     @Override
     public void stop() {
+        // TODO needs a custom changes feed
         if (stop != null) {
             stop.set(true);
         }
 
         // terminate the changes feed
-        // Careful: this is an asynchronous call
-        if (cloudantDb.changes() != null) {
-            cloudantDb.changes().stop();
 
-            // graceful shutdown
-            // allow the poll() method to flush records first
-            if (_running == null) {
-                return;
-            }
+        // graceful shutdown
+        // allow the poll() method to flush records first
+        if (_running == null) {
+            return;
+        }
 
-            while (_running.get()) {
-                try {
-                    Thread.sleep(SHUTDOWN_DELAY_MILLISEC);
-                } catch (InterruptedException e) {
-                    LOG.error(e);
-                }
+        while (_running.get()) {
+            try {
+                Thread.sleep(SHUTDOWN_DELAY_MILLISEC);
+            } catch (InterruptedException e) {
+                LOG.error(e);
             }
         }
     }

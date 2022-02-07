@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2018 IBM Corp. All rights reserved.
+ * Copyright © 2016, 2022 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -61,10 +61,9 @@ public class CloudantSinkConnectorTest extends TestCase {
         Assert.assertEquals(targetProperties.get(InterfaceConst.URL), taskConfigs.get(0).get
                 (InterfaceConst.URL));
         Assert.assertEquals(targetProperties.get(InterfaceConst.USER_NAME), taskConfigs.get(0)
-                .get(InterfaceConst.USER_NAME));
+            .get(InterfaceConst.USER_NAME));
         Assert.assertEquals(targetProperties.get(InterfaceConst.PASSWORD), taskConfigs.get(0).get
-                (InterfaceConst.PASSWORD));
-
+            (InterfaceConst.PASSWORD));
         Assert.assertEquals(targetProperties.get(InterfaceConst.TOPIC), taskConfigs.get(0).get
                 (InterfaceConst.TOPIC));
 

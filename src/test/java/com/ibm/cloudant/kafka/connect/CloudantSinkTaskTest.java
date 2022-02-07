@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2018 IBM Corp. All rights reserved.
+ * Copyright © 2016, 2022 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -13,10 +13,15 @@
  */
 package com.ibm.cloudant.kafka.connect;
 
-import com.cloudant.client.api.Database;
-import com.cloudant.client.api.model.ChangesResult;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.ibm.cloud.cloudant.v1.Cloudant;
+import com.ibm.cloud.cloudant.v1.model.ChangesResult;
+import com.ibm.cloud.cloudant.v1.model.ChangesResultItem;
+import com.ibm.cloud.cloudant.v1.model.Document;
+import com.ibm.cloud.cloudant.v1.model.GetDatabaseInformationOptions;
+import com.ibm.cloud.cloudant.v1.model.PostChangesOptions;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloudant.kafka.connect.utils.CloudantDbUtils;
@@ -29,6 +34,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.sink.SinkRecord;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,6 +51,7 @@ public class CloudantSinkTaskTest extends TestCase {
     private Map<String, String> targetProperties;
 
     private JsonObject doc1, doc2, doc3;
+    private Cloudant service;
 
     /* (non-Javadoc)
      * @see junit.framework.TestCase#setUp()
@@ -69,13 +76,16 @@ public class CloudantSinkTaskTest extends TestCase {
         doc3 = parser.parse("{\"_id\":\"doc3\","
                 + "\"number\":3,"
                 + "\"key\":\"value3\"}").getAsJsonObject();
+
+        service = JavaCloudantUtil.getClientInstance(targetProperties);
+        JavaCloudantUtil.createTargetDb(service, JavaCloudantUtil.getDbNameFromUrl(targetProperties.get(InterfaceConst.URL)));
     }
 
     /**
      * Test method for
      * {@link com.ibm.cloudant.kafka.connect.CloudantSinkTask#put(java.util.Collection)}.
      */
-    public void testReplicateSinkRecordSchema() {
+    public void testReplicateSinkRecordSchema() throws MalformedURLException {
         targetProperties.put(InterfaceConst.REPLICATION, "true");
         List<JsonObject> result = testPutCollectionOfSinkRecord();
 
@@ -90,7 +100,7 @@ public class CloudantSinkTaskTest extends TestCase {
      * Test method for
      * {@link com.ibm.cloudant.kafka.connect.CloudantSinkTask#put(java.util.Collection)}.
      */
-    public void testNonReplicateSinkRecordSchema() {
+    public void testNonReplicateSinkRecordSchema() throws MalformedURLException {
         targetProperties.put(InterfaceConst.REPLICATION, "false");
         List<JsonObject> result = testPutCollectionOfSinkRecord();
 
@@ -125,14 +135,14 @@ public class CloudantSinkTaskTest extends TestCase {
     }
 
     private List<JsonObject> testPutCollectionOfSinkRecord() {
-        // CLOUDANT
-        Database db = JavaCloudantUtil.getDBInst(
-                targetProperties.get(InterfaceConst.URL),
-                targetProperties.get(InterfaceConst.USER_NAME),
-                targetProperties.get(InterfaceConst.PASSWORD));
 
         // Get the current update sequence
-        String since = db.info().getUpdateSeq(); // latest update seq
+        String dbName = JavaCloudantUtil.getDbNameFromUrl(targetProperties.get(InterfaceConst.URL));
+        GetDatabaseInformationOptions dbOptions =
+            new GetDatabaseInformationOptions.Builder()
+                .db(dbName)
+                .build();
+        String since = service.getDatabaseInformation(dbOptions).execute().getResult().getUpdateSeq(); // latest seq
 
         // KAFKA
         HashMap<TopicPartition, OffsetAndMetadata> offsets = new HashMap<>();
@@ -159,18 +169,20 @@ public class CloudantSinkTaskTest extends TestCase {
         task.flush(offsets);
 
         // CLOUDANT
-        ChangesResult changeResult = db.changes()
-                .since(since)
-                .limit(4)
-                .includeDocs(true)
-                .getChanges();
+        PostChangesOptions options = new PostChangesOptions.Builder()
+            .db(JavaCloudantUtil.getDbNameFromUrl(targetProperties.get(InterfaceConst.URL)))
+            .since(since)
+            .limit(4)
+            .includeDocs(true)
+            .build();
+        ChangesResult changesResult = service.postChanges(options).execute().getResult();
 
         //process the ChangesResult
         List<JsonObject> result = new ArrayList<>();
-        for (ChangesResult.Row row : changeResult.getResults()) {
-            JsonObject doc = row.getDoc();
-            doc.remove("_rev");
-            result.add(doc);
+        for (ChangesResultItem row : changesResult.getResults()) {
+            Document doc = row.getDoc();
+            doc.setRev(null);
+            result.add(new Gson().fromJson(doc.toString(), JsonObject.class));
         }
 
         return result;
@@ -193,9 +205,7 @@ public class CloudantSinkTaskTest extends TestCase {
     protected void tearDown() throws Exception {
 
         // Remove the created database
-        CloudantDbUtils.dropDatabase(targetProperties.get(InterfaceConst.URL),
-                targetProperties.get(InterfaceConst.USER_NAME),
-                targetProperties.get(InterfaceConst.PASSWORD));
+        CloudantDbUtils.dropDatabase(targetProperties);
 
         super.tearDown();
     }
