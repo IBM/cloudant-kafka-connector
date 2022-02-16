@@ -4,8 +4,8 @@ apply plugin: 'signing'
 
 // Kafka/scala versions
 // If you change this kafkaVersion, you must update the VERSION file to match
-def kafkaVersion = '1.0.0'
-def scalaVersion = '2.11'
+def kafkaVersion = '3.1.0'
+def scalaVersion = '2.12'
 
 group = 'com.cloudant'
 version = new File(rootDir, 'VERSION').text.trim()
