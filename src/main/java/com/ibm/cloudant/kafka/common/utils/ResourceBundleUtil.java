@@ -14,8 +14,8 @@
 package com.ibm.cloudant.kafka.common.utils;
 
 import com.ibm.cloudant.kafka.common.InterfaceConst;
-
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 public class ResourceBundleUtil {
-	
-	private static Logger LOG = Logger.getLogger(ResourceBundleUtil.class);
+
+	private static Logger LOG = LoggerFactory.getLogger(ResourceBundleUtil.class);
 
 	private static ResourceBundle rb = null;
 	

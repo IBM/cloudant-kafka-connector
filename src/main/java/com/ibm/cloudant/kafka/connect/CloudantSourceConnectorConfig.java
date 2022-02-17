@@ -22,13 +22,14 @@ import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
 import org.apache.kafka.common.config.ConfigDef.Width;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 public class CloudantSourceConnectorConfig extends AbstractConfig {
 
-    private static Logger LOG = Logger.getLogger(CloudantSourceConnectorConfig.class);
+    private static Logger LOG = LoggerFactory.getLogger(CloudantSourceConnectorConfig.class);
 
     public static final String DATABASE_GROUP = "Database";
     public static final String CLOUDANT_LAST_SEQ_NUM_DEFAULT = null;

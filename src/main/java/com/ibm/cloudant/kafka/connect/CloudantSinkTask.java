@@ -24,7 +24,8 @@ import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTask;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,8 +37,8 @@ import java.util.Map;
 
 
 public class CloudantSinkTask extends SinkTask {
-	
-	private static Logger LOG = Logger.getLogger(CloudantSinkTask.class);
+
+	private static Logger LOG = LoggerFactory.getLogger(CloudantSinkTask.class);
 	
 	private CloudantSinkTaskConfig config;
 	
