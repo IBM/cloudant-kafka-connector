@@ -1,5 +1,5 @@
 apply plugin: 'java'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 // Kafka/scala versions
@@ -17,21 +17,21 @@ repositories {
     mavenCentral()
     maven {
         // Confluent repo
-        url 'http://packages.confluent.io/maven/'
+        url 'https://packages.confluent.io/maven/'
     }
 }
 
 dependencies {
-    compile group: 'com.ibm.cloud', name: 'cloudant', version: '0.0.34'
-    compile group: 'org.json', name: 'json', version: '20210307'
+    implementation group: 'com.ibm.cloud', name: 'cloudant', version: '0.0.34'
+    implementation group: 'org.json', name: 'json', version: '20210307'
     compileOnly group: 'org.apache.kafka', name: "kafka_${scalaVersion}", version: "${kafkaVersion}"
     compileOnly group: 'org.apache.kafka', name: 'connect-api', version: "${kafkaVersion}"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.powermock', name: 'powermock-api-easymock', version: '1.6.4'
-    testCompile group: 'org.easymock', name: 'easymock', version: '3.4'
-    testCompile group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.2'
-    testCompile group: 'org.apache.kafka', name: "kafka_${scalaVersion}", version: "${kafkaVersion}"
-    testCompile group: 'org.apache.kafka', name: 'connect-api', version: "${kafkaVersion}"
+    testCompileOnly group: 'junit', name: 'junit', version: '4.12'
+    testCompileOnly group: 'org.powermock', name: 'powermock-api-easymock', version: '1.6.4'
+    testCompileOnly group: 'org.easymock', name: 'easymock', version: '3.4'
+    testCompileOnly group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.2'
+    testCompileOnly group: 'org.apache.kafka', name: "kafka_${scalaVersion}", version: "${kafkaVersion}"
+    testCompileOnly group: 'org.apache.kafka', name: 'connect-api', version: "${kafkaVersion}"
 }
 
 // Java versions
@@ -51,6 +51,7 @@ tasks.withType(JavaCompile) {
 class ClientProperties extends DefaultTask {
 
     //allow this to be configured, default to "com.ibm.cloudant.kafka.client.properties"
+    @OutputFile
     File clientPropsPath = new File("com.ibm.cloudant.kafka.client.properties")
 
     //internal
@@ -91,9 +92,10 @@ jar.dependsOn generateClientPropertiesFile
 
 // modify the jar task to pull in required dependencies and add the client properties file
 jar {
+    duplicatesStrategy(duplicatesStrategy.EXCLUDE)
     into "META-INF", { from generateClientPropertiesFile.clientPropsPath }
     from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 
@@ -154,58 +156,6 @@ signing {
     }
     // When signing, sign the archives
     sign configurations.archives
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-
-            // When publishing sign the pom
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            // Augment the pom with additional information
-            pom.project {
-                name project.name
-                packaging 'jar'
-                url 'https://cloudant.com'
-                description 'Apache Kafka Connect API connector for Cloudant'
-                inceptionYear '2016'
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution 'repo'
-                    }
-                }
-                scm {
-                    connection 'scm:git:git@github.com:cloudant-labs/kafka-connect-cloudant.git'
-                    developerConnection 'scm:git:git@github.com:cloudant-labs/kafka-connect-cloudant.git'
-                    url 'scm:git:git@github.com:cloudant-labs/kafka-connect-cloudant.git'
-                    tag 'preview'
-                }
-                properties {
-                    'project.build.sourceEncoding' 'UTF-8'
-                }
-                developers {
-                    developer {
-                        name 'IBM Cloudant'
-                        email 'cldtsdks@us.ibm.com'
-                        url 'https://cloudant.com'
-                        organization 'IBM'
-                        organizationUrl 'http://www.ibm.com'
-                    }
-                }
-            }
-        }
-    }
 }
 
 test {
