@@ -1,4 +1,5 @@
 # UNRELEASED
+- [UPGRADED] Upgraded Gradle distribution from 4.5.1 to 7.4
 - [UPGRADED] Refactored to use the new `cloudant-java-sdk` library.
 - [FIXED] README to align with the 2.8.0 Kafka version.
 
