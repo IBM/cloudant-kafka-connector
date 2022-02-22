@@ -26,12 +26,12 @@ dependencies {
     implementation group: 'org.json', name: 'json', version: '20210307'
     compileOnly group: 'org.apache.kafka', name: "kafka_${scalaVersion}", version: "${kafkaVersion}"
     compileOnly group: 'org.apache.kafka', name: 'connect-api', version: "${kafkaVersion}"
-    testCompileOnly group: 'junit', name: 'junit', version: '4.12'
-    testCompileOnly group: 'org.powermock', name: 'powermock-api-easymock', version: '1.6.4'
-    testCompileOnly group: 'org.easymock', name: 'easymock', version: '3.4'
-    testCompileOnly group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.2'
-    testCompileOnly group: 'org.apache.kafka', name: "kafka_${scalaVersion}", version: "${kafkaVersion}"
-    testCompileOnly group: 'org.apache.kafka', name: 'connect-api', version: "${kafkaVersion}"
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'org.powermock', name: 'powermock-api-easymock', version: '1.6.4'
+    testImplementation group: 'org.easymock', name: 'easymock', version: '3.4'
+    testImplementation group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.2'
+    testImplementation group: 'org.apache.kafka', name: "kafka_${scalaVersion}", version: "${kafkaVersion}"
+    testImplementation group: 'org.apache.kafka', name: 'connect-api', version: "${kafkaVersion}"
 }
 
 // Java versions
