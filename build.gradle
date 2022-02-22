@@ -149,67 +149,6 @@ artifacts {
     }
 }
 
-signing {
-    // Only apply signing when it is a release and is being published
-    required {
-        isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives")
-    }
-    // When signing, sign the archives
-    sign configurations.archives
-}
-
-//uploadArchives {
-//    repositories {
-//        mavenDeployer {
-//
-//            // When publishing sign the pom
-//            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-//
-//            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-//                authentication(userName: ossrhUsername, password: ossrhPassword)
-//            }
-//
-//            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-//                authentication(userName: ossrhUsername, password: ossrhPassword)
-//            }
-//
-//            // Augment the pom with additional information
-//            pom.project {
-//                name project.name
-//                packaging 'jar'
-//                url 'https://cloudant.com'
-//                description 'Apache Kafka Connect API connector for Cloudant'
-//                inceptionYear '2016'
-//                licenses {
-//                    license {
-//                        name 'The Apache Software License, Version 2.0'
-//                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-//                        distribution 'repo'
-//                    }
-//                }
-//                scm {
-//                    connection 'scm:git:git@github.com:cloudant-labs/kafka-connect-cloudant.git'
-//                    developerConnection 'scm:git:git@github.com:cloudant-labs/kafka-connect-cloudant.git'
-//                    url 'scm:git:git@github.com:cloudant-labs/kafka-connect-cloudant.git'
-//                    tag 'preview'
-//                }
-//                properties {
-//                    'project.build.sourceEncoding' 'UTF-8'
-//                }
-//                developers {
-//                    developer {
-//                        name 'IBM Cloudant'
-//                        email 'cldtsdks@us.ibm.com'
-//                        url 'https://cloudant.com'
-//                        organization 'IBM'
-//                        organizationUrl 'http://www.ibm.com'
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
 test {
     // Exclude the performance tests
     exclude 'com/ibm/cloudant/kafka/performance/**'
@@ -220,4 +159,64 @@ tasks.withType(Test) {
     systemProperties = System.getProperties()
     // Make sure it is UTF-8 for tests
     systemProperty "file.encoding", "UTF-8"
+}
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = project.name
+                packaging = 'jar'
+                url = 'https://cloudant.com'
+                description = 'Apache Kafka Connect API connector for Cloudant'
+                inceptionYear = '2016'
+                licenses {
+                    license {
+                        name = 'The Apache Software License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution = 'repo'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git@github.com:cloudant-labs/kafka-connect-cloudant.git'
+                    developerConnection = 'scm:git:git@github.com:cloudant-labs/kafka-connect-cloudant.git'
+                    url = 'scm:git:git@github.com:cloudant-labs/kafka-connect-cloudant.git'
+                    tag = 'preview'
+                }
+                developers {
+                    developer {
+                        name = 'IBM Cloudant'
+                        email = 'cldtsdks@us.ibm.com'
+                        url = 'https://cloudant.com'
+                        organization = 'IBM'
+                        organizationUrl = 'http://www.ibm.com'
+                    }
+                }
+            }
+        }
+    }
+
+    // Only sign release versions
+    tasks.withType(Sign) {
+        onlyIf { isReleaseVersion }
+    }
+
+    signing {
+        // When signing, sign the archives
+        sign publishing.publications.mavenJava
+    }
+
+    repositories {
+        maven {
+            url = version.endsWith('SNAPSHOT') ?
+                "https://oss.sonatype.org/content/repositories/snapshots" :
+                "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials(PasswordCredentials) {
+                username = ossrhUsername
+                password = ossrhPassword
+            }
+        }
+    }
 }
