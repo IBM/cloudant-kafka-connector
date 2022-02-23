@@ -2,10 +2,9 @@ apply plugin: 'java'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
-// Kafka/scala versions
+// Kafka version
 // If you change this kafkaVersion, you must update the VERSION file to match
 def kafkaVersion = '3.1.0'
-def scalaVersion = '2.12'
 
 group = 'com.cloudant'
 version = new File(rootDir, 'VERSION').text.trim()
@@ -25,14 +24,11 @@ dependencies {
     implementation group: 'com.ibm.cloud', name: 'cloudant', version: '0.0.34'
     implementation group: 'org.json', name: 'json', version: '20210307'
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
-    compileOnly group: 'org.apache.kafka', name: "kafka_${scalaVersion}", version: "${kafkaVersion}"
-    compileOnly group: 'org.apache.kafka', name: 'connect-api', version: "${kafkaVersion}"
+    implementation group: 'org.apache.kafka', name: 'connect-api', version: "${kafkaVersion}"
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation group: 'org.powermock', name: 'powermock-api-easymock', version: '1.6.4'
     testImplementation group: 'org.easymock', name: 'easymock', version: '3.4'
     testImplementation group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.2'
-    testImplementation group: 'org.apache.kafka', name: "kafka_${scalaVersion}", version: "${kafkaVersion}"
-    testImplementation group: 'org.apache.kafka', name: 'connect-api', version: "${kafkaVersion}"
 }
 
 // Java versions
