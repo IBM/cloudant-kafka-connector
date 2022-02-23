@@ -211,7 +211,7 @@ public class CloudantSourceTask extends SourceTask {
             try {
                 Thread.sleep(SHUTDOWN_DELAY_MILLISEC);
             } catch (InterruptedException e) {
-                LOG.error(e.getMessage());
+                LOG.error(e.getMessage(), e);
             }
         }
     }
