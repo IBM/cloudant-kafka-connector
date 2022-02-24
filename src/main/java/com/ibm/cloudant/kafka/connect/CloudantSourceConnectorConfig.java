@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2018 IBM Corp. All rights reserved.
+ * Copyright © 2016, 2022 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -22,13 +22,14 @@ import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
 import org.apache.kafka.common.config.ConfigDef.Width;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 public class CloudantSourceConnectorConfig extends AbstractConfig {
 
-    private static Logger LOG = Logger.getLogger(CloudantSourceConnectorConfig.class);
+    private static Logger LOG = LoggerFactory.getLogger(CloudantSourceConnectorConfig.class);
 
     public static final String DATABASE_GROUP = "Database";
     public static final String CLOUDANT_LAST_SEQ_NUM_DEFAULT = null;

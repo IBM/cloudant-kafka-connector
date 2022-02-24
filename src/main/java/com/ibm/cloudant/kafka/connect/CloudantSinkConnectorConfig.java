@@ -20,15 +20,16 @@ import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
 import org.apache.kafka.common.config.ConfigDef.Width;
-import org.apache.log4j.Logger;
 
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CloudantSinkConnectorConfig extends AbstractConfig {
-	
-	private static Logger LOG = Logger.getLogger(CloudantSinkConnectorConfig.class);
+
+	private static Logger LOG = LoggerFactory.getLogger(CloudantSinkConnectorConfig.class);
 
 	public static final String DATABASE_GROUP = "Database";
 	public static final String CLOUDANT_LAST_SEQ_NUM_DEFAULT = "0";

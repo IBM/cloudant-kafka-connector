@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2018 IBM Corp. All rights reserved.
+ * Copyright © 2016, 2022 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -14,8 +14,8 @@
 package com.ibm.cloudant.kafka.common.utils;
 
 import com.ibm.cloudant.kafka.common.InterfaceConst;
-
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 public class ResourceBundleUtil {
-	
-	private static Logger LOG = Logger.getLogger(ResourceBundleUtil.class);
+
+	private static Logger LOG = LoggerFactory.getLogger(ResourceBundleUtil.class);
 
 	private static ResourceBundle rb = null;
 	

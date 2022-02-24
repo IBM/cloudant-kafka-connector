@@ -21,7 +21,8 @@ import com.ibm.cloud.cloudant.v1.model.Ok;
 import com.ibm.cloud.sdk.core.http.Response;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 
 import java.net.MalformedURLException;
@@ -29,7 +30,7 @@ import java.util.Map;
 
 public class CloudantDbUtils {
 
-	private static Logger LOG = Logger.getLogger(CloudantDbUtils.class);
+	private static Logger LOG = LoggerFactory.getLogger(CloudantDbUtils.class);
 
 
 	public static void dropDatabase(Map<String, String> props)

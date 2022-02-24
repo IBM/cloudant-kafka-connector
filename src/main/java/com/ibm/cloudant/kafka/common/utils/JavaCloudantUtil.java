@@ -27,7 +27,8 @@ import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,7 +50,7 @@ public class JavaCloudantUtil {
 
 	private static final String PROPS_FILE = "META-INF/com.ibm.cloudant.kafka.client.properties";
 	private static final Map<String, String> UserAgentHeader;
-	private static Logger LOG = Logger.getLogger(JavaCloudantUtil.class.toString());
+	private static Logger LOG = LoggerFactory.getLogger(JavaCloudantUtil.class.toString());
 
 	static {
 		Properties p = new Properties();

@@ -33,7 +33,8 @@ import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
 import org.apache.kafka.connect.storage.OffsetStorageReader;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CloudantSourceTask extends SourceTask {
 
-    private static Logger LOG = Logger.getLogger(CloudantSourceTask.class);
+    private static Logger LOG = LoggerFactory.getLogger(CloudantSourceTask.class);
 
     private static final long FEED_SLEEP_MILLISEC = 5000;
     private static final long SHUTDOWN_DELAY_MILLISEC = 10;
@@ -210,7 +211,7 @@ public class CloudantSourceTask extends SourceTask {
             try {
                 Thread.sleep(SHUTDOWN_DELAY_MILLISEC);
             } catch (InterruptedException e) {
-                LOG.error(e);
+                LOG.error(e.getMessage(), e);
             }
         }
     }
