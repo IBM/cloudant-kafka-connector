@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2018 IBM Corp. All rights reserved.
+ * Copyright © 2016, 2022 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -15,11 +15,13 @@ package com.ibm.cloudant.kafka.common;
 
 public class InterfaceConst {
 	
-	public final static String URL = "cloudant.db.url";
-	public final static String USER_NAME = "cloudant.db.username";
-	public final static String PASSWORD = "cloudant.db.password";
+	public final static String URL = "cloudant.url";
+	public final static String USER_NAME = "cloudant.username";
+	public final static String PASSWORD = "cloudant.password";
+	public final static String AUTH_TYPE = "cloudant.auth.type";
+	public final static String API_KEY = "cloudant.apikey";
 	
-	public final static String LAST_CHANGE_SEQ = "cloudant.db.since";
+	public final static String LAST_CHANGE_SEQ = "cloudant.since";
 
 	public final static String TOPIC = "topics";
 	

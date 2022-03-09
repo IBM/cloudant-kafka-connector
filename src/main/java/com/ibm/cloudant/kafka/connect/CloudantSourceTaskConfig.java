@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2016 IBM Corp.
+* Copyright (c) 2016, 2022 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.ibm.cloudant.kafka.connect;
 
 import java.util.Map;
 
+import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
 
@@ -25,7 +26,7 @@ import com.ibm.cloudant.kafka.common.InterfaceConst;
 public class CloudantSourceTaskConfig extends CloudantSourceConnectorConfig {
 
 	// Expand this ConfigDef with task specific parameters
-	static org.apache.kafka.common.config.ConfigDef config = baseConfigDef()
+	static org.apache.kafka.common.config.ConfigDef config = new ConfigDef(baseConfigDef())
 		      .define(InterfaceConst.TASK_NUMBER, 
 		    		  Type.INT, InterfaceConst.DEFAULT_TASK_NUMBER, Importance.HIGH, InterfaceConst.TASK_NUMBER)
 		      .define(InterfaceConst.TASKS_MAX,
