@@ -17,6 +17,7 @@ package com.ibm.cloudant.kafka;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.ibm.cloudant.kafka.connect.CloudantSinkConnectorConfig;
@@ -42,12 +43,14 @@ public class ValidationTest {
 
     @Test
     public void validatesBasicAuth() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "basic");
+        map.put(USER_NAME, "test");
+        map.put(PASSWORD, "test");
+        map.put(URL, "https://somewhere");
+        map.put(TOPIC, "foo");
         CustomValidator validator = new CustomValidator(
-                Map.of(AUTH_TYPE, "basic",
-                        USER_NAME, "test",
-                        PASSWORD, "test",
-                        URL, "https://somewhere",
-                        TOPIC, "foo"),
+                map,
                 CONFIG_DEF);
 
         Config c = validator.validate();
@@ -56,10 +59,12 @@ public class ValidationTest {
 
     @Test
     public void validatesBasicAuthNoPassword() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "basic");
+        map.put(USER_NAME, "test");
+        map.put(URL, "https://somewhere");
         CustomValidator validator = new CustomValidator(
-                Map.of(AUTH_TYPE, "basic",
-                        USER_NAME, "test",
-                        URL, "https://somewhere"),
+                map,
                 CONFIG_DEF);
 
         Config c = validator.validate();
@@ -69,11 +74,13 @@ public class ValidationTest {
 
     @Test
     public void validatesBasicAuthEmptyPassword() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "basic");
+        map.put(USER_NAME, "test");
+        map.put(PASSWORD, "");
+        map.put(URL, "https://somewhere");
         CustomValidator validator = new CustomValidator(
-                Map.of(AUTH_TYPE, "basic",
-                        USER_NAME, "test",
-                        PASSWORD, "",
-                        URL, "https://somewhere"),
+                map,
                 CONFIG_DEF);
 
         Config c = validator.validate();
@@ -83,10 +90,12 @@ public class ValidationTest {
 
     @Test
     public void validatesBasicAuthNoUsername() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "basic");
+        map.put(PASSWORD, "test");
+        map.put(URL, "https://somewhere");
         CustomValidator validator = new CustomValidator(
-                Map.of(AUTH_TYPE, "basic",
-                        PASSWORD, "test",
-                        URL, "https://somewhere"),
+                map,
                 CONFIG_DEF);
 
         Config c = validator.validate();
@@ -96,11 +105,13 @@ public class ValidationTest {
 
     @Test
     public void validatesBasicAuthEmptyUsername() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "basic");
+        map.put(USER_NAME, "");
+        map.put(PASSWORD, "test");
+        map.put(URL, "https://somewhere");
         CustomValidator validator = new CustomValidator(
-                Map.of(AUTH_TYPE, "basic",
-                        USER_NAME, "",
-                        PASSWORD, "test",
-                        URL, "https://somewhere"),
+                map,
                 CONFIG_DEF);
 
         Config c = validator.validate();
@@ -110,11 +121,13 @@ public class ValidationTest {
 
     @Test
     public void validatesUnknownAuth() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "magic beans");
+        map.put(USER_NAME, "test");
+        map.put(PASSWORD, "test");
+        map.put(URL, "https://somewhere");
         CustomValidator validator = new CustomValidator(
-                Map.of(AUTH_TYPE, "magic beans",
-                        USER_NAME, "test",
-                        PASSWORD, "test",
-                        URL, "https://somewhere"),
+                map,
                 CONFIG_DEF);
 
         Config c = validator.validate();
@@ -123,11 +136,13 @@ public class ValidationTest {
 
     @Test
     public void validatesBadUrl() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "basic");
+        map.put(USER_NAME, "test");
+        map.put(PASSWORD, "test");
+        map.put(URL, "not-a-url");
         CustomValidator validator = new CustomValidator(
-                Map.of(AUTH_TYPE, "basic",
-                        USER_NAME, "test",
-                        PASSWORD, "test",
-                        URL, "not-a-url"),
+                map,
                 CONFIG_DEF);
 
         Config c = validator.validate();
