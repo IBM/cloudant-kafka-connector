@@ -16,6 +16,7 @@ package com.ibm.cloudant.kafka.common;
 public class InterfaceConst {
 	
 	public final static String URL = "cloudant.url";
+	public final static String DB = "cloudant.db";
 	public final static String USER_NAME = "cloudant.username";
 	public final static String PASSWORD = "cloudant.password";
 	public final static String AUTH_TYPE = "cloudant.auth.type";

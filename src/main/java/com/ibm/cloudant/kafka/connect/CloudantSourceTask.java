@@ -55,6 +55,7 @@ public class CloudantSourceTask extends SourceTask {
     private AtomicBoolean _running;
 
     private String url = null;
+    private String db = null;
     private List<String> topics = null;
     private boolean generateStructSchema = false;
     private boolean flattenStructSchema = false;
@@ -82,7 +83,7 @@ public class CloudantSourceTask extends SourceTask {
 
             // the changes feed for initial processing (not continuous yet)
             PostChangesOptions postChangesOptions = new PostChangesOptions.Builder()
-                .db(JavaCloudantUtil.getDbNameFromUrl(url))
+                .db(db)
                 .includeDocs(true)
                 .since(latestSequenceNumber)
                 .limit(batch_size)
@@ -148,6 +149,7 @@ public class CloudantSourceTask extends SourceTask {
             CloudantSourceTaskConfig config = new CloudantSourceTaskConfig(props);
 
             url = config.getString(InterfaceConst.URL);
+            db = config.getString(InterfaceConst.DB);
             String userName = config.getString(InterfaceConst.USER_NAME);
             String password = config.getPassword(InterfaceConst.PASSWORD).value();
             service = JavaCloudantUtil.getClientInstance(url, userName, password);

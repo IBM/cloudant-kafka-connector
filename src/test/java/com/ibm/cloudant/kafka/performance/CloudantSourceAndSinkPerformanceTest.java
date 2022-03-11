@@ -193,7 +193,7 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
                 }
                 while (sourceRecords.size() > 0 || tempRecords.size() > 0 ||
                     CloudantDbUtils.getDbInfo(
-                        targetProperties.get(InterfaceConst.URL),
+                        targetProperties.get(InterfaceConst.DB),
                         targetService).getDocCount() == 0);
 
                 _runningSinkThread.set(false);
@@ -240,7 +240,7 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
             testTimes.add(testTime);
             results.addProperty("testRounds", 1);
             DatabaseInformation dbInfo = CloudantDbUtils.getDbInfo(
-                targetProperties.get(InterfaceConst.URL) + "_target",
+                targetProperties.get(InterfaceConst.DB) + "_target",
                 targetService);
             results.addProperty("diskSize", dbInfo.getSizes().getFile());
             results.addProperty("documents",dbInfo.getDocCount());

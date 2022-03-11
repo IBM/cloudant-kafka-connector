@@ -160,8 +160,8 @@ public class ConnectorUtils {
         // configuration ahead of the test.properties file and generate a random DB name
         if (systemPropAcct != null) {
             // URL, append a random database
-            connectorProperties.put(InterfaceConst.URL, System.getProperty("cloudant.account") +
-                    "/kafka-test-db-" + UUID.randomUUID().toString());
+            connectorProperties.put(InterfaceConst.URL, System.getProperty("cloudant.account"));
+            connectorProperties.put(InterfaceConst.DB, "kafka-test-db-" + UUID.randomUUID().toString());
             // Username
             connectorProperties.put(InterfaceConst.USER_NAME, System.getProperty("cloudant.user"));
             // Password

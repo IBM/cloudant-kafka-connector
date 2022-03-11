@@ -52,6 +52,15 @@ public class CommonConnectorConfig extends AbstractConfig {
                         1,
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_URL_DISP))
+                // Cloudant DB
+                .define(InterfaceConst.DB,
+                        Type.STRING,
+                        Importance.HIGH,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_DB_DOC),
+                        DATABASE_GROUP,
+                        1,
+                        Width.LONG,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_DB_DISP))
                 // Cloudant Username
                 .define(InterfaceConst.USER_NAME,
                         Type.STRING,

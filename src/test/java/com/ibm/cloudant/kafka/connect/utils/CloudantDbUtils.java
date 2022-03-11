@@ -36,7 +36,7 @@ public class CloudantDbUtils {
 	public static void dropDatabase(Map<String, String> props)
 		throws MalformedURLException {
 		Cloudant service = JavaCloudantUtil.getClientInstance(props);
-		String dbName = JavaCloudantUtil.getDbNameFromUrl(props.get(InterfaceConst.URL));
+		String dbName = props.get(InterfaceConst.DB);
 		DeleteDatabaseOptions deleteDbOptions = new DeleteDatabaseOptions.Builder()
 			.db(dbName)
 			.build();
@@ -44,10 +44,10 @@ public class CloudantDbUtils {
 		Assert.assertTrue(result.getResult().isOk());
 	}
 
-	public static DatabaseInformation getDbInfo(String dbUrl, Cloudant service) {
+	public static DatabaseInformation getDbInfo(String db, Cloudant service) {
 		GetDatabaseInformationOptions dbInfoOptions;
 		dbInfoOptions = new GetDatabaseInformationOptions.Builder()
-			.db(JavaCloudantUtil.getDbNameFromUrl(dbUrl))
+			.db(db)
 			.build();
 		return service.getDatabaseInformation(dbInfoOptions).execute().getResult();
 	}

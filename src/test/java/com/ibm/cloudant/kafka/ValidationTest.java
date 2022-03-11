@@ -18,7 +18,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import com.ibm.cloudant.kafka.connect.CloudantSinkConnectorConfig;
 import com.ibm.cloudant.kafka.connect.CustomValidator;
@@ -28,6 +27,7 @@ import static com.ibm.cloudant.kafka.common.InterfaceConst.USER_NAME;
 import static com.ibm.cloudant.kafka.common.InterfaceConst.PASSWORD;
 import static com.ibm.cloudant.kafka.common.InterfaceConst.URL;
 import static com.ibm.cloudant.kafka.common.InterfaceConst.TOPIC;
+import static com.ibm.cloudant.kafka.common.InterfaceConst.DB;
 
 import org.apache.kafka.common.config.Config;
 import org.apache.kafka.common.config.ConfigDef;
@@ -48,6 +48,7 @@ public class ValidationTest {
         map.put(USER_NAME, "test");
         map.put(PASSWORD, "test");
         map.put(URL, "https://somewhere");
+        map.put(DB, "animaldb");
         map.put(TOPIC, "foo");
         CustomValidator validator = new CustomValidator(
                 map,

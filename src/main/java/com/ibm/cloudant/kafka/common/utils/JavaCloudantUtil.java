@@ -73,7 +73,7 @@ public class JavaCloudantUtil {
 		UserAgentHeader = Collections.singletonMap("User-Agent", VERSION);
 	}
 
-	public static JSONArray batchWrite(String url, String userName, String password, JSONArray data)
+	public static JSONArray batchWrite(String url, String db, String userName, String password, JSONArray data)
 		throws JSONException {
 		// wrap result to JSONArray
 		JSONArray result = new JSONArray();
@@ -91,12 +91,12 @@ public class JavaCloudantUtil {
 			}
 
 			// attempt to create database
-			createTargetDb(service, getDbNameFromUrl(url));
+			createTargetDb(service, db);
 
 			//perform bulk insert for array of documents
 			BulkDocs docs = new BulkDocs.Builder().docs(listOfDocs).build();
 			PostBulkDocsOptions postBulkDocsOptions = new PostBulkDocsOptions.Builder()
-				.db(JavaCloudantUtil.getDbNameFromUrl(url))
+				.db(db)
 				.bulkDocs(docs)
 				.build();
 			List<DocumentResult> resList = service.postBulkDocs(postBulkDocsOptions).execute().getResult();
@@ -147,7 +147,6 @@ public class JavaCloudantUtil {
 		// dbUrl: https://account.cloudant.com/dbname
 		// serverUrl: https://account.cloudant.com/
 		Authenticator authenticator = null;
-		String serviceUrl = url.substring(0, url.lastIndexOf("/", url.length()-2));
 		if ((username == null || username.isEmpty())
 			&& (password == null || password.isEmpty())) {
 			authenticator = new NoAuthAuthenticator();
@@ -156,31 +155,10 @@ public class JavaCloudantUtil {
 		}
 
 		Cloudant service = new Cloudant(Cloudant.DEFAULT_SERVICE_NAME, authenticator);
-		service.setServiceUrl(serviceUrl);
+		service.setServiceUrl(url);
 		service.enableRetries(3, 1000);
 		service.setDefaultHeaders(UserAgentHeader);
 		return service;
-	}
-
-	public static String getDbNameFromUrl(Map<String, String> props) {
-		return getDbNameFromUrl(props.get(InterfaceConst.URL));
-	}
-
-	public static String getDbNameFromUrl(String dbUrl) {
-		String dbName = null;
-		try {
-			dbName = new URL(dbUrl).getPath();
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		// A path might have leading or trailing slashes, remove them
-		if (dbName.startsWith("/")) {
-			dbName = dbName.replaceFirst("/", "");
-		}
-		if (dbName.endsWith("/")) {
-			dbName = dbName.substring(0, dbName.length() - 1);
-		}
-		return dbName;
 	}
 
 	public static void createTargetDb(Cloudant service, String dbName) {
