@@ -26,7 +26,7 @@ import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
 import org.apache.kafka.common.config.ConfigDef.Width;
 
-public class CommonConnectorConfig extends AbstractConfig {
+public class CloudantConnectorConfig extends AbstractConfig {
 
     public static final ConfigDef CONFIG_DEF = baseConfigDef();
 
@@ -114,11 +114,11 @@ public class CommonConnectorConfig extends AbstractConfig {
                         ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DISP));
     }
 
-    public CommonConnectorConfig(ConfigDef definition, Map<?, ?> originals, boolean doLog) {
+    public CloudantConnectorConfig(ConfigDef definition, Map<?, ?> originals, boolean doLog) {
         super(definition, originals, doLog);
     }
 
-    public CommonConnectorConfig(ConfigDef definition, Map<?, ?> originals) {
+    public CloudantConnectorConfig(ConfigDef definition, Map<?, ?> originals) {
         super(definition, originals);
     }
 

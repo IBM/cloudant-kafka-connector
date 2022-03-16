@@ -27,12 +27,12 @@ import org.apache.kafka.common.config.ConfigValue;
 import org.apache.kafka.common.config.types.Password;
 
 // custom validations, for complex validation rules across multiple fields
-public class CustomValidator {
+public class CloudantConfigValidator {
 
     private Map<String, ConfigValue> values;
     private List<ConfigValue> validations;
 
-    public CustomValidator(Map<String, String> props, ConfigDef config) {
+    public CloudantConfigValidator(Map<String, String> props, ConfigDef config) {
 
         validations = config.validate(props);
         values = validations.stream().collect(Collectors.toMap(ConfigValue::name, Function.identity()));
