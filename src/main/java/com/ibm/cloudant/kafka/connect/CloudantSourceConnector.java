@@ -89,7 +89,7 @@ public class CloudantSourceConnector extends SourceConnector {
 
 	@Override
 	public Config validate(Map<String, String> connectorConfigs) {
-		CustomValidator validator = new CustomValidator(connectorConfigs, config());
+		CloudantConfigValidator validator = new CloudantConfigValidator(connectorConfigs, config());
 		return validator.validate();
 	}
 

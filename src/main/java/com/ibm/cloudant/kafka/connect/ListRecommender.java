@@ -15,6 +15,7 @@
 package com.ibm.cloudant.kafka.connect;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,11 +24,19 @@ import org.apache.kafka.common.config.ConfigDef.Recommender;
 import org.apache.kafka.common.config.ConfigDef.Validator;
 
 // Recommend and Validate that value must be one from a given list
+// NB matching is case insensitive for Strings
 public class ListRecommender implements Recommender, Validator {
 
-    List<Object> validValues;
+    List<Object> validValues = new LinkedList<>();
 
     public ListRecommender(Object... validValues) {
+        for (Object validValue: validValues) {
+            if (validValue instanceof String) {
+                this.validValues.add(((String)validValue).toLowerCase());
+            } else {
+                this.validValues.add(validValue);
+            }
+        }
         this.validValues = Arrays.asList(validValues);
     }
 
@@ -46,6 +55,10 @@ public class ListRecommender implements Recommender, Validator {
 
         if (value == null) {
             return;
+        }
+
+        if (value instanceof String) {
+            value = ((String)value).toLowerCase();
         }
 
         if (!validValues.contains(value)) {

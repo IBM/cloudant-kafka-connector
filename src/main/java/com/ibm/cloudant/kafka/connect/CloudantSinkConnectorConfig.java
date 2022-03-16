@@ -17,12 +17,12 @@ import java.util.Map;
 
 import org.apache.kafka.common.config.ConfigDef;
 
-public class CloudantSinkConnectorConfig extends CommonConnectorConfig {
+public class CloudantSinkConnectorConfig extends CloudantConnectorConfig {
 
     public static final ConfigDef CONFIG_DEF = baseConfigDef();
 
 	public static ConfigDef baseConfigDef() {
-		return new ConfigDef(CommonConnectorConfig.CONFIG_DEF);
+		return new ConfigDef(CloudantConnectorConfig.CONFIG_DEF);
 	}
 	
 	public CloudantSinkConnectorConfig(Map<String, String> originals) {

@@ -45,7 +45,7 @@ public class CloudantConfigValidator {
 
     private void validateBasicAuth() {
         String basic = "basic";
-        if (values.get(InterfaceConst.AUTH_TYPE).value().equals(basic)) {
+        if (basic.equalsIgnoreCase((String)values.get(InterfaceConst.AUTH_TYPE).value())) {
             if (nullOrEmpty(values.get(InterfaceConst.USER_NAME).value()) || nullOrEmpty(values.get(InterfaceConst.PASSWORD).value())) {
                 String messsage = String.format("Both '%s' and '%s' must be set when using '%s' of '%s'",
                 InterfaceConst.USER_NAME,
