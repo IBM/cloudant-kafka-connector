@@ -24,12 +24,22 @@ import org.apache.kafka.common.config.ConfigDef.Width;
 
 import java.util.Map;
 
-public class CloudantSourceConnectorConfig extends CommonConnectorConfig {
+public class CloudantSourceConnectorConfig extends CloudantConnectorConfig {
 
     public static final ConfigDef CONFIG_DEF = baseConfigDef();
 
     public static ConfigDef baseConfigDef() {
-        return new ConfigDef(CommonConnectorConfig.CONFIG_DEF)
+        return new ConfigDef(CloudantConnectorConfig.CONFIG_DEF)
+                // Cloudant last change sequence
+                .define(InterfaceConst.LAST_CHANGE_SEQ,
+                        Type.STRING,
+                        CLOUDANT_LAST_SEQ_NUM_DEFAULT,
+                        Importance.LOW,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC),
+                        DATABASE_GROUP,
+                        1,
+                        Width.LONG,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC))
                 // Whether to omit design documents
                 .define(InterfaceConst.OMIT_DESIGN_DOCS, Type.BOOLEAN,
                         false,

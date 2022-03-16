@@ -93,16 +93,6 @@ public class CloudantConnectorConfig extends AbstractConfig {
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_AUTH_TYPE_DISP),
                         new ListRecommender(CLOUDANT_AUTH_TYPE_BASIC))
-                // Cloudant last change sequence
-                .define(InterfaceConst.LAST_CHANGE_SEQ,
-                        Type.STRING,
-                        CLOUDANT_LAST_SEQ_NUM_DEFAULT,
-                        Importance.LOW,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC),
-                        DATABASE_GROUP,
-                        1,
-                        Width.LONG,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC))
                 // Kafka topic
                 .define(InterfaceConst.TOPIC,
                         Type.LIST,
