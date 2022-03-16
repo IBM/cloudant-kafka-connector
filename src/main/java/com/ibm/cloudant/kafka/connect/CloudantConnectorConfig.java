@@ -86,7 +86,7 @@ public class CloudantConnectorConfig extends AbstractConfig {
                         Type.STRING,
                         CLOUDANT_AUTH_TYPE_DEFAULT,
                         new ListRecommender(CLOUDANT_AUTH_TYPE_BASIC),
-                        Importance.LOW,
+                        Importance.HIGH,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_AUTH_TYPE_DOC),
                         DATABASE_GROUP,
                         1,
