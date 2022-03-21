@@ -29,16 +29,19 @@ the [Kafka Connector documentation](http://docs.confluent.io/3.0.1/connect/userg
 
 1. `bootstrap.servers`
 2. If using a standalone worker `offset.storage.file.filename`.
-3. The following configuration when using the Cloudant connector as either a source or a sink:
 
-Parameter | Value
----:|:---
-key.converter|org.apache.kafka.connect.json.JsonConverter
-value.converter|org.apache.kafka.connect.json.JsonConverter
-key.converter.schemas.enable|true
-value.converter.schemas.enable|true
+## Converter configuration
 
-Assume these settings in a file `connect-standalone.properties` or `connect-distributed.properties`.
+Usually the kafka distribution defaults (`connect-(standalone|distributed).properties`) are as follows:
+```
+key.converter=org.apache.kafka.connect.json.JsonConverter
+value.converter=org.apache.kafka.connect.json.JsonConverter
+key.converter.schemas.enable=true
+value.converter.schemas.enable=true
+```
+For the sink connector, kafka keys are currently ignored; therefore the key converter settings are not relevant.
+
+For the sink connector, we assume that the values in kafka are serialized JSON objects, and therefore `JsonConverter` is supported [TODO note about how any converter which can return a map or struct will work]. If your values contain a schema (`{"schema": {...}, "payload": {...}}`), then set `value.converter.schemas.enable=true`, otherwise set `value.converter.schemas.enable=false`.
 
 ### Authentication
 

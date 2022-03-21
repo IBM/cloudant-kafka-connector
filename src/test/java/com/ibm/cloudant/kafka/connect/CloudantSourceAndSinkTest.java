@@ -13,6 +13,7 @@
  */
 package com.ibm.cloudant.kafka.connect;
 
+import com.google.gson.Gson;
 import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.cloudant.v1.model.GetDatabaseInformationOptions;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
@@ -25,6 +26,7 @@ import org.apache.kafka.connect.source.SourceRecord;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author holger
@@ -39,6 +41,8 @@ public class CloudantSourceAndSinkTest extends TestCase {
 
     private String sourceDbName;
     private String targetDbName;
+
+    private Gson gson = new Gson();
 
     /* (non-Javadoc)
      * @see junit.framework.TestCase#setUp()
@@ -88,13 +92,17 @@ public class CloudantSourceAndSinkTest extends TestCase {
             // - no offset
             for (SourceRecord record : records) {
 
+                // source task returns strings but sink task expects structs or maps
+                // in a real kafka instance this would be fixed by using appropriate converters
+                Map recordValue = gson.fromJson((String)record.value(), Map.class);
+
                 SinkRecord sinkRecord = new SinkRecord(sinkTask.getTargetProperties().get
                         (InterfaceConst.TOPIC),
                         0, // partition
                         record.keySchema(), // key schema
                         record.key(), // key
-                        record.valueSchema(), // value schema
-                        record.value(),  // value
+                        null, // value schema
+                        recordValue,  // value
                         0); // offset
                 sinkRecords.add(sinkRecord);
             }

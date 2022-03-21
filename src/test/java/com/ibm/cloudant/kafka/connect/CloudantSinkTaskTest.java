@@ -14,6 +14,7 @@
 package com.ibm.cloudant.kafka.connect;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.ibm.cloud.cloudant.v1.Cloudant;
@@ -33,6 +34,8 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.sink.SinkRecord;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -50,7 +53,7 @@ public class CloudantSinkTaskTest extends TestCase {
     private CloudantSinkTask task;
     private Map<String, String> targetProperties;
 
-    private JsonObject doc1, doc2, doc3;
+    private Map<String, Object> doc1, doc2, doc3;
     private Cloudant service;
 
     /* (non-Javadoc)
@@ -64,18 +67,21 @@ public class CloudantSinkTaskTest extends TestCase {
         task = new CloudantSinkTask();
 
         //Test objects
-        JsonParser parser = new JsonParser();
-        doc1 = parser.parse("{\"_id\":\"doc1\","
-                + "\"number\":1,"
-                + "\"key\":\"value1\"}").getAsJsonObject();
 
-        doc2 = parser.parse("{\"_id\":\"doc2\","
-                + "\"number\":2,"
-                + "\"key\":\"value2\"}").getAsJsonObject();
+        doc1 = new HashMap<>();
+        doc1.put("_id", "doc1");
+        doc1.put("number", 1L);
+        doc1.put("key", "value1");
 
-        doc3 = parser.parse("{\"_id\":\"doc3\","
-                + "\"number\":3,"
-                + "\"key\":\"value3\"}").getAsJsonObject();
+        doc2 = new HashMap<>();
+        doc2.put("_id", "doc2");
+        doc2.put("number", 2L);
+        doc2.put("key", "value2");
+
+        doc3 = new HashMap<>();
+        doc3.put("_id", "doc3");
+        doc3.put("number", 3L);
+        doc3.put("key", "value3");
 
         service = JavaCloudantUtil.getClientInstance(targetProperties);
         JavaCloudantUtil.createTargetDb(service, targetProperties.get(InterfaceConst.DB));
@@ -89,11 +95,17 @@ public class CloudantSinkTaskTest extends TestCase {
         targetProperties.put(InterfaceConst.REPLICATION, "true");
         List<JsonObject> result = testPutCollectionOfSinkRecord();
 
+        Gson gson = new Gson();
+
+        JsonObject doc1Expected = (JsonObject)gson.toJsonTree(doc1);
+        JsonObject doc2Expected = (JsonObject)gson.toJsonTree(doc2);
+        JsonObject doc3Expected = (JsonObject)gson.toJsonTree(doc3);
+
         //Test results
         assertEquals(3, result.size());
-        assertTrue(result.contains(doc1));
-        assertTrue(result.contains(doc2));
-        assertTrue(result.contains(doc3));
+        assertTrue(result.contains(doc1Expected));
+        assertTrue(result.contains(doc2Expected));
+        assertTrue(result.contains(doc3Expected));
     }
 
     /**
@@ -109,29 +121,35 @@ public class CloudantSinkTaskTest extends TestCase {
         kcschema.addProperty("type", "STRING");
         kcschema.addProperty("optional", false);
 
-        doc1.add(InterfaceConst.KC_SCHEMA, kcschema);
-        doc1.addProperty("_id",
+        Gson gson = new Gson();
+
+        JsonObject doc1Expected = (JsonObject)gson.toJsonTree(doc1);
+        JsonObject doc2Expected = (JsonObject)gson.toJsonTree(doc2);
+        JsonObject doc3Expected = (JsonObject)gson.toJsonTree(doc3);
+
+        doc1Expected.add(InterfaceConst.KC_SCHEMA, kcschema);
+        doc1Expected.addProperty("_id",
                 targetProperties.get(InterfaceConst.TOPIC) +
                         "_" + 0 + "_" + doc1.get("number") +
-                        "_" + doc1.get("_id").getAsString());
+                        "_" + doc1.get("_id"));
 
-        doc2.add(InterfaceConst.KC_SCHEMA, kcschema);
-        doc2.addProperty("_id",
+        doc2Expected.add(InterfaceConst.KC_SCHEMA, kcschema);
+        doc2Expected.addProperty("_id",
                 targetProperties.get(InterfaceConst.TOPIC) +
                         "_" + 0 + "_" + doc2.get("number") +
-                        "_" + doc2.get("_id").getAsString());
+                        "_" + doc2.get("_id"));
 
-        doc3.add(InterfaceConst.KC_SCHEMA, kcschema);
-        doc3.addProperty("_id",
+        doc3Expected.add(InterfaceConst.KC_SCHEMA, kcschema);
+        doc3Expected.addProperty("_id",
                 targetProperties.get(InterfaceConst.TOPIC) +
                         "_" + 0 + "_" + doc3.get("number") +
-                        "_" + doc3.get("_id").getAsString());
+                        "_" + doc3.get("_id"));
 
         //Test results
         assertEquals(3, result.size());
-        assertTrue(result.contains(doc1));
-        assertTrue(result.contains(doc2));
-        assertTrue(result.contains(doc3));
+        assertTrue(result.contains(doc1Expected));
+        assertTrue(result.contains(doc2Expected));
+        assertTrue(result.contains(doc3Expected));
     }
 
     private List<JsonObject> testPutCollectionOfSinkRecord() {
@@ -152,18 +170,16 @@ public class CloudantSinkTaskTest extends TestCase {
 
         task.put(Collections.singletonList(
                 new SinkRecord(targetProperties.get(InterfaceConst.TOPIC), 0,
-                        null, null, Schema.STRING_SCHEMA, doc1, doc1.get("number").getAsLong())));
+                        null, null, Schema.STRING_SCHEMA, doc1, (long)doc1.get("number"))));
 
         task.flush(offsets);
 
         task.put(Arrays.asList(
                 new SinkRecord(targetProperties.get(InterfaceConst.TOPIC),
-                        0, null, null, Schema.STRING_SCHEMA, doc2.toString(), doc2.get("number")
-                        .getAsLong()),
+                        0, null, null, Schema.STRING_SCHEMA, doc2, (long)doc2.get("number")),
 
                 new SinkRecord(targetProperties.get(InterfaceConst.TOPIC),
-                        0, null, null, Schema.STRING_SCHEMA, doc3.toString(), doc3.get("number")
-                        .getAsLong())
+                        0, null, null, Schema.STRING_SCHEMA, doc3, (long)doc3.get("number"))
         ));
 
         task.flush(offsets);

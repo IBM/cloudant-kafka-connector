@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class JavaCloudantUtil {
 
@@ -67,7 +69,7 @@ public class JavaCloudantUtil {
 		);
 	}
 
-	public static JSONArray batchWrite(Map<String, String> props, JSONArray data)
+	public static JSONArray batchWrite(Map<String, String> props, List<Map<String, Object>> data)
 		throws JSONException {
 		// wrap result to JSONArray
 		JSONArray result = new JSONArray();
@@ -76,13 +78,7 @@ public class JavaCloudantUtil {
 			// get client object
 			Cloudant service = getClientInstance(props);
 
-			List<Document> listOfDocs = new ArrayList<>();
-			for(int i=0; i < data.length(); i++){
-				Map<String, Object> docProperties = data.getJSONObject(i).toMap();
-				Document doc = new Document();
-				doc.setProperties(docProperties);
-				listOfDocs.add(doc);
-			}
+			List<Document> listOfDocs = data.stream().map(d -> {Document doc = new Document(); doc.setProperties(d); return doc; }).collect(Collectors.toList());
 
 			// attempt to create database
 			createTargetDb(service, props.get(InterfaceConst.DB));
@@ -116,6 +112,7 @@ public class JavaCloudantUtil {
 				result.put(jsonResult);
 			}
 		} catch (Exception e) {
+			LOG.error("Exception caught in batchWrite()", e);
 			if(e.getMessage().equals(String.format(ResourceBundleUtil.get(
 				MessageKey.CLOUDANT_LIMITATION)))){
 				// try to put items from jsonResult before exception occurred

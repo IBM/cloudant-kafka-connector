@@ -25,6 +25,7 @@ import org.apache.kafka.connect.source.SourceTaskContext;
 import org.easymock.EasyMock;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -117,8 +118,12 @@ public class ConnectorUtils {
         connectorProperties.put(InterfaceConst.TASKS_MAX, "1");
         connectorProperties.put(InterfaceConst.BATCH_SIZE, "10000");
 
+        Collection<String> properties = new ArrayList();
+        properties.addAll(CloudantConnectorConfig.CONFIG_DEF.configKeys().keySet());
+        properties.addAll(connectorProperties.keySet());
+
         // use provided values from System.getProperties (can also override defaults above)
-        for (String k : CloudantConnectorConfig.CONFIG_DEF.configKeys().keySet()) {
+        for (String k : properties) {
             String v = System.getProperty(k);
             if (v != null) {
                 connectorProperties.put(k, v);

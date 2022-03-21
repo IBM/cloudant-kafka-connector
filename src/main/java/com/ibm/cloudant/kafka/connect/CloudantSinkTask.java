@@ -26,11 +26,8 @@ import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -48,8 +45,10 @@ public class CloudantSinkTask extends SinkTask {
 	private int taskNumber;
 	public static String guid_schema = null;
 	private Boolean replication;
-	public static volatile JSONArray jsonArray = new JSONArray();
 
+	private List<Map<String, Object>> jsonArray = new ArrayList<>();
+
+	private static StructToMapConverter<SinkRecord> converter = new StructToMapConverter<>();
 	
 	@Override
 	public String version() {
@@ -61,44 +60,33 @@ public class CloudantSinkTask extends SinkTask {
 	@Override
 	public void put(Collection<SinkRecord> sinkRecords) {
 	
+		
 		LOG.info("Thread[" + Thread.currentThread().getId() + "].sinkRecords = " + sinkRecords.size());
 		
 		for (SinkRecord record : sinkRecords) {		
-			JSONObject jsonRecord;
-		
-			JSONTokener tokener = new JSONTokener(record.value().toString());		
-			jsonRecord = new JSONObject(tokener);
-											
-			if (jsonRecord.has(CloudantConst.CLOUDANT_REV)) {
-				jsonRecord.remove(CloudantConst.CLOUDANT_REV);
-			}
+
+			Map<String, Object> recordValue = converter.convert(record);
+
+			recordValue.remove(CloudantConst.CLOUDANT_REV);
 			
-			if(jsonRecord.has(CloudantConst.CLOUDANT_DOC_ID)){			
+			if(recordValue.containsKey(CloudantConst.CLOUDANT_DOC_ID)){			
 				if(replication == false) {
+					// TODO this won't work and will come out as null because our JSON serialiser doesn't know what to do with a Connect Schema
+					// it's possible that JsonConverter#asJsonSchema will help here
 					//Add archive schema from SinkRecord when available
-					jsonRecord.put(InterfaceConst.KC_SCHEMA, record.valueSchema());
+					recordValue.put(InterfaceConst.KC_SCHEMA, record.valueSchema());
 					
 					//Create object id from kafka
-					jsonRecord.put(CloudantConst.CLOUDANT_DOC_ID, 
+					recordValue.put(CloudantConst.CLOUDANT_DOC_ID, 
 							record.topic() + "_" + 
 							record.kafkaPartition().toString() + "_" + 
 							Long.toString(record.kafkaOffset()) + "_" + 
-							jsonRecord.get(CloudantConst.CLOUDANT_DOC_ID));	
+							recordValue.get(CloudantConst.CLOUDANT_DOC_ID));	
 				}
-				//OPTION B: IF replication == true => Do Nothing => Create mirror from Cloudant object
-				
-				//OPTION C (not implemented): generate new id with  cloudant 
-				/*else {
-					LOG.info(MessageKey.GUID_SCHEMA + ": " + guid_schema);
-					LOG.warn(CloudantConst.CLOUDANT_DOC_ID + "from source database will removed");
-					
-					//remove Cloudant _id
-					jsonRecord.remove(CloudantConst.CLOUDANT_DOC_ID);
-				}*/
 			}					
-			jsonArray.put(jsonRecord);
+			jsonArray.add(recordValue);
 			
-			if ((jsonArray != null) && (jsonArray.length() >= batch_size)) {
+			if (jsonArray.size() >= batch_size) {
 	
 				flush(null);
 	
@@ -137,31 +125,12 @@ public class CloudantSinkTask extends SinkTask {
 	@Override
 	public void flush(Map<TopicPartition, org.apache.kafka.clients.consumer.OffsetAndMetadata> offsets) {
 		LOG.debug("Flushing output stream for {" + config.getString(InterfaceConst.URL) + "}");
-
 		try {
-
-			if ((jsonArray != null) && (jsonArray.length() > 0)) {
-
-				JSONArray results = JavaCloudantUtil.batchWrite(config.originalsStrings(), jsonArray);
-				LOG.info("Committed " + jsonArray.length() + " documents to -> " + config.getString(InterfaceConst.URL));
-
-				// The results array has a record for every single document commit
-				// Processing this is expensive!
-				if (results != null) {
-					/* 
-					for (int i = 0; i < results.length(); i++) {
-						JSONObject result = (JSONObject) results.get(i);
-						LOG.debug(result.toString());
-					}
-					*/
-				}
-			}
-
-		} catch (JSONException e) {
-			LOG.error(e.getMessage(), e);
+				JavaCloudantUtil.batchWrite(config.originalsStrings(), jsonArray);
+				LOG.info("Committed " + jsonArray.size() + " documents to -> " + config.getString(InterfaceConst.URL));
 		} finally {
 			// Release memory (regardless if documents got committed or not)
-			jsonArray = new JSONArray(); ;
+			jsonArray = new ArrayList<>();
 		}
 	}
 	
