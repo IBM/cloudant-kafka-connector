@@ -78,7 +78,7 @@ public class CloudantSinkTaskTest extends TestCase {
                 + "\"key\":\"value3\"}").getAsJsonObject();
 
         service = JavaCloudantUtil.getClientInstance(targetProperties);
-        JavaCloudantUtil.createTargetDb(service, JavaCloudantUtil.getDbNameFromUrl(targetProperties.get(InterfaceConst.URL)));
+        JavaCloudantUtil.createTargetDb(service, targetProperties.get(InterfaceConst.DB));
     }
 
     /**
@@ -137,7 +137,7 @@ public class CloudantSinkTaskTest extends TestCase {
     private List<JsonObject> testPutCollectionOfSinkRecord() {
 
         // Get the current update sequence
-        String dbName = JavaCloudantUtil.getDbNameFromUrl(targetProperties.get(InterfaceConst.URL));
+        String dbName = targetProperties.get(InterfaceConst.DB);
         GetDatabaseInformationOptions dbOptions =
             new GetDatabaseInformationOptions.Builder()
                 .db(dbName)
@@ -170,7 +170,7 @@ public class CloudantSinkTaskTest extends TestCase {
 
         // CLOUDANT
         PostChangesOptions options = new PostChangesOptions.Builder()
-            .db(JavaCloudantUtil.getDbNameFromUrl(targetProperties.get(InterfaceConst.URL)))
+            .db(targetProperties.get(InterfaceConst.DB))
             .since(since)
             .limit(4)
             .includeDocs(true)

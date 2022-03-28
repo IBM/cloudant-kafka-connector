@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2018 IBM Corp. All rights reserved.
+ * Copyright © 2016, 2022 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -21,13 +21,17 @@ public class MessageKey {
 	public static final String STREAM_TERMINATE_ERROR = "TerminateStreamError";
 	
 	public static final String CLOUDANT_CONNECTION_URL_DOC = "CloudantConnectUrlDoc";
+	public static final String CLOUDANT_CONNECTION_DB_DOC = "CloudantConnectDbDoc";
 	public static final String CLOUDANT_CONNECTION_USR_DOC = "CloudantConnectUsrDoc";
 	public static final String CLOUDANT_CONNECTION_PWD_DOC  ="CloudantConnectPwdDoc";
+	public static final String CLOUDANT_CONNECTION_AUTH_TYPE_DOC  ="CloudantConnectAuthTypeDoc";
 	public static final String CLOUDANT_LAST_SEQ_NUM_DOC = "CloudantLastSeqNumDoc";
 	
 	public static final String CLOUDANT_CONNECTION_URL_DISP = "CloudantConnectUrlDisp";
+	public static final String CLOUDANT_CONNECTION_DB_DISP = "CloudantConnectDbDisp";
 	public static final String CLOUDANT_CONNECTION_USR_DISP = "CloudantConnectUsrDisp";
 	public static final String CLOUDANT_CONNECTION_PWD_DISP = "CloudantConnectPwdDisp";
+	public static final String CLOUDANT_CONNECTION_AUTH_TYPE_DISP  ="CloudantConnectAuthTypeDisp";
 	public static final String CLOUDANT_LAST_SEQ_NUM_DISP = "CloudantLastSeqNumDisp";
 	public static final String CLOUDANT_LIMITATION = "CloudantLimitation";
 	

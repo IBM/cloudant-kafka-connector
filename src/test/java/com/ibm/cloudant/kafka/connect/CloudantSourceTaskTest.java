@@ -61,6 +61,7 @@ public class CloudantSourceTaskTest extends TestCase {
 
         // Load data into the source database (create if it does not exist)
         JavaCloudantUtil.batchWrite(sourceProperties.get(InterfaceConst.URL),
+                sourceProperties.get(InterfaceConst.DB),
                 sourceProperties.get(InterfaceConst.USER_NAME),
                 sourceProperties.get(InterfaceConst.PASSWORD),
                 data);
@@ -116,6 +117,7 @@ public class CloudantSourceTaskTest extends TestCase {
         }
 
         JavaCloudantUtil.batchWrite(sourceProperties.get(InterfaceConst.URL),
+                sourceProperties.get(InterfaceConst.DB),
                 sourceProperties.get(InterfaceConst.USER_NAME),
                 sourceProperties.get(InterfaceConst.PASSWORD),
                 data2);
@@ -151,6 +153,7 @@ public class CloudantSourceTaskTest extends TestCase {
         JSONArray ddocArray = new JSONArray();
         ddocArray.put(Collections.singletonMap("_id", "_design/test"));
         JavaCloudantUtil.batchWrite(sourceProperties.get(InterfaceConst.URL),
+                sourceProperties.get(InterfaceConst.DB),
                 sourceProperties.get(InterfaceConst.USER_NAME),
                 sourceProperties.get(InterfaceConst.PASSWORD),
                 ddocArray);
@@ -233,6 +236,7 @@ public class CloudantSourceTaskTest extends TestCase {
                     ("src/test/resources/data2.json")));
             // Load data into the source database (create if it does not exist)
             JavaCloudantUtil.batchWrite(sourceProps2.get(InterfaceConst.URL),
+                    sourceProps2.get(InterfaceConst.DB),
                     sourceProps2.get(InterfaceConst.USER_NAME),
                     sourceProps2.get(InterfaceConst.PASSWORD),
                     data2);

@@ -18,6 +18,7 @@ import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 
+import org.apache.kafka.common.config.Config;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.Task;
 import org.apache.kafka.connect.errors.ConnectException;
@@ -35,7 +36,6 @@ public class CloudantSourceConnector extends SourceConnector {
 	private static Logger LOG = LoggerFactory.getLogger(CloudantSourceConnector.class);
 	
 	private Map<String, String> configProperties;
-	private CloudantSourceConnectorConfig config;
 
 	@Override
 	public ConfigDef config() {
@@ -44,9 +44,7 @@ public class CloudantSourceConnector extends SourceConnector {
 
 	@Override
 	public void start(Map<String, String> props) {
-		
 	     configProperties = props;
-		 config = new CloudantSourceConnectorConfig(configProperties);	
 	}
 
 	@Override
@@ -59,7 +57,6 @@ public class CloudantSourceConnector extends SourceConnector {
 	public Class<? extends Task> taskClass() {
 		return CloudantSourceTask.class;
 	}
-
 	
 	@Override
 	public List<Map<String, String>> taskConfigs(int maxTasks) {
@@ -84,10 +81,16 @@ public class CloudantSourceConnector extends SourceConnector {
 			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION), e);
 		}
 	}
-	 
-	
+
 	@Override
 	public String version() {
 		return JavaCloudantUtil.VERSION;
 	}
+
+	@Override
+	public Config validate(Map<String, String> connectorConfigs) {
+		CloudantConfigValidator validator = new CloudantConfigValidator(connectorConfigs, config());
+		return validator.validate();
+	}
+
 }

@@ -56,13 +56,12 @@ public class CloudantSourceAndSinkTest extends TestCase {
         // Get the source database handle
         sourceService = JavaCloudantUtil.getClientInstance(sourceTask.getSourceProperties());
 
-        sourceDbName = JavaCloudantUtil.getDbNameFromUrl(sourceTask.getSourceProperties().get(InterfaceConst.URL));
+        sourceDbName = sourceTask.getSourceProperties().get(InterfaceConst.DB);
 
         // Create a _target database to replicate data into
-        sinkTask.getTargetProperties().put(InterfaceConst.URL,
-                sinkTask.getTargetProperties().get(InterfaceConst.URL) + "_target");
-        targetDbName = JavaCloudantUtil.getDbNameFromUrl(
-            sinkTask.getTargetProperties().get(InterfaceConst.URL));
+        sinkTask.getTargetProperties().put(InterfaceConst.DB,
+                sinkTask.getTargetProperties().get(InterfaceConst.DB) + "_target");
+        targetDbName = sinkTask.getTargetProperties().get(InterfaceConst.DB);
         JavaCloudantUtil.createTargetDb(sourceService, targetDbName);
 
         targetService = JavaCloudantUtil.getClientInstance(sinkTask.getTargetProperties());
