@@ -45,10 +45,11 @@ Parameter | Value | Required | Default value | Description
 name|cloudant-source|YES|None|A unique name to identify the connector with.
 connector.class|com.ibm.cloudant.kafka.connect.CloudantSourceConnector|YES|None|The connector class name.
 topics|\<topic1\>,\<topic2\>,..|YES|None|A list of topics you want messages to be written to.
-cloudant.db.url|https://\<account\>.cloudant.com/\<database\>|YES|None|The Cloudant database to read documents from.
-cloudant.db.username|\<username\>|YES|None|The Cloudant username to use for authentication.
-cloudant.db.password|\<password\>|YES|None|The Cloudant password to use for authentication.
-cloudant.db.since|1-g1AAAAETeJzLYWBgYMlgTmGQT0lKzi9..|NO|0|The first change sequence to process from the Cloudant database above. 0 will apply all available document changes.
+cloudant.url|https://\<your-account\>.cloudant.com|YES|None|The Cloudant server to read documents from.
+cloudant.db|\<your-db\>|YES|None|The Cloudant database to read documents from.
+cloudant.username|\<your-username\>|YES|None|The Cloudant username to use for authentication.
+cloudant.password|\<your-password\>|YES|None|The Cloudant password to use for authentication.
+cloudant.since|1-g1AAAAETeJzLYWBgYMlgTmGQT0lKzi9..|NO|0|The first change sequence to process from the Cloudant database above. 0 will apply all available document changes.
 batch.size|400|NO|1000|The batch size used to bulk read from the Cloudant database.
 cloudant.omit.design.docs|false|NO|false| Set to true to omit design documents from the messages produced.
 cloudant.value.schema.struct|false|NO|false| _EXPERIMENTAL_ Set to true to generate a `org.apache.kafka.connect.data.Schema.Type.STRUCT` schema and send the Cloudant document payload as a `org.apache.kafka.connect.data.Struct` using the schema instead of the default of a string of the JSON document content when using the Cloudant source connector.
@@ -67,9 +68,10 @@ Parameter | Value | Required | Default value | Description
 name|cloudant-sink|YES|None|A unique name to identify the connector with.
 connector.class|com.ibm.cloudant.kafka.connect.CloudantSinkConnector|YES|None|The connector class name.
 topics|\<topic1\>,\<topic2\>,..|YES|None|The list of topics you want to consume messages from.
-cloudant.db.url|https://\<account\>.cloudant.com/\<database\>|YES|None|The Cloudant database to write documents to.
-cloudant.db.username|\<username\>|YES|None|The Cloudant username to use for authentication.
-cloudant.db.password|\<password\>|YES|None|The Cloudant password to use for authentication.
+cloudant.url|https://\<your-account\>.cloudant.com|YES|None|The Cloudant server to write documents to.
+cloudant.db|\<your-db\>|YES|None|The Cloudant database to write documents to.
+cloudant.username|\<your-username\>|YES|None|The Cloudant username to use for authentication.
+cloudant.password|\<your-password\>|YES|None|The Cloudant password to use for authentication.
 tasks.max|5|NO|1|The number of concurrent threads to use for parallel bulk insert into Cloudant.
 batch.size|400|NO|1000|The maximum number of documents to commit with a single bulk insert.
 replication|false|NO|false|Managed object schema in sink database <br>*true: duplicate objects from source <br>false: adjust objects from source (\_id = [\<topic-name\>\_\<partition\>\_\<offset>\_\<sourceCloudantObjectId\>], kc\_schema = Kafka value schema)*

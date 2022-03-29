@@ -51,7 +51,7 @@ public class CloudantSourceTaskTest extends TestCase {
 
         super.setUp();
 
-        sourceProperties = ConnectorUtils.getSourceProperties();
+        sourceProperties = ConnectorUtils.getTestProperties();
 
         /*
          * 1. Create a database and load data
@@ -60,11 +60,7 @@ public class CloudantSourceTaskTest extends TestCase {
         data = new JSONArray(tokener);
 
         // Load data into the source database (create if it does not exist)
-        JavaCloudantUtil.batchWrite(sourceProperties.get(InterfaceConst.URL),
-                sourceProperties.get(InterfaceConst.DB),
-                sourceProperties.get(InterfaceConst.USER_NAME),
-                sourceProperties.get(InterfaceConst.PASSWORD),
-                data);
+        JavaCloudantUtil.batchWrite(sourceProperties, data);
 
         /*
          * 2. Create connector
@@ -116,11 +112,7 @@ public class CloudantSourceTaskTest extends TestCase {
             data2.put(data.get(i));
         }
 
-        JavaCloudantUtil.batchWrite(sourceProperties.get(InterfaceConst.URL),
-                sourceProperties.get(InterfaceConst.DB),
-                sourceProperties.get(InterfaceConst.USER_NAME),
-                sourceProperties.get(InterfaceConst.PASSWORD),
-                data2);
+        JavaCloudantUtil.batchWrite(sourceProperties, data2);
 
         // Poll again for changes and expect to get the 20 we just inserted
         // (even though database has 999 + 20 documents now)
@@ -152,11 +144,7 @@ public class CloudantSourceTaskTest extends TestCase {
         // Add an additional doc, specifically a design doc
         JSONArray ddocArray = new JSONArray();
         ddocArray.put(Collections.singletonMap("_id", "_design/test"));
-        JavaCloudantUtil.batchWrite(sourceProperties.get(InterfaceConst.URL),
-                sourceProperties.get(InterfaceConst.DB),
-                sourceProperties.get(InterfaceConst.USER_NAME),
-                sourceProperties.get(InterfaceConst.PASSWORD),
-                ddocArray);
+        JavaCloudantUtil.batchWrite(sourceProperties, ddocArray);
 
         PowerMock.replayAll();
 
@@ -228,18 +216,14 @@ public class CloudantSourceTaskTest extends TestCase {
         ExecutorService e = Executors.newFixedThreadPool(2);
 
         // Second source properties
-        Map<String, String> sourceProps2 = ConnectorUtils.getSourceProperties();
+        Map<String, String> sourceProps2 = ConnectorUtils.getTestProperties();
 
         try {
             // Create a second database with different content to the first
             JSONArray data2 = new JSONArray(new JSONTokener(new FileReader
                     ("src/test/resources/data2.json")));
             // Load data into the source database (create if it does not exist)
-            JavaCloudantUtil.batchWrite(sourceProps2.get(InterfaceConst.URL),
-                    sourceProps2.get(InterfaceConst.DB),
-                    sourceProps2.get(InterfaceConst.USER_NAME),
-                    sourceProps2.get(InterfaceConst.PASSWORD),
-                    data2);
+            JavaCloudantUtil.batchWrite(sourceProps2, data2);
 
             // Create second connector
             CloudantSourceTask task2 = ConnectorUtils.createCloudantSourceConnector(sourceProps2);

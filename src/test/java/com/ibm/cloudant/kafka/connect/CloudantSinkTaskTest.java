@@ -59,7 +59,7 @@ public class CloudantSinkTaskTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        targetProperties = ConnectorUtils.getTargetProperties();
+        targetProperties = ConnectorUtils.getTestProperties();
 
         task = new CloudantSinkTask();
 

@@ -14,7 +14,6 @@
 
 package com.ibm.cloudant.kafka.connect;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,6 @@ public class ListRecommender implements Recommender, Validator {
                 this.validValues.add(validValue);
             }
         }
-        this.validValues = Arrays.asList(validValues);
     }
 
     @Override

@@ -46,16 +46,18 @@ Execute the following command in the project directory:
 
 Junit tests are available in `src/test/java`.
 
-To execute locally, please modify values in `src/test/resources`, including:
-
-- log4j.properties (optional)
-- test.properties (required)
-
-The settings in `test.properties` have to include Cloudant database credentials and Kafka topic details as above.
-At a minimum you will need to update the values of `cloudant.db.url` `cloudant.db.username` and `cloudant.db.password`.
-The Cloudant credentials must have `_admin` permission as the database referenced by `cloudant.db.url` will be
-created if it does not exist and will be deleted at the end of the tests.
+To execute locally, supply credentials to the gradle `test` task, eg
 
 ```sh
-./gradlew test
+./gradlew -Dcloudant.auth.type=basic -Dcloudant.url=https://<your-account>.cloudant.com -Dcloudant.username=<your-username> -Dcloudant.password=<your-password> test
+
 ```
+
+for basic authentication, or
+
+```sh
+./gradlew -Dcloudant.auth.type=iam -Dcloudant.url=https://<your-account>.cloudant.com -Dcloudant.apikey=<your-apikey> test
+
+```
+
+fo IAM authentication.

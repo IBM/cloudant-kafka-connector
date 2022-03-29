@@ -1,4 +1,6 @@
 # UNRELEASED
+- [BREAKING CHANGE] Configuration parameters have changed for url, database, authentication, and last change sequence. See README.md for details.
+- [UPGRADED] Connector now supports all authentication types via the `cloudant.auth.type` configuration parameter. When using an authentication type of "iam", the API key is configured via the `cloudant.apikey` configuration parameter.
 - [UPGRADED] Upgraded Gradle distribution from 4.5.1 to 7.4
 - [UPGRADED] Upgraded Kafka Connect API to 3.1.0.
 - [UPGRADED] Refactored to use the new `cloudant-java-sdk` library.

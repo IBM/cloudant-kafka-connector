@@ -22,8 +22,9 @@ import java.util.HashMap;
 import com.ibm.cloudant.kafka.connect.CloudantSinkConnectorConfig;
 import com.ibm.cloudant.kafka.connect.CloudantConfigValidator;
 
+import static com.ibm.cloudant.kafka.common.InterfaceConst.APIKEY;
 import static com.ibm.cloudant.kafka.common.InterfaceConst.AUTH_TYPE;
-import static com.ibm.cloudant.kafka.common.InterfaceConst.USER_NAME;
+import static com.ibm.cloudant.kafka.common.InterfaceConst.USERNAME;
 import static com.ibm.cloudant.kafka.common.InterfaceConst.PASSWORD;
 import static com.ibm.cloudant.kafka.common.InterfaceConst.URL;
 import static com.ibm.cloudant.kafka.common.InterfaceConst.TOPIC;
@@ -45,7 +46,7 @@ public class ValidationTest {
     public void validatesBasicAuth() {
         HashMap<String, String> map = new HashMap<String, String>();
         map.put(AUTH_TYPE, "basic");
-        map.put(USER_NAME, "test");
+        map.put(USERNAME, "test");
         map.put(PASSWORD, "test");
         map.put(URL, "https://somewhere");
         map.put(DB, "animaldb");
@@ -62,7 +63,7 @@ public class ValidationTest {
     public void validatesBasicAuthCaseInsensitive() {
         HashMap<String, String> map = new HashMap<String, String>();
         map.put(AUTH_TYPE, "bAsIc");
-        map.put(USER_NAME, "test");
+        map.put(USERNAME, "test");
         map.put(PASSWORD, "test");
         map.put(URL, "https://somewhere");
         map.put(DB, "animaldb");
@@ -79,7 +80,7 @@ public class ValidationTest {
     public void validatesBasicAuthNoPassword() {
         HashMap<String, String> map = new HashMap<String, String>();
         map.put(AUTH_TYPE, "basic");
-        map.put(USER_NAME, "test");
+        map.put(USERNAME, "test");
         map.put(URL, "https://somewhere");
         CloudantConfigValidator validator = new CloudantConfigValidator(
                 map,
@@ -94,7 +95,7 @@ public class ValidationTest {
     public void validatesBasicAuthEmptyPassword() {
         HashMap<String, String> map = new HashMap<String, String>();
         map.put(AUTH_TYPE, "basic");
-        map.put(USER_NAME, "test");
+        map.put(USERNAME, "test");
         map.put(PASSWORD, "");
         map.put(URL, "https://somewhere");
         CloudantConfigValidator validator = new CloudantConfigValidator(
@@ -125,7 +126,7 @@ public class ValidationTest {
     public void validatesBasicAuthEmptyUsername() {
         HashMap<String, String> map = new HashMap<String, String>();
         map.put(AUTH_TYPE, "basic");
-        map.put(USER_NAME, "");
+        map.put(USERNAME, "");
         map.put(PASSWORD, "test");
         map.put(URL, "https://somewhere");
         CloudantConfigValidator validator = new CloudantConfigValidator(
@@ -141,7 +142,7 @@ public class ValidationTest {
     public void validatesUnknownAuth() {
         HashMap<String, String> map = new HashMap<String, String>();
         map.put(AUTH_TYPE, "magic beans");
-        map.put(USER_NAME, "test");
+        map.put(USERNAME, "test");
         map.put(PASSWORD, "test");
         map.put(URL, "https://somewhere");
         CloudantConfigValidator validator = new CloudantConfigValidator(
@@ -156,7 +157,7 @@ public class ValidationTest {
     public void validatesBadUrl() {
         HashMap<String, String> map = new HashMap<String, String>();
         map.put(AUTH_TYPE, "basic");
-        map.put(USER_NAME, "test");
+        map.put(USERNAME, "test");
         map.put(PASSWORD, "test");
         map.put(URL, "not-a-url");
         CloudantConfigValidator validator = new CloudantConfigValidator(
@@ -167,12 +168,76 @@ public class ValidationTest {
         assertHasErrorMessage(c, URL, "Invalid value not-a-url");
     }
 
+    @Test
+    public void validatesIamAuth() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "IAM");
+        map.put(APIKEY, "test");
+        map.put(URL, "https://somewhere");
+        map.put(DB, "animaldb");
+        map.put(TOPIC, "foo");
+        CloudantConfigValidator validator = new CloudantConfigValidator(
+                map,
+                CONFIG_DEF);
+
+        Config c = validator.validate();
+        assertNoErrorMessages(c);
+    }
+
+    @Test
+    public void validatesIamAuthNoApikey() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "IAM");
+        map.put(URL, "https://somewhere");
+        map.put(DB, "animaldb");
+        map.put(TOPIC, "foo");
+        CloudantConfigValidator validator = new CloudantConfigValidator(
+                map,
+                CONFIG_DEF);
+
+        Config c = validator.validate();
+        assertHasErrorMessage(c, AUTH_TYPE,
+                "'cloudant.apikey' must be set when using 'cloudant.auth.type' of 'iam'");
+    }
+
+    @Test
+    public void validatesSessionAuth() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "couchdb_session");
+        map.put(USERNAME, "test");
+        map.put(PASSWORD, "test");
+        map.put(URL, "https://somewhere");
+        map.put(DB, "animaldb");
+        map.put(TOPIC, "foo");
+        CloudantConfigValidator validator = new CloudantConfigValidator(
+                map,
+                CONFIG_DEF);
+
+        Config c = validator.validate();
+        assertNoErrorMessages(c);
+    }
+
+    @Test
+    public void validatesSessionAuthNoCredentials() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "couchdb_session");
+        map.put(URL, "https://somewhere");
+        map.put(DB, "animaldb");
+        map.put(TOPIC, "foo");
+        CloudantConfigValidator validator = new CloudantConfigValidator(
+                map,
+                CONFIG_DEF);
+
+        Config c = validator.validate();
+        assertHasErrorMessage(c, AUTH_TYPE,
+                "Both 'cloudant.username' and 'cloudant.password' must be set when using 'cloudant.auth.type' of 'COUCHDB_SESSION'");
+    }
+
     private static void assertHasErrorMessage(Config config, String property, String msg) {
         for (ConfigValue configValue : config.configValues()) {
             if (configValue.name().equals(property)) {
                 assertFalse(configValue.errorMessages().isEmpty());
                 assertTrue(configValue.errorMessages().get(0).contains(msg));
-                System.out.println(configValue.errorMessages().get(0));
             }
         }
     }

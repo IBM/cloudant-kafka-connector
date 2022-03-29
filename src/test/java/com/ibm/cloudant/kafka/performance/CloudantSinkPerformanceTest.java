@@ -54,7 +54,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
     @Before
     public void setUp() throws Exception {
         //Set properties
-        targetProperties = ConnectorUtils.getTargetProperties();
+        targetProperties = ConnectorUtils.getTestProperties();
 
         // Append _target to the performance URL DB and update to use that
         targetProperties.put(InterfaceConst.URL, targetProperties.get(ConnectorUtils
