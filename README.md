@@ -47,8 +47,10 @@ connector.class|com.ibm.cloudant.kafka.connect.CloudantSourceConnector|YES|None|
 topics|\<topic1\>,\<topic2\>,..|YES|None|A list of topics you want messages to be written to.
 cloudant.url|https://\<your-account\>.cloudant.com|YES|None|The Cloudant server to read documents from.
 cloudant.db|\<your-db\>|YES|None|The Cloudant database to read documents from.
-cloudant.username|\<your-username\>|YES|None|The Cloudant username to use for authentication.
-cloudant.password|\<your-password\>|YES|None|The Cloudant password to use for authentication.
+cloudant.auth.type|`iam`\|`couchdb_session`\|`basic`\|`noauth`\||NO|`iam`|The Cloudant authentication type to use (case insensitive).
+cloudant.apikey|\<your-apikey\>|NO|None|The Cloudant IAM API key to use for authentication (when using `iam` authentication).
+cloudant.username|\<your-username\>|NO|None|The Cloudant username to use for authentication (when using `couchdb_session` or `basic` authentication).
+cloudant.password|\<your-password\>|NO|None|The Cloudant password to use for authentication (when using `couchdb_session` or `basic` authentication).
 cloudant.since|1-g1AAAAETeJzLYWBgYMlgTmGQT0lKzi9..|NO|0|The first change sequence to process from the Cloudant database above. 0 will apply all available document changes.
 batch.size|400|NO|1000|The batch size used to bulk read from the Cloudant database.
 cloudant.omit.design.docs|false|NO|false| Set to true to omit design documents from the messages produced.
@@ -70,8 +72,10 @@ connector.class|com.ibm.cloudant.kafka.connect.CloudantSinkConnector|YES|None|Th
 topics|\<topic1\>,\<topic2\>,..|YES|None|The list of topics you want to consume messages from.
 cloudant.url|https://\<your-account\>.cloudant.com|YES|None|The Cloudant server to write documents to.
 cloudant.db|\<your-db\>|YES|None|The Cloudant database to write documents to.
-cloudant.username|\<your-username\>|YES|None|The Cloudant username to use for authentication.
-cloudant.password|\<your-password\>|YES|None|The Cloudant password to use for authentication.
+cloudant.auth.type|`iam`\|`couchdb_session`\|`basic`\|`noauth`\||NO|`iam`|The Cloudant authentication type to use (case insensitive).
+cloudant.apikey|\<your-apikey\>|NO|None|The Cloudant IAM API key to use for authentication (when using `iam` authentication).
+cloudant.username|\<your-username\>|NO|None|The Cloudant username to use for authentication (when using `couchdb_session` or `basic` authentication).
+cloudant.password|\<your-password\>|NO|None|The Cloudant password to use for authentication (when using `couchdb_session` or `basic` authentication).
 tasks.max|5|NO|1|The number of concurrent threads to use for parallel bulk insert into Cloudant.
 batch.size|400|NO|1000|The maximum number of documents to commit with a single bulk insert.
 replication|false|NO|false|Managed object schema in sink database <br>*true: duplicate objects from source <br>false: adjust objects from source (\_id = [\<topic-name\>\_\<partition\>\_\<offset>\_\<sourceCloudantObjectId\>], kc\_schema = Kafka value schema)*

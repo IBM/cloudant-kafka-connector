@@ -31,13 +31,13 @@ import org.apache.kafka.common.config.ConfigDef.Width;
 public class CloudantConnectorConfig extends AbstractConfig {
 
     protected static final String DATABASE_GROUP = "Database";
-    // TODO make IAM default to match other libs?
-    protected static final String AUTH_TYPE_DEFAULT = Authenticator.AUTHTYPE_BASIC;
+    protected static final String AUTH_TYPE_DEFAULT = Authenticator.AUTHTYPE_IAM;
     protected static final ListRecommender VALID_AUTHS = new ListRecommender(
-        Authenticator.AUTHTYPE_BASIC, 
-        Authenticator.AUTHTYPE_IAM, 
-        Authenticator.AUTHTYPE_NOAUTH, 
-        CouchDbSessionAuthenticator.AUTH_TYPE);
+        Authenticator.AUTHTYPE_IAM,
+        CouchDbSessionAuthenticator.AUTH_TYPE,
+        Authenticator.AUTHTYPE_BASIC,
+        Authenticator.AUTHTYPE_NOAUTH
+        );
     protected static final String USERNAME_DEFAULT = null;
     protected static final String PASSWORD_DEFAULT = null;
     protected static final String APIKEY_DEFAULT = null;
