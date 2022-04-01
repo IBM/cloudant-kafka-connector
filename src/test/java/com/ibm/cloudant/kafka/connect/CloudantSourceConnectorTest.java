@@ -45,7 +45,7 @@ public class CloudantSourceConnectorTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        sourceProperties = ConnectorUtils.getSourceProperties();
+        sourceProperties = ConnectorUtils.getTestProperties();
 
         connector = new CloudantSourceConnector();
         ConnectorContext context = PowerMock.createMock(ConnectorContext.class);
@@ -85,8 +85,8 @@ public class CloudantSourceConnectorTest extends TestCase {
 
         Assert.assertEquals(sourceProperties.get(InterfaceConst.URL), taskConfigs.get(0).get
                 (InterfaceConst.URL));
-        Assert.assertEquals(sourceProperties.get(InterfaceConst.USER_NAME), taskConfigs.get(0)
-            .get(InterfaceConst.USER_NAME));
+        Assert.assertEquals(sourceProperties.get(InterfaceConst.USERNAME), taskConfigs.get(0)
+            .get(InterfaceConst.USERNAME));
         Assert.assertEquals(sourceProperties.get(InterfaceConst.PASSWORD), taskConfigs.get(0).get
             (InterfaceConst.PASSWORD));
         Assert.assertEquals(sourceProperties.get(InterfaceConst.LAST_CHANGE_SEQ), taskConfigs.get

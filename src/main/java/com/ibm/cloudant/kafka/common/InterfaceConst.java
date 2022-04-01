@@ -17,10 +17,10 @@ public class InterfaceConst {
 	
 	public final static String URL = "cloudant.url";
 	public final static String DB = "cloudant.db";
-	public final static String USER_NAME = "cloudant.username";
+	public final static String USERNAME = "cloudant.username";
 	public final static String PASSWORD = "cloudant.password";
 	public final static String AUTH_TYPE = "cloudant.auth.type";
-	public final static String API_KEY = "cloudant.apikey";
+	public final static String APIKEY = "cloudant.apikey";
 	
 	public final static String LAST_CHANGE_SEQ = "cloudant.since";
 

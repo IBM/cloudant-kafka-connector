@@ -31,7 +31,7 @@ stage('QA') {
                 passwordVariable: 'DB_PASSWORD')]) {
 
             try {
-                sh './gradlew -Dcloudant.account=$SDKS_TEST_SERVER_URL -Dcloudant.user=$DB_USER -Dcloudant.pass=$DB_PASSWORD test'
+                sh './gradlew -Dcloudant.auth.type=basic -Dcloudant.url=$SDKS_TEST_SERVER_URL -Dcloudant.username=$DB_USER -Dcloudant.password=$DB_PASSWORD test'
             } finally {
                 junit '**/build/test-results/test/*.xml'
             }

@@ -42,12 +42,8 @@ public class CloudantSinkTask extends SinkTask {
 	
 	private CloudantSinkTaskConfig config;
 	
-	private String url = null;
-	private String db = null;
-	private String userName = null;
-	private String password = null;
 	List<String> topics = null;
-	
+
 	public static int batch_size = 0;
 	private int taskNumber;
 	public static String guid_schema = null;
@@ -126,11 +122,6 @@ public class CloudantSinkTask extends SinkTask {
  		
  		try {
 			config = new CloudantSinkTaskConfig(props);
-			
-			url = config.getString(InterfaceConst.URL);
-			db = config.getString(InterfaceConst.DB);
-			userName = config.getString(InterfaceConst.USER_NAME);
-            password = config.getPassword(InterfaceConst.PASSWORD).value();
             taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
             
             //TODO: split topics from Connector
@@ -145,14 +136,14 @@ public class CloudantSinkTask extends SinkTask {
 
 	@Override
 	public void flush(Map<TopicPartition, org.apache.kafka.clients.consumer.OffsetAndMetadata> offsets) {
-		LOG.debug("Flushing output stream for {" + url + "}");
+		LOG.debug("Flushing output stream for {" + config.getString(InterfaceConst.URL) + "}");
 
 		try {
 
 			if ((jsonArray != null) && (jsonArray.length() > 0)) {
 
-				JSONArray results = JavaCloudantUtil.batchWrite(url, db, userName, password, jsonArray);
-				LOG.info("Committed " + jsonArray.length() + " documents to -> " + url);
+				JSONArray results = JavaCloudantUtil.batchWrite(config.originalsStrings(), jsonArray);
+				LOG.info("Committed " + jsonArray.length() + " documents to -> " + config.getString(InterfaceConst.URL));
 
 				// The results array has a record for every single document commit
 				// Processing this is expensive!

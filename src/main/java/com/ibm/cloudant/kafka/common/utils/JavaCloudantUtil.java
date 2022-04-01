@@ -13,15 +13,13 @@
  */
 package com.ibm.cloudant.kafka.common.utils;
 
-import com.ibm.cloud.cloudant.security.CouchDbSessionAuthenticator;
+import com.ibm.cloud.cloudant.internal.ServiceFactory;
 import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.cloudant.v1.model.BulkDocs;
 import com.ibm.cloud.cloudant.v1.model.Document;
 import com.ibm.cloud.cloudant.v1.model.DocumentResult;
 import com.ibm.cloud.cloudant.v1.model.PostBulkDocsOptions;
 import com.ibm.cloud.cloudant.v1.model.PutDatabaseOptions;
-import com.ibm.cloud.sdk.core.security.Authenticator;
-import com.ibm.cloud.sdk.core.security.NoAuthAuthenticator;
 import com.ibm.cloud.sdk.core.service.exception.ServiceResponseException;
 import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
@@ -36,9 +34,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -49,7 +45,6 @@ public class JavaCloudantUtil {
 	public static final String VERSION;
 
 	private static final String PROPS_FILE = "META-INF/com.ibm.cloudant.kafka.client.properties";
-	private static final Map<String, String> UserAgentHeader;
 	private static Logger LOG = LoggerFactory.getLogger(JavaCloudantUtil.class.toString());
 
 	static {
@@ -70,17 +65,16 @@ public class JavaCloudantUtil {
 			System.getProperty("os.name", "UNKNOWN"),
 			System.getProperty("os.arch", "UNKNOWN")
 		);
-		UserAgentHeader = Collections.singletonMap("User-Agent", VERSION);
 	}
 
-	public static JSONArray batchWrite(String url, String db, String userName, String password, JSONArray data)
+	public static JSONArray batchWrite(Map<String, String> props, JSONArray data)
 		throws JSONException {
 		// wrap result to JSONArray
 		JSONArray result = new JSONArray();
 		JSONObject jsonResult = new JSONObject();
 		try {
 			// get client object
-			Cloudant service = getClientInstance(url, userName, password);
+			Cloudant service = getClientInstance(props);
 
 			List<Document> listOfDocs = new ArrayList<>();
 			for(int i=0; i < data.length(); i++){
@@ -91,12 +85,12 @@ public class JavaCloudantUtil {
 			}
 
 			// attempt to create database
-			createTargetDb(service, db);
+			createTargetDb(service, props.get(InterfaceConst.DB));
 
 			//perform bulk insert for array of documents
 			BulkDocs docs = new BulkDocs.Builder().docs(listOfDocs).build();
 			PostBulkDocsOptions postBulkDocsOptions = new PostBulkDocsOptions.Builder()
-				.db(db)
+				.db(props.get(InterfaceConst.DB))
 				.bulkDocs(docs)
 				.build();
 			List<DocumentResult> resList = service.postBulkDocs(postBulkDocsOptions).execute().getResult();
@@ -131,34 +125,8 @@ public class JavaCloudantUtil {
 		return result;
 	}
 
-	public static Cloudant getClientInstance(Map<String, String> props)
-		throws MalformedURLException {
-		return getClientInstance(
-			props.get(InterfaceConst.URL),
-			props.get(InterfaceConst.USER_NAME),
-			props.get(InterfaceConst.PASSWORD));
-	}
-
-	public static Cloudant getClientInstance(String url, String username, String
-		password) throws MalformedURLException {
-		// Create a new CloudantClient instance
-		// In future this should be changed so that we don't assume the URL has a path element for
-		// the database because some use cases proxy a database to a URL without a path element.
-		// dbUrl: https://account.cloudant.com/dbname
-		// serverUrl: https://account.cloudant.com/
-		Authenticator authenticator = null;
-		if ((username == null || username.isEmpty())
-			&& (password == null || password.isEmpty())) {
-			authenticator = new NoAuthAuthenticator();
-		} else if (username.length() > 0 && password.length() > 0) {
-			authenticator = CouchDbSessionAuthenticator.newAuthenticator(username, password);
-		}
-
-		Cloudant service = new Cloudant(Cloudant.DEFAULT_SERVICE_NAME, authenticator);
-		service.setServiceUrl(url);
-		service.enableRetries(3, 1000);
-		service.setDefaultHeaders(UserAgentHeader);
-		return service;
+	public static Cloudant getClientInstance(Map<String, String> props) {
+		return ServiceFactory.getInstance(props, VERSION);
 	}
 
 	public static void createTargetDb(Cloudant service, String dbName) {

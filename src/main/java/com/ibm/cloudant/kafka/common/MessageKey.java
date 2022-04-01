@@ -25,6 +25,7 @@ public class MessageKey {
 	public static final String CLOUDANT_CONNECTION_USR_DOC = "CloudantConnectUsrDoc";
 	public static final String CLOUDANT_CONNECTION_PWD_DOC  ="CloudantConnectPwdDoc";
 	public static final String CLOUDANT_CONNECTION_AUTH_TYPE_DOC  ="CloudantConnectAuthTypeDoc";
+	public static final String CLOUDANT_CONNECTION_APIKEY_DOC  ="CloudantConnectApikeyDoc";
 	public static final String CLOUDANT_LAST_SEQ_NUM_DOC = "CloudantLastSeqNumDoc";
 	
 	public static final String CLOUDANT_CONNECTION_URL_DISP = "CloudantConnectUrlDisp";
@@ -32,6 +33,7 @@ public class MessageKey {
 	public static final String CLOUDANT_CONNECTION_USR_DISP = "CloudantConnectUsrDisp";
 	public static final String CLOUDANT_CONNECTION_PWD_DISP = "CloudantConnectPwdDisp";
 	public static final String CLOUDANT_CONNECTION_AUTH_TYPE_DISP  ="CloudantConnectAuthTypeDisp";
+	public static final String CLOUDANT_CONNECTION_APIKEY_DISP  ="CloudantConnectApikeyDisp";
 	public static final String CLOUDANT_LAST_SEQ_NUM_DISP = "CloudantLastSeqNumDisp";
 	public static final String CLOUDANT_LIMITATION = "CloudantLimitation";
 	

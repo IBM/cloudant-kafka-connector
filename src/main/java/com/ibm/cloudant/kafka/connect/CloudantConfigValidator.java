@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.ibm.cloud.cloudant.security.CouchDbSessionAuthenticator;
+import com.ibm.cloud.sdk.core.security.Authenticator;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 
 import org.apache.kafka.common.config.Config;
@@ -40,18 +42,44 @@ public class CloudantConfigValidator {
 
     public Config validate() {
         validateBasicAuth();
+        validateIamAuth();
+        validateSessionAuth();
         return new Config(validations);
     }
 
     private void validateBasicAuth() {
-        String basic = "basic";
-        if (basic.equalsIgnoreCase((String)values.get(InterfaceConst.AUTH_TYPE).value())) {
-            if (nullOrEmpty(values.get(InterfaceConst.USER_NAME).value()) || nullOrEmpty(values.get(InterfaceConst.PASSWORD).value())) {
+        if (Authenticator.AUTHTYPE_BASIC.equalsIgnoreCase((String)values.get(InterfaceConst.AUTH_TYPE).value())) {
+            if (nullOrEmpty(values.get(InterfaceConst.USERNAME).value()) || nullOrEmpty(values.get(InterfaceConst.PASSWORD).value())) {
                 String messsage = String.format("Both '%s' and '%s' must be set when using '%s' of '%s'",
-                InterfaceConst.USER_NAME,
+                InterfaceConst.USERNAME,
                 InterfaceConst.PASSWORD,
                 InterfaceConst.AUTH_TYPE,
-                basic);
+                Authenticator.AUTHTYPE_BASIC);
+                addErrorMessage(InterfaceConst.AUTH_TYPE, messsage);
+            }
+        }
+    }
+
+    private void validateIamAuth() {
+        if (Authenticator.AUTHTYPE_IAM.equalsIgnoreCase((String)values.get(InterfaceConst.AUTH_TYPE).value())) {
+            if (nullOrEmpty(values.get(InterfaceConst.APIKEY).value())) {
+                String messsage = String.format("'%s' must be set when using '%s' of '%s'",
+                InterfaceConst.APIKEY,
+                InterfaceConst.AUTH_TYPE,
+                Authenticator.AUTHTYPE_IAM);
+                addErrorMessage(InterfaceConst.AUTH_TYPE, messsage);
+            }
+        }
+    }
+
+    private void validateSessionAuth() {
+        if (CouchDbSessionAuthenticator.AUTH_TYPE.equalsIgnoreCase((String)values.get(InterfaceConst.AUTH_TYPE).value())) {
+            if (nullOrEmpty(values.get(InterfaceConst.USERNAME).value()) || nullOrEmpty(values.get(InterfaceConst.PASSWORD).value())) {
+                String messsage = String.format("Both '%s' and '%s' must be set when using '%s' of '%s'",
+                InterfaceConst.USERNAME,
+                InterfaceConst.PASSWORD,
+                InterfaceConst.AUTH_TYPE,
+                CouchDbSessionAuthenticator.AUTH_TYPE);
                 addErrorMessage(InterfaceConst.AUTH_TYPE, messsage);
             }
         }

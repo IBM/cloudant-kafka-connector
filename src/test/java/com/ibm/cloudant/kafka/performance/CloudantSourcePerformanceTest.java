@@ -50,15 +50,12 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 	public void setUp() throws Exception {	
 		//Set properties
 		
-		sourceProperties = ConnectorUtils.getSourceProperties();
+		sourceProperties = ConnectorUtils.getTestProperties();
 		// Update to use the performance URL
 		sourceProperties.put(InterfaceConst.URL, sourceProperties.get(ConnectorUtils.PERFORMANCE_URL));
 		
 		// Get the source database handle
-		sourceService = JavaCloudantUtil.getClientInstance(
-			sourceProperties.get(InterfaceConst.URL),
-			sourceProperties.get(InterfaceConst.USER_NAME),
-			sourceProperties.get(InterfaceConst.PASSWORD));
+		sourceService = JavaCloudantUtil.getClientInstance(sourceProperties);
 			
 		sourceConnector = new CloudantSourceConnector();
         ConnectorContext context = PowerMock.createMock(ConnectorContext.class);

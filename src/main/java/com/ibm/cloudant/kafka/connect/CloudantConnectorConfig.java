@@ -16,6 +16,8 @@ package com.ibm.cloudant.kafka.connect;
 
 import java.util.Map;
 
+import com.ibm.cloud.cloudant.security.CouchDbSessionAuthenticator;
+import com.ibm.cloud.sdk.core.security.Authenticator;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
@@ -28,14 +30,20 @@ import org.apache.kafka.common.config.ConfigDef.Width;
 
 public class CloudantConnectorConfig extends AbstractConfig {
 
-    public static final ConfigDef CONFIG_DEF = baseConfigDef();
+    protected static final String DATABASE_GROUP = "Database";
+    protected static final String AUTH_TYPE_DEFAULT = Authenticator.AUTHTYPE_IAM;
+    protected static final ListRecommender VALID_AUTHS = new ListRecommender(
+        Authenticator.AUTHTYPE_IAM,
+        CouchDbSessionAuthenticator.AUTH_TYPE,
+        Authenticator.AUTHTYPE_BASIC,
+        Authenticator.AUTHTYPE_NOAUTH
+        );
+    protected static final String USERNAME_DEFAULT = null;
+    protected static final String PASSWORD_DEFAULT = null;
+    protected static final String APIKEY_DEFAULT = null;
+    protected static final String LAST_SEQ_NUM_DEFAULT = "0";
 
-    public static final String DATABASE_GROUP = "Database";
-    public static final String CLOUDANT_AUTH_TYPE_BASIC = "basic";
-    public static final String CLOUDANT_AUTH_TYPE_DEFAULT = CLOUDANT_AUTH_TYPE_BASIC;
-    public static final String CLOUDANT_USERNAME_DEFAULT = null;
-    public static final String CLOUDANT_PASSWORD_DEFAULT = null;
-    public static final String CLOUDANT_LAST_SEQ_NUM_DEFAULT = "0";
+    public static final ConfigDef CONFIG_DEF = baseConfigDef();
 
     public static ConfigDef baseConfigDef() {
 
@@ -62,9 +70,9 @@ public class CloudantConnectorConfig extends AbstractConfig {
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_DB_DISP))
                 // Cloudant Username
-                .define(InterfaceConst.USER_NAME,
+                .define(InterfaceConst.USERNAME,
                         Type.STRING,
-                        CLOUDANT_USERNAME_DEFAULT,
+                        USERNAME_DEFAULT,
                         Importance.HIGH,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_USR_DOC),
                         DATABASE_GROUP,
@@ -74,25 +82,35 @@ public class CloudantConnectorConfig extends AbstractConfig {
                 // Cloudant Password
                 .define(InterfaceConst.PASSWORD,
                         Type.PASSWORD,
-                        CLOUDANT_PASSWORD_DEFAULT,
+                        PASSWORD_DEFAULT,
                         Importance.HIGH,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_PWD_DOC),
                         DATABASE_GROUP,
                         1,
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_PWD_DISP))
+                // Cloudant API key
+                .define(InterfaceConst.APIKEY,
+                        Type.PASSWORD,
+                        APIKEY_DEFAULT,
+                        Importance.HIGH,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_APIKEY_DOC),
+                        DATABASE_GROUP,
+                        1,
+                        Width.LONG,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_APIKEY_DISP))
                 // Cloudant auth type
                 .define(InterfaceConst.AUTH_TYPE,
                         Type.STRING,
-                        CLOUDANT_AUTH_TYPE_DEFAULT,
-                        new ListRecommender(CLOUDANT_AUTH_TYPE_BASIC),
+                        AUTH_TYPE_DEFAULT,
+                        VALID_AUTHS,
                         Importance.HIGH,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_AUTH_TYPE_DOC),
                         DATABASE_GROUP,
                         1,
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_AUTH_TYPE_DISP),
-                        new ListRecommender(CLOUDANT_AUTH_TYPE_BASIC))
+                        VALID_AUTHS)
                 // Kafka topic
                 .define(InterfaceConst.TOPIC,
                         Type.LIST,

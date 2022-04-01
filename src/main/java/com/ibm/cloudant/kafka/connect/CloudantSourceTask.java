@@ -152,9 +152,7 @@ public class CloudantSourceTask extends SourceTask {
 
             url = config.getString(InterfaceConst.URL);
             db = config.getString(InterfaceConst.DB);
-            String userName = config.getString(InterfaceConst.USER_NAME);
-            String password = config.getPassword(InterfaceConst.PASSWORD).value();
-            service = JavaCloudantUtil.getClientInstance(url, userName, password);
+            service = JavaCloudantUtil.getClientInstance(props);
             topics = config.getList(InterfaceConst.TOPIC);
             omitDesignDocs = config.getBoolean(InterfaceConst.OMIT_DESIGN_DOCS);
             generateStructSchema = config.getBoolean(InterfaceConst.USE_VALUE_SCHEMA_STRUCT);
@@ -187,7 +185,7 @@ public class CloudantSourceTask extends SourceTask {
                 }
             }
 
-        } catch (ConfigException | MalformedURLException e) {
+        } catch (ConfigException e) {
             // TODO remove this catch block to throw config exceptions when properties don't exist
             throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION)
                     , e);

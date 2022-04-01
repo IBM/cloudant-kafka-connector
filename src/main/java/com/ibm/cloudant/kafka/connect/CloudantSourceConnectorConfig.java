@@ -33,7 +33,7 @@ public class CloudantSourceConnectorConfig extends CloudantConnectorConfig {
                 // Cloudant last change sequence
                 .define(InterfaceConst.LAST_CHANGE_SEQ,
                         Type.STRING,
-                        CLOUDANT_LAST_SEQ_NUM_DEFAULT,
+                        LAST_SEQ_NUM_DEFAULT,
                         Importance.LOW,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC),
                         DATABASE_GROUP,
