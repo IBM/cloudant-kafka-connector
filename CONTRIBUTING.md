@@ -60,4 +60,4 @@ for basic authentication, or
 
 ```
 
-fo IAM authentication.
+for IAM authentication.
