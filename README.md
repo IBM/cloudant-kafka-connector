@@ -47,7 +47,7 @@ connector.class|com.ibm.cloudant.kafka.connect.CloudantSourceConnector|YES|None|
 topics|\<topic1\>,\<topic2\>,..|YES|None|A list of topics you want messages to be written to.
 cloudant.url|https://\<your-account\>.cloudant.com|YES|None|The Cloudant server to read documents from.
 cloudant.db|\<your-db\>|YES|None|The Cloudant database to read documents from.
-cloudant.auth.type|`iam`\|`couchdb_session`\|`basic`\|`noauth`\||NO|`iam`|The Cloudant authentication type to use (case insensitive).
+cloudant.auth.type|`iam`\|`couchdb_session`\|`basic`\|`noauth`|NO|`iam`|The Cloudant authentication type to use (case insensitive).
 cloudant.apikey|\<your-apikey\>|NO|None|The Cloudant IAM API key to use for authentication (when using `iam` authentication).
 cloudant.username|\<your-username\>|NO|None|The Cloudant username to use for authentication (when using `couchdb_session` or `basic` authentication).
 cloudant.password|\<your-password\>|NO|None|The Cloudant password to use for authentication (when using `couchdb_session` or `basic` authentication).
@@ -72,7 +72,7 @@ connector.class|com.ibm.cloudant.kafka.connect.CloudantSinkConnector|YES|None|Th
 topics|\<topic1\>,\<topic2\>,..|YES|None|The list of topics you want to consume messages from.
 cloudant.url|https://\<your-account\>.cloudant.com|YES|None|The Cloudant server to write documents to.
 cloudant.db|\<your-db\>|YES|None|The Cloudant database to write documents to.
-cloudant.auth.type|`iam`\|`couchdb_session`\|`basic`\|`noauth`\||NO|`iam`|The Cloudant authentication type to use (case insensitive).
+cloudant.auth.type|`iam`\|`couchdb_session`\|`basic`\|`noauth`|NO|`iam`|The Cloudant authentication type to use (case insensitive).
 cloudant.apikey|\<your-apikey\>|NO|None|The Cloudant IAM API key to use for authentication (when using `iam` authentication).
 cloudant.username|\<your-username\>|NO|None|The Cloudant username to use for authentication (when using `couchdb_session` or `basic` authentication).
 cloudant.password|\<your-password\>|NO|None|The Cloudant password to use for authentication (when using `couchdb_session` or `basic` authentication).
