@@ -17,6 +17,9 @@ package com.ibm.cloudant.kafka.connect;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.ibm.cloudant.kafka.common.MessageKey;
+import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
+
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.common.config.ConfigDef.Validator;
 
@@ -32,10 +35,10 @@ public class UrlValidator implements Validator {
             try {
                 new URL(stringValue);
             } catch (MalformedURLException mue) {
-                throw new ConfigException(name, value, "Value not a URL: " + value);
+                throw new ConfigException(name, value, String.format(ResourceBundleUtil.get(MessageKey.VALIDATION_NOT_A_URL), value));
             }
             return;
         }
-        throw new ConfigException(name, value, "Value not a URL: " + value);
+        throw new ConfigException(name, value, String.format(ResourceBundleUtil.get(MessageKey.VALIDATION_NOT_A_URL), value));
     }
 }

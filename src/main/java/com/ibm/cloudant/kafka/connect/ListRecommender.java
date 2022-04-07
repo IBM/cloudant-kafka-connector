@@ -18,6 +18,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.ibm.cloudant.kafka.common.MessageKey;
+import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
+
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.common.config.ConfigDef.Recommender;
 import org.apache.kafka.common.config.ConfigDef.Validator;
@@ -60,7 +63,7 @@ public class ListRecommender implements Recommender, Validator {
         }
 
         if (!validValues.contains(value)) {
-            throw new ConfigException(key, value, "Value must be one of: " + this.validValues);
+            throw new ConfigException(key, value, String.format(ResourceBundleUtil.get(MessageKey.VALIDATION_MUST_BE_ONE_OF), this.validValues));
         }
 
     }

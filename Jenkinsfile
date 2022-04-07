@@ -26,12 +26,11 @@ stage('Build') {
 stage('QA') {
     node('sdks-kafka-executor') {
         unstash name: 'built'
-        withCredentials([usernamePassword(credentialsId: 'testServerLegacy',
-                usernameVariable: 'DB_USER',
-                passwordVariable: 'DB_PASSWORD')]) {
+        withCredentials([string(credentialsId: 'testServerIamApiKey',
+                variable: 'APIKEY')]) {
 
             try {
-                sh './gradlew -Dcloudant.auth.type=basic -Dcloudant.url=$SDKS_TEST_SERVER_URL -Dcloudant.username=$DB_USER -Dcloudant.password=$DB_PASSWORD test'
+                sh './gradlew -Dcloudant.url=$SDKS_TEST_SERVER_URL -Dcloudant.auth.url=$SDKS_TEST_IAM_URL -Dcloudant.apikey=$APIKEY test'
             } finally {
                 junit '**/build/test-results/test/*.xml'
             }

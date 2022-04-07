@@ -19,8 +19,17 @@ public class InterfaceConst {
 	public final static String DB = "cloudant.db";
 	public final static String USERNAME = "cloudant.username";
 	public final static String PASSWORD = "cloudant.password";
-	public final static String AUTH_TYPE = "cloudant.auth.type";
+	public final static String BEARER_TOKEN = "cloudant.bearer.token";
+	public final static String IAM_PROFILE_ID = "cloudant.iam.profile.id";
+	public final static String IAM_PROFILE_NAME = "cloudant.iam.profile.name";
+	public final static String CR_TOKEN_FILENAME = "cloudant.cr.token.filename";
+	public final static String IAM_PROFILE_CRN = "cloudant.iam.profile.crn";
+	public final static String AUTH_URL = "cloudant.auth.url";
+	public final static String SCOPE = "cloudant.scope";
+	public final static String CLIENT_ID = "cloudant.client.id";
+	public final static String CLIENT_SECRET = "cloudant.client.secret";
 	public final static String APIKEY = "cloudant.apikey";
+	public final static String AUTH_TYPE = "cloudant.auth.type";
 	
 	public final static String LAST_CHANGE_SEQ = "cloudant.since";
 

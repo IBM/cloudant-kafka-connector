@@ -29,6 +29,8 @@ import static com.ibm.cloudant.kafka.common.InterfaceConst.PASSWORD;
 import static com.ibm.cloudant.kafka.common.InterfaceConst.URL;
 import static com.ibm.cloudant.kafka.common.InterfaceConst.TOPIC;
 import static com.ibm.cloudant.kafka.common.InterfaceConst.DB;
+import static com.ibm.cloudant.kafka.common.InterfaceConst.BEARER_TOKEN;
+import static com.ibm.cloudant.kafka.common.InterfaceConst.IAM_PROFILE_ID;
 
 import org.apache.kafka.common.config.Config;
 import org.apache.kafka.common.config.ConfigDef;
@@ -151,6 +153,7 @@ public class ValidationTest {
 
         Config c = validator.validate();
         assertHasErrorMessage(c, AUTH_TYPE, "Invalid value magic beans");
+        assertHasErrorMessage(c, AUTH_TYPE, "Value must be one of");
     }
 
     @Test
@@ -166,6 +169,7 @@ public class ValidationTest {
 
         Config c = validator.validate();
         assertHasErrorMessage(c, URL, "Invalid value not-a-url");
+        assertHasErrorMessage(c, URL, "Value not a URL");
     }
 
     @Test
@@ -231,6 +235,102 @@ public class ValidationTest {
         Config c = validator.validate();
         assertHasErrorMessage(c, AUTH_TYPE,
                 "Both 'cloudant.username' and 'cloudant.password' must be set when using 'cloudant.auth.type' of 'COUCHDB_SESSION'");
+    }
+
+    @Test
+    public void validatesBearerTokenAuth() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "bearerToken");
+        map.put(BEARER_TOKEN, "test");
+        map.put(URL, "https://somewhere");
+        map.put(DB, "animaldb");
+        map.put(TOPIC, "foo");
+        CloudantConfigValidator validator = new CloudantConfigValidator(
+                map,
+                CONFIG_DEF);
+
+        Config c = validator.validate();
+        assertNoErrorMessages(c);
+    }
+
+    @Test
+    public void validatesBearerTokenAuthNoToken() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "bearerToken");
+        map.put(URL, "https://somewhere");
+        map.put(DB, "animaldb");
+        map.put(TOPIC, "foo");
+        CloudantConfigValidator validator = new CloudantConfigValidator(
+                map,
+                CONFIG_DEF);
+
+        Config c = validator.validate();
+        assertHasErrorMessage(c, AUTH_TYPE,
+                "'cloudant.bearer.token' must be set when using 'cloudant.auth.type' of 'bearerToken'");
+    }
+
+    @Test
+    public void validatesContainerAuth() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "container");
+        map.put(IAM_PROFILE_ID, "test");
+        map.put(URL, "https://somewhere");
+        map.put(DB, "animaldb");
+        map.put(TOPIC, "foo");
+        CloudantConfigValidator validator = new CloudantConfigValidator(
+                map,
+                CONFIG_DEF);
+
+        Config c = validator.validate();
+        assertNoErrorMessages(c);
+    }
+
+    @Test
+    public void validatesContainerAuthNoCredentials() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "container");
+        map.put(URL, "https://somewhere");
+        map.put(DB, "animaldb");
+        map.put(TOPIC, "foo");
+        CloudantConfigValidator validator = new CloudantConfigValidator(
+                map,
+                CONFIG_DEF);
+
+        Config c = validator.validate();
+        assertHasErrorMessage(c, AUTH_TYPE,
+                "At least one of 'cloudant.iam.profile.id' or 'cloudant.iam.profile.name' must be set when using 'cloudant.auth.type' of 'container'");
+    }
+
+    @Test
+    public void validatesVpcAuth() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "vpc");
+        map.put(IAM_PROFILE_ID, "test");
+        map.put(URL, "https://somewhere");
+        map.put(DB, "animaldb");
+        map.put(TOPIC, "foo");
+        CloudantConfigValidator validator = new CloudantConfigValidator(
+                map,
+                CONFIG_DEF);
+
+        Config c = validator.validate();
+        assertNoErrorMessages(c);
+    }
+
+    @Test
+    public void validatesVpcAuthNoCredentials() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put(AUTH_TYPE, "vpc");
+        map.put(URL, "https://somewhere");
+        map.put(DB, "animaldb");
+        map.put(TOPIC, "foo");
+        CloudantConfigValidator validator = new CloudantConfigValidator(
+                map,
+                CONFIG_DEF);
+
+        Config c = validator.validate();
+        assertHasErrorMessage(c, AUTH_TYPE,
+                "At least one of 'cloudant.iam.profile.id' or 'cloudant.iam.profile.crn' must be set when using 'cloudant.auth.type' of 'vpc'");
     }
 
     private static void assertHasErrorMessage(Config config, String property, String msg) {

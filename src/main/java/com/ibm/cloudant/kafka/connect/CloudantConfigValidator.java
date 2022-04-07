@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 import com.ibm.cloud.cloudant.security.CouchDbSessionAuthenticator;
 import com.ibm.cloud.sdk.core.security.Authenticator;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
+import com.ibm.cloudant.kafka.common.MessageKey;
+import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 
 import org.apache.kafka.common.config.Config;
 import org.apache.kafka.common.config.ConfigDef;
@@ -44,13 +46,16 @@ public class CloudantConfigValidator {
         validateBasicAuth();
         validateIamAuth();
         validateSessionAuth();
+        validateBearerTokenAuth();
+        validateContainerAuth();
+        validateVpcAuth();
         return new Config(validations);
     }
 
     private void validateBasicAuth() {
         if (Authenticator.AUTHTYPE_BASIC.equalsIgnoreCase((String)values.get(InterfaceConst.AUTH_TYPE).value())) {
             if (nullOrEmpty(values.get(InterfaceConst.USERNAME).value()) || nullOrEmpty(values.get(InterfaceConst.PASSWORD).value())) {
-                String messsage = String.format("Both '%s' and '%s' must be set when using '%s' of '%s'",
+                String messsage = String.format(ResourceBundleUtil.get(MessageKey.VALIDATION_AUTH_BOTH_MUST_BE_SET),
                 InterfaceConst.USERNAME,
                 InterfaceConst.PASSWORD,
                 InterfaceConst.AUTH_TYPE,
@@ -63,7 +68,7 @@ public class CloudantConfigValidator {
     private void validateIamAuth() {
         if (Authenticator.AUTHTYPE_IAM.equalsIgnoreCase((String)values.get(InterfaceConst.AUTH_TYPE).value())) {
             if (nullOrEmpty(values.get(InterfaceConst.APIKEY).value())) {
-                String messsage = String.format("'%s' must be set when using '%s' of '%s'",
+                String messsage = String.format(ResourceBundleUtil.get(MessageKey.VALIDATION_AUTH_MUST_BE_SET),
                 InterfaceConst.APIKEY,
                 InterfaceConst.AUTH_TYPE,
                 Authenticator.AUTHTYPE_IAM);
@@ -75,7 +80,7 @@ public class CloudantConfigValidator {
     private void validateSessionAuth() {
         if (CouchDbSessionAuthenticator.AUTH_TYPE.equalsIgnoreCase((String)values.get(InterfaceConst.AUTH_TYPE).value())) {
             if (nullOrEmpty(values.get(InterfaceConst.USERNAME).value()) || nullOrEmpty(values.get(InterfaceConst.PASSWORD).value())) {
-                String messsage = String.format("Both '%s' and '%s' must be set when using '%s' of '%s'",
+                String messsage = String.format(ResourceBundleUtil.get(MessageKey.VALIDATION_AUTH_BOTH_MUST_BE_SET),
                 InterfaceConst.USERNAME,
                 InterfaceConst.PASSWORD,
                 InterfaceConst.AUTH_TYPE,
@@ -84,6 +89,45 @@ public class CloudantConfigValidator {
             }
         }
     }
+
+    private void validateBearerTokenAuth() {
+        if (Authenticator.AUTHTYPE_BEARER_TOKEN.equalsIgnoreCase((String)values.get(InterfaceConst.AUTH_TYPE).value())) {
+            if (nullOrEmpty(values.get(InterfaceConst.BEARER_TOKEN).value())) {
+                String messsage = String.format(ResourceBundleUtil.get(MessageKey.VALIDATION_AUTH_MUST_BE_SET),
+                InterfaceConst.BEARER_TOKEN,
+                InterfaceConst.AUTH_TYPE,
+                Authenticator.AUTHTYPE_BEARER_TOKEN);
+                addErrorMessage(InterfaceConst.AUTH_TYPE, messsage);
+            }
+        }
+    }
+
+    private void validateContainerAuth() {
+        if (Authenticator.AUTHTYPE_CONTAINER.equalsIgnoreCase((String)values.get(InterfaceConst.AUTH_TYPE).value())) {
+            if (nullOrEmpty(values.get(InterfaceConst.IAM_PROFILE_ID).value()) && nullOrEmpty(values.get(InterfaceConst.IAM_PROFILE_NAME).value())) {
+                String messsage = String.format(ResourceBundleUtil.get(MessageKey.VALIDATION_AUTH_AT_LEAST_ONE_MUST_BE_SET),
+                InterfaceConst.IAM_PROFILE_ID,
+                InterfaceConst.IAM_PROFILE_NAME,
+                InterfaceConst.AUTH_TYPE,
+                Authenticator.AUTHTYPE_CONTAINER);
+                addErrorMessage(InterfaceConst.AUTH_TYPE, messsage);
+            }
+        }
+    }
+
+    private void validateVpcAuth() {
+        if (Authenticator.AUTHTYPE_VPC.equalsIgnoreCase((String)values.get(InterfaceConst.AUTH_TYPE).value())) {
+            if (nullOrEmpty(values.get(InterfaceConst.IAM_PROFILE_ID).value()) && nullOrEmpty(values.get(InterfaceConst.IAM_PROFILE_CRN).value())) {
+                String messsage = String.format(ResourceBundleUtil.get(MessageKey.VALIDATION_AUTH_AT_LEAST_ONE_MUST_BE_SET),
+                InterfaceConst.IAM_PROFILE_ID,
+                InterfaceConst.IAM_PROFILE_CRN,
+                InterfaceConst.AUTH_TYPE,
+                Authenticator.AUTHTYPE_VPC);
+                addErrorMessage(InterfaceConst.AUTH_TYPE, messsage);
+            }
+        }
+    }
+
 
     private void addErrorMessage(String property, String error) {
         values.get(property).addErrorMessage(error);
