@@ -5,6 +5,14 @@
 
 Kafka Connect Cloudant Connector. This project includes source & sink connectors.
 
+## Pre-release
+
+**Note**: this README file is for a pre-release version of the
+connector. This means it refers to configuration options and features
+which are different to the currently released version. For information
+about the currently released version, please see the [README
+here](https://github.com/cloudant-labs/kafka-connect-cloudant/blob/0.100.2-kafka-1.0.0/README.md).
+
 ## Release Status
 
 Experimental
