@@ -5,6 +5,14 @@
 
 Kafka Connect Cloudant Connector. This project includes source & sink connectors.
 
+## Pre-release
+
+**Note**: this README file is for a pre-release version of the
+connector. This means it refers to configuration options and features
+which are different to the currently released version. For information
+about the currently released version, please see the [README
+here](https://github.com/cloudant-labs/kafka-connect-cloudant/blob/0.100.2-kafka-1.0.0/README.md).
+
 ## Release Status
 
 Experimental
@@ -32,47 +40,119 @@ value.converter.schemas.enable|true
 
 Assume these settings in a file `connect-standalone.properties` or `connect-distributed.properties`.
 
+### Authentication
+
+In order to read from or write to Cloudant, some authentication properties need to be configured. These properties are common to both the source and sink connector.
+
+A number of different authentication methods are supported. IAM authentication is the default and recommended method; see [locating your service credentials](https://cloud.ibm.com/docs/Cloudant?topic=Cloudant-locating-your-service-credentials) for details on how to find your IAM API key.
+
+#### cloudant.auth.type
+
+The authentication method (or type). This value is case insensitive.
+
+The default value is `iam`.
+
+Valid values are:
+
+- `iam`
+- `couchdb_session`
+- `basic`
+- `noAuth`
+- `bearerToken`
+- `container`
+- `vpc`.
+
+With the exception of `noAuth`, each of these authentication methods requires one or more additional properties to be set. These are listed below.
+
+#### cloudant.apikey
+
+For use with `iam` authentication.
+
+#### cloudant.username, cloudant.password
+
+For use with `couchdb_session` or `basic` authentication.
+
+#### cloudant.bearer.token
+
+For use with `bearerToken` authentication.
+
+#### cloudant.iam.profile.id 
+
+For use with `container` or `vpc` authentication.
+
+#### cloudant.iam.profile.name
+
+For use with `container` authentication.
+
+#### cloudant.cr.token.filename
+
+For use with `container` authentication.
+
+#### cloudant.iam.profile.crn
+
+For use with `vpc` authentication.
+
+#### cloudant.auth.url, cloudant.scope, cloudant.client.id, cloudant.client.secret
+
+For use with `iam`, `container`, or `vpc` authentication.
+
 ### Cloudant as source
 
-To read from a Cloudant database as source and write documents to a Kafka topic, create a source configuration file
-
-`connect-cloudant-source.properties`
-
-with the following parameters:
+In addition to those properties related to authentication, the Cloudant source connector supports the following properties:
 
 Parameter | Value | Required | Default value | Description
 ---:|:---|:---|:---|:---
 name|cloudant-source|YES|None|A unique name to identify the connector with.
 connector.class|com.ibm.cloudant.kafka.connect.CloudantSourceConnector|YES|None|The connector class name.
 topics|\<topic1\>,\<topic2\>,..|YES|None|A list of topics you want messages to be written to.
-cloudant.db.url|https://\<account\>.cloudant.com/\<database\>|YES|None|The Cloudant database to read documents from.
-cloudant.db.username|\<username\>|YES|None|The Cloudant username to use for authentication.
-cloudant.db.password|\<password\>|YES|None|The Cloudant password to use for authentication.
-cloudant.db.since|1-g1AAAAETeJzLYWBgYMlgTmGQT0lKzi9..|NO|0|The first change sequence to process from the Cloudant database above. 0 will apply all available document changes.
+cloudant.url|https://\<uuid\>.cloudantnosqldb.appdomain.cloud|YES|None|The Cloudant server to read documents from.
+cloudant.db|\<your-db\>|YES|None|The Cloudant database to read documents from.
+cloudant.since|1-g1AAAAETeJzLYWBgYMlgTmGQT0lKzi9..|NO|0|The first change sequence to process from the Cloudant database above. 0 will apply all available document changes.
 batch.size|400|NO|1000|The batch size used to bulk read from the Cloudant database.
 cloudant.omit.design.docs|false|NO|false| Set to true to omit design documents from the messages produced.
 cloudant.value.schema.struct|false|NO|false| _EXPERIMENTAL_ Set to true to generate a `org.apache.kafka.connect.data.Schema.Type.STRUCT` schema and send the Cloudant document payload as a `org.apache.kafka.connect.data.Struct` using the schema instead of the default of a string of the JSON document content when using the Cloudant source connector.
 cloudant.value.schema.struct.flatten|false|NO|false| _EXPERIMENTAL_ Set to true to flatten nested arrays and objects from the Cloudant document during struct generation. Only used when cloudant.value.schema.struct is true and allows processing of JSON arrays with mixed element types when using that option.
 
+#### Example
+
+To read from a Cloudant database as source and write documents to a Kafka topic, here is a minimal `connect-cloudant-source.properties`, using the default IAM authentication:
+
+```
+name=cloudant-source
+connector.class=com.ibm.cloudant.kafka.connect.CloudantSourceConnector
+topics=mytopic
+cloudant.url=https://some-uuid.cloudantnosqldb.appdomain.cloud
+cloudant.db=my-db
+cloudant.apikey=my-apikey
+```
+
 ### Cloudant as sink
 
-To consume messages from a Kafka topic and save as documents into a Cloudant database, create a sink configuration file
-
-`connect-cloudant-sink.properties`
-
-with the following parameters:
+In addition to those properties related to authentication, the Cloudant sink connector supports the following properties:
 
 Parameter | Value | Required | Default value | Description
 ---:|:---|:---|:---|:---
 name|cloudant-sink|YES|None|A unique name to identify the connector with.
 connector.class|com.ibm.cloudant.kafka.connect.CloudantSinkConnector|YES|None|The connector class name.
 topics|\<topic1\>,\<topic2\>,..|YES|None|The list of topics you want to consume messages from.
-cloudant.db.url|https://\<account\>.cloudant.com/\<database\>|YES|None|The Cloudant database to write documents to.
-cloudant.db.username|\<username\>|YES|None|The Cloudant username to use for authentication.
-cloudant.db.password|\<password\>|YES|None|The Cloudant password to use for authentication.
+cloudant.url|https://\<your-account\>.cloudant.com|YES|None|The Cloudant server to write documents to.
+cloudant.db|\<your-db\>|YES|None|The Cloudant database to write documents to.
 tasks.max|5|NO|1|The number of concurrent threads to use for parallel bulk insert into Cloudant.
 batch.size|400|NO|1000|The maximum number of documents to commit with a single bulk insert.
 replication|false|NO|false|Managed object schema in sink database <br>*true: duplicate objects from source <br>false: adjust objects from source (\_id = [\<topic-name\>\_\<partition\>\_\<offset>\_\<sourceCloudantObjectId\>], kc\_schema = Kafka value schema)*
+
+#### Example
+
+To consume messages from a Kafka topic and save as documents into a Cloudant database, here is a minimal `connect-cloudant-sink.properties`, using the default IAM authentication:
+
+```
+name=cloudant-sink
+connector.class=com.ibm.cloudant.kafka.connect.CloudantSinkConnector
+topics=mytopic
+cloudant.url=https://some-uuid.cloudantnosqldb.appdomain.cloud
+cloudant.db=my-db
+cloudant.apikey=my-apikey
+```
 
 ## Usage
 

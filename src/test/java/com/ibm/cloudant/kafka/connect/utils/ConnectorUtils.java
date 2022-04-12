@@ -16,6 +16,7 @@ package com.ibm.cloudant.kafka.connect.utils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
+import com.ibm.cloudant.kafka.connect.CloudantConnectorConfig;
 import com.ibm.cloudant.kafka.connect.CloudantSourceConnector;
 import com.ibm.cloudant.kafka.connect.CloudantSourceTask;
 
@@ -23,13 +24,9 @@ import org.apache.kafka.connect.connector.ConnectorContext;
 import org.apache.kafka.connect.source.SourceTaskContext;
 import org.easymock.EasyMock;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 
 public class ConnectorUtils {
@@ -48,41 +45,6 @@ public class ConnectorUtils {
 
         task.initialize(taskContext);
         return task;
-    }
-
-    public static Map<String, String> getSourceProperties() throws IOException {
-        Properties testProperties = readTestPropertiesFile();
-        Map<String, String> sourceProperties = getCommonTestProperties(testProperties);
-
-        sourceProperties.put(InterfaceConst.BATCH_SIZE, testProperties.getProperty(InterfaceConst
-                .BATCH_SIZE) == null ? "500" : testProperties.getProperty(InterfaceConst
-                .BATCH_SIZE));
-        sourceProperties.put(InterfaceConst.LAST_CHANGE_SEQ, testProperties.getProperty
-                (InterfaceConst.LAST_CHANGE_SEQ));
-
-        // Whether to omit design documents
-        sourceProperties.put(InterfaceConst.OMIT_DESIGN_DOCS, testProperties.getProperty
-                (InterfaceConst.OMIT_DESIGN_DOCS));
-
-        // Schema options
-        sourceProperties.put(InterfaceConst.USE_VALUE_SCHEMA_STRUCT, testProperties
-                .getProperty(InterfaceConst.USE_VALUE_SCHEMA_STRUCT));
-        sourceProperties.put(InterfaceConst.FLATTEN_VALUE_SCHEMA_STRUCT, testProperties
-                .getProperty(InterfaceConst.FLATTEN_VALUE_SCHEMA_STRUCT));
-
-        return sourceProperties;
-    }
-
-    public static Map<String, String> getTargetProperties() throws IOException {
-        Properties testProperties = readTestPropertiesFile();
-        Map<String, String> targetProperties = getCommonTestProperties(testProperties);
-
-        targetProperties.put(InterfaceConst.BATCH_SIZE, testProperties.getProperty(InterfaceConst
-                .BATCH_SIZE));
-        targetProperties.put(InterfaceConst.REPLICATION, testProperties.getProperty
-                (InterfaceConst.REPLICATION));
-
-        return targetProperties;
     }
 
     public static void showPerformanceResults(JsonObject testResults) {
@@ -145,45 +107,23 @@ public class ConnectorUtils {
         return Math.sqrt(sumDiffsSquared / (list.size() - 1));
     }
 
-    public static Properties readTestPropertiesFile() throws IOException {
-        Properties testProperties = new Properties();
-        testProperties.load(new FileReader(new File("src/test/resources/test.properties")));
-        return testProperties;
-    }
-
-    public static Map<String, String> getCommonTestProperties(Properties testProperties) {
+    public static Map<String, String> getTestProperties() {
 
         Map<String, String> connectorProperties = new HashMap<>();
 
-        String systemPropAcct = System.getProperty("cloudant.account");
-        // If a system property was used to specify a test account then use system property account
-        // configuration ahead of the test.properties file and generate a random DB name
-        if (systemPropAcct != null) {
-            // URL, append a random database
-            connectorProperties.put(InterfaceConst.URL, System.getProperty("cloudant.account") +
-                    "/kafka-test-db-" + UUID.randomUUID().toString());
-            // Username
-            connectorProperties.put(InterfaceConst.USER_NAME, System.getProperty("cloudant.user"));
-            // Password
-            connectorProperties.put(InterfaceConst.PASSWORD, System.getProperty("cloudant.pass"));
-        } else {
-            // Fallback to the test.properties file
-            connectorProperties.put(InterfaceConst.URL, testProperties.getProperty(InterfaceConst
-                    .URL));
-            connectorProperties.put(InterfaceConst.USER_NAME, testProperties.getProperty
-                    (InterfaceConst.USER_NAME));
-            connectorProperties.put(InterfaceConst.PASSWORD, testProperties.getProperty
-                    (InterfaceConst.PASSWORD));
+        // some hardcoded properties we don't normally need to override
+        connectorProperties.put(InterfaceConst.DB, "kafka-test-db-" + UUID.randomUUID().toString());
+        connectorProperties.put(InterfaceConst.TOPIC, "test-topic");
+        connectorProperties.put(InterfaceConst.TASKS_MAX, "1");
+        connectorProperties.put(InterfaceConst.BATCH_SIZE, "10000");
+
+        // use provided values from System.getProperties (can also override defaults above)
+        for (String k : CloudantConnectorConfig.CONFIG_DEF.configKeys().keySet()) {
+            String v = System.getProperty(k);
+            if (v != null) {
+                connectorProperties.put(k, v);
+            }
         }
-
-        // Topic and tasks max are common to both configurations
-        connectorProperties.put(InterfaceConst.TOPIC, testProperties.getProperty(InterfaceConst
-                .TOPIC));
-        connectorProperties.put(InterfaceConst.TASKS_MAX, testProperties.getProperty
-                (InterfaceConst.TASKS_MAX));
-
-        // Add the performance URL
-        connectorProperties.put(PERFORMANCE_URL, testProperties.getProperty(PERFORMANCE_URL));
 
         return connectorProperties;
     }

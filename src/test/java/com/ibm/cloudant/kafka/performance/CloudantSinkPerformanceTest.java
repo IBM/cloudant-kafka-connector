@@ -54,7 +54,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
     @Before
     public void setUp() throws Exception {
         //Set properties
-        targetProperties = ConnectorUtils.getTargetProperties();
+        targetProperties = ConnectorUtils.getTestProperties();
 
         // Append _target to the performance URL DB and update to use that
         targetProperties.put(InterfaceConst.URL, targetProperties.get(ConnectorUtils
@@ -125,7 +125,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
             testTimes.add(testTime);
             results.addProperty("testRounds", 1);
             DatabaseInformation dbInfo = CloudantDbUtils.getDbInfo(
-                targetProperties.get(InterfaceConst.URL), targetService);
+                targetProperties.get(InterfaceConst.DB), targetService);
             results.addProperty("diskSize", dbInfo.getSizes().getFile());
             results.addProperty("documents",dbInfo.getDocCount());
 

@@ -17,56 +17,29 @@ import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 
-import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
 import org.apache.kafka.common.config.ConfigDef.Width;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class CloudantSourceConnectorConfig extends AbstractConfig {
+public class CloudantSourceConnectorConfig extends CloudantConnectorConfig {
 
-    private static Logger LOG = LoggerFactory.getLogger(CloudantSourceConnectorConfig.class);
-
-    public static final String DATABASE_GROUP = "Database";
-    public static final String CLOUDANT_LAST_SEQ_NUM_DEFAULT = null;
     public static final ConfigDef CONFIG_DEF = baseConfigDef();
 
     public static ConfigDef baseConfigDef() {
-        return new ConfigDef()
-
-                // Cloudant URL
-                .define(InterfaceConst.URL, Type.STRING, Importance.HIGH,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_URL_DOC),
-                        DATABASE_GROUP, 1, Width.LONG,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_URL_DISP))
-                // Cloudant Username
-                .define(InterfaceConst.USER_NAME, Type.STRING, Importance.HIGH,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_USR_DOC),
-                        DATABASE_GROUP, 1, Width.LONG,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_USR_DISP))
-                // Cloudant Password
-                .define(InterfaceConst.PASSWORD, Type.PASSWORD, Importance.HIGH,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_PWD_DOC),
-                        DATABASE_GROUP, 1, Width.LONG,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_PWD_DISP))
+        return new ConfigDef(CloudantConnectorConfig.CONFIG_DEF)
                 // Cloudant last change sequence
-                .define(InterfaceConst.LAST_CHANGE_SEQ, Type.STRING, CLOUDANT_LAST_SEQ_NUM_DEFAULT,
+                .define(InterfaceConst.LAST_CHANGE_SEQ,
+                        Type.STRING,
+                        LAST_SEQ_NUM_DEFAULT,
                         Importance.LOW,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC),
-                        DATABASE_GROUP, 1, Width.LONG,
+                        DATABASE_GROUP,
+                        1,
+                        Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC))
-
-                // Kafka topic
-                .define(InterfaceConst.TOPIC, Type.LIST,
-                        Importance.HIGH,
-                        ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DOC),
-                        DATABASE_GROUP, 1, Width.LONG,
-                        ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DISP))
-
                 // Whether to omit design documents
                 .define(InterfaceConst.OMIT_DESIGN_DOCS, Type.BOOLEAN,
                         false,
@@ -98,10 +71,6 @@ public class CloudantSourceConnectorConfig extends AbstractConfig {
 
     protected CloudantSourceConnectorConfig(ConfigDef subclassConfigDef, Map<String, String> originals) {
         super(subclassConfigDef, originals);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(CONFIG_DEF.toRst());
     }
 
 }

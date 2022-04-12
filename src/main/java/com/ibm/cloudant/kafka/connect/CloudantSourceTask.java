@@ -51,10 +51,13 @@ public class CloudantSourceTask extends SourceTask {
     private static final long SHUTDOWN_DELAY_MILLISEC = 10;
     private static final String DEFAULT_CLOUDANT_LAST_SEQ = "0";
 
+    private static final String OFFSET_KEY = "cloudant.url.and.db";
+
     private AtomicBoolean stop;
     private AtomicBoolean _running;
 
     private String url = null;
+    private String db = null;
     private List<String> topics = null;
     private boolean generateStructSchema = false;
     private boolean flattenStructSchema = false;
@@ -82,7 +85,7 @@ public class CloudantSourceTask extends SourceTask {
 
             // the changes feed for initial processing (not continuous yet)
             PostChangesOptions postChangesOptions = new PostChangesOptions.Builder()
-                .db(JavaCloudantUtil.getDbNameFromUrl(url))
+                .db(db)
                 .includeDocs(true)
                 .since(latestSequenceNumber)
                 .limit(batch_size)
@@ -113,7 +116,7 @@ public class CloudantSourceTask extends SourceTask {
                     if (!omitDesignDocs || !id.startsWith("_design/")) {
                         // Emit the record to every topic configured
                         for (String topic : topics) {
-                            SourceRecord sourceRecord = new SourceRecord(offsetKey(url),
+                            SourceRecord sourceRecord = new SourceRecord(offset(url, db),
                                     offsetValue(latestSequenceNumber),
                                     topic, // topics
                                     //Integer.valueOf(row_.getId())%3, // partition
@@ -148,9 +151,8 @@ public class CloudantSourceTask extends SourceTask {
             CloudantSourceTaskConfig config = new CloudantSourceTaskConfig(props);
 
             url = config.getString(InterfaceConst.URL);
-            String userName = config.getString(InterfaceConst.USER_NAME);
-            String password = config.getPassword(InterfaceConst.PASSWORD).value();
-            service = JavaCloudantUtil.getClientInstance(url, userName, password);
+            db = config.getString(InterfaceConst.DB);
+            service = JavaCloudantUtil.getClientInstance(props);
             topics = config.getList(InterfaceConst.TOPIC);
             omitDesignDocs = config.getBoolean(InterfaceConst.OMIT_DESIGN_DOCS);
             generateStructSchema = config.getBoolean(InterfaceConst.USE_VALUE_SCHEMA_STRUCT);
@@ -174,8 +176,7 @@ public class CloudantSourceTask extends SourceTask {
                 OffsetStorageReader offsetReader = context.offsetStorageReader();
 
                 if (offsetReader != null) {
-                    Map<String, Object> offset = offsetReader.offset(Collections.singletonMap
-                            (InterfaceConst.URL, url));
+                    Map<String, Object> offset = offsetReader.offset(offset(url, db));
                     if (offset != null) {
                         latestSequenceNumber = (String) offset.get(InterfaceConst.LAST_CHANGE_SEQ);
                         LOG.info("Start with current offset (last sequence): " +
@@ -184,7 +185,7 @@ public class CloudantSourceTask extends SourceTask {
                 }
             }
 
-        } catch (ConfigException | MalformedURLException e) {
+        } catch (ConfigException e) {
             // TODO remove this catch block to throw config exceptions when properties don't exist
             throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION)
                     , e);
@@ -216,9 +217,9 @@ public class CloudantSourceTask extends SourceTask {
         }
     }
 
-
-    private Map<String, String> offsetKey(String url) {
-        return Collections.singletonMap(InterfaceConst.URL, url);
+    // use the url and db name to form a unique offset key
+    private Map<String, String> offset(String url, String db) {
+        return Collections.singletonMap(OFFSET_KEY, String.format("%s/%s", url, db));
     }
 
     private Map<String, String> offsetValue(String lastSeqNumber) {

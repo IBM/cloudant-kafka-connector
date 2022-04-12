@@ -66,10 +66,10 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
     public void setUp() throws Exception {
         //Set properties
 
-        sourceProperties = ConnectorUtils.getSourceProperties();
+        sourceProperties = ConnectorUtils.getTestProperties();
         sourceProperties.put(InterfaceConst.URL, sourceProperties.get(ConnectorUtils
                 .PERFORMANCE_URL));
-        targetProperties = ConnectorUtils.getTargetProperties();
+        targetProperties = ConnectorUtils.getTestProperties();
         targetProperties.put(InterfaceConst.URL, targetProperties.get(ConnectorUtils
                 .PERFORMANCE_URL) + "_target");
 
@@ -84,10 +84,7 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
         sourceConnector.initialize(context);
 
         // Create a _target database to replicate data into
-        targetService = JavaCloudantUtil.getClientInstance(
-            targetProperties.get(InterfaceConst.URL) + "_target",
-            targetProperties.get(InterfaceConst.USER_NAME),
-            targetProperties.get(InterfaceConst.PASSWORD));
+        targetService = JavaCloudantUtil.getClientInstance(targetProperties);
 
         //Create Sink Connector
         sourceTask = new CloudantSourceTask();
@@ -193,7 +190,7 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
                 }
                 while (sourceRecords.size() > 0 || tempRecords.size() > 0 ||
                     CloudantDbUtils.getDbInfo(
-                        targetProperties.get(InterfaceConst.URL),
+                        targetProperties.get(InterfaceConst.DB),
                         targetService).getDocCount() == 0);
 
                 _runningSinkThread.set(false);
@@ -240,7 +237,7 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
             testTimes.add(testTime);
             results.addProperty("testRounds", 1);
             DatabaseInformation dbInfo = CloudantDbUtils.getDbInfo(
-                targetProperties.get(InterfaceConst.URL) + "_target",
+                targetProperties.get(InterfaceConst.DB) + "_target",
                 targetService);
             results.addProperty("diskSize", dbInfo.getSizes().getFile());
             results.addProperty("documents",dbInfo.getDocCount());

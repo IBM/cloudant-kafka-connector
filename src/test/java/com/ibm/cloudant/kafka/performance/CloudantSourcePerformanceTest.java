@@ -34,7 +34,6 @@ import org.junit.Test;
 import org.powermock.api.easymock.PowerMock;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class CloudantSourcePerformanceTest extends AbstractBenchmark {	
@@ -51,15 +50,12 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 	public void setUp() throws Exception {	
 		//Set properties
 		
-		sourceProperties = ConnectorUtils.getSourceProperties();
+		sourceProperties = ConnectorUtils.getTestProperties();
 		// Update to use the performance URL
 		sourceProperties.put(InterfaceConst.URL, sourceProperties.get(ConnectorUtils.PERFORMANCE_URL));
 		
 		// Get the source database handle
-		sourceService = JavaCloudantUtil.getClientInstance(
-			sourceProperties.get(InterfaceConst.URL),
-			sourceProperties.get(InterfaceConst.USER_NAME),
-			sourceProperties.get(InterfaceConst.PASSWORD));
+		sourceService = JavaCloudantUtil.getClientInstance(sourceProperties);
 			
 		sourceConnector = new CloudantSourceConnector();
         ConnectorContext context = PowerMock.createMock(ConnectorContext.class);
@@ -104,7 +100,7 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 			JsonArray testTimes = new JsonArray();
 			testTimes.add(testTime);								
 			results.addProperty("testRounds", 1);
-			DatabaseInformation dbInfo = CloudantDbUtils.getDbInfo(InterfaceConst.URL, sourceService);
+			DatabaseInformation dbInfo = CloudantDbUtils.getDbInfo(sourceProperties.get(InterfaceConst.DB), sourceService);
 			results.addProperty("diskSize", dbInfo.getSizes().getFile());
 			results.addProperty("documents",dbInfo.getDocCount());
 			

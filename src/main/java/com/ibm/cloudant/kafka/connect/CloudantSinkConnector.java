@@ -18,6 +18,7 @@ import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 
+import org.apache.kafka.common.config.Config;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.Task;
 import org.apache.kafka.connect.errors.ConnectException;
@@ -35,11 +36,10 @@ public class CloudantSinkConnector extends SinkConnector {
 	private static Logger LOG = LoggerFactory.getLogger(CloudantSinkConnector.class);
 	
 	private Map<String, String> configProperties;
-	private CloudantSinkConnectorConfig config;
 
 	@Override
 	public ConfigDef config() {
-		return CloudantSourceConnectorConfig.CONFIG_DEF;
+		return CloudantSinkConnectorConfig.CONFIG_DEF;
 	}
 
 	
@@ -51,7 +51,6 @@ public class CloudantSinkConnector extends SinkConnector {
 	@Override
 	public void start(Map<String, String> props) {
 	     configProperties = props;
-	     config = new CloudantSinkConnectorConfig(configProperties);	
 	}
 
 	@Override
@@ -86,6 +85,12 @@ public class CloudantSinkConnector extends SinkConnector {
 	public void stop() {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public Config validate(Map<String, String> connectorConfigs) {
+		CloudantConfigValidator validator = new CloudantConfigValidator(connectorConfigs, config());
+		return validator.validate();
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2018 IBM Corp. All rights reserved.
+ * Copyright © 2016, 2022 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -15,11 +15,23 @@ package com.ibm.cloudant.kafka.common;
 
 public class InterfaceConst {
 	
-	public final static String URL = "cloudant.db.url";
-	public final static String USER_NAME = "cloudant.db.username";
-	public final static String PASSWORD = "cloudant.db.password";
+	public final static String URL = "cloudant.url";
+	public final static String DB = "cloudant.db";
+	public final static String USERNAME = "cloudant.username";
+	public final static String PASSWORD = "cloudant.password";
+	public final static String BEARER_TOKEN = "cloudant.bearer.token";
+	public final static String IAM_PROFILE_ID = "cloudant.iam.profile.id";
+	public final static String IAM_PROFILE_NAME = "cloudant.iam.profile.name";
+	public final static String CR_TOKEN_FILENAME = "cloudant.cr.token.filename";
+	public final static String IAM_PROFILE_CRN = "cloudant.iam.profile.crn";
+	public final static String AUTH_URL = "cloudant.auth.url";
+	public final static String SCOPE = "cloudant.scope";
+	public final static String CLIENT_ID = "cloudant.client.id";
+	public final static String CLIENT_SECRET = "cloudant.client.secret";
+	public final static String APIKEY = "cloudant.apikey";
+	public final static String AUTH_TYPE = "cloudant.auth.type";
 	
-	public final static String LAST_CHANGE_SEQ = "cloudant.db.since";
+	public final static String LAST_CHANGE_SEQ = "cloudant.since";
 
 	public final static String TOPIC = "topics";
 	
