@@ -1,13 +1,6 @@
 package com.ibm.cloudant.kafka.schema;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import com.ibm.cloudant.kafka.connect.StructToMapConverter;
-
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
@@ -16,6 +9,12 @@ import org.apache.kafka.connect.sink.SinkRecord;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 public class StructToMapConverterTests {
 
     // for these tests we will operate on SinkRecords, but they could just as easily be SourceRecords - for our purposes they are equivalent
@@ -23,33 +22,33 @@ public class StructToMapConverterTests {
 
     @Test
     public void testConvertToMapSchema() {
+        // given...
         Schema s = SchemaBuilder.map(Schema.STRING_SCHEMA, Schema.STRING_SCHEMA);
         Map<String, String> value = new HashMap<>();
         value.put("hello", "world");
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
+        // when...
         Map<String, Object> converted = converter.convert(sr);
+        // then...
         assertEquals("world", converted.get("hello"));
-
     }
 
     @Test
     public void testConvertToMapNoSchema() {
-
-
+        // given...
         Schema s = null; // no schema
         Map<String, String> value = new HashMap<>();
         value.put("hello", "world");
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
+        // when...
         Map<String, Object> converted = converter.convert(sr);
+        // then...
         assertEquals("world", converted.get("hello"));
-
     }
 
     @Test
     public void testConvertComplexStruct() {
-
         // given...
-
         Schema s = SchemaBuilder.struct()
                 .field("_id", Schema.STRING_SCHEMA)
                 .field("_rev", Schema.STRING_SCHEMA)
@@ -65,7 +64,6 @@ public class StructToMapConverterTests {
                         .field("map", SchemaBuilder.map(SchemaBuilder.STRING_SCHEMA,
                                 SchemaBuilder.struct().field("string_2", Schema.STRING_SCHEMA).build()))
                         .build());
-
 
         // build a complex structure according to the above schema:
         // Struct{_id=foo1,_rev=foo2,boolean=true,double=3.14,float=3.14,integer=42,long=42,string=foo3,struct=Struct{string_1=foo4,map={struct2=Struct{string_2=foo5}}}}
@@ -89,7 +87,6 @@ public class StructToMapConverterTests {
         value.put("struct", innerStruct);
 
         // when...
-
         try {
             value.validate();
         } catch (DataException de) {
@@ -101,7 +98,6 @@ public class StructToMapConverterTests {
         Map<String, Object> converted = converter.convert(sr);
 
         // then...
-
         assertEquals("foo1", converted.get("_id"));
         assertEquals("foo2", converted.get("_rev"));
         assertEquals(true, converted.get("boolean"));
@@ -111,8 +107,8 @@ public class StructToMapConverterTests {
         assertEquals(42l, converted.get("long"));
         assertEquals(null, converted.get("null"));
         assertEquals("foo3", converted.get("string"));
-        assertEquals("foo4", ((Map<String, Object>)converted.get("struct")).get("string_1"));
-        assertEquals("foo5", ((Map<String, Object>)((Map<String, Object>)((Map<String, Object>)converted.get("struct")).get("map")).get("struct2")).get("string_2"));
+        assertEquals("foo4", ((Map<String, Object>) converted.get("struct")).get("string_1"));
+        assertEquals("foo5", ((Map<String, Object>) ((Map<String, Object>) ((Map<String, Object>) converted.get("struct")).get("map")).get("struct2")).get("string_2"));
 
     }
 
@@ -125,9 +121,6 @@ public class StructToMapConverterTests {
             Map<String, Object> converted = converter.convert(sr);
             Assert.fail("should throw IllegalArgumentException");
         } catch (IllegalArgumentException iae) {
-
         }
     }
-
-
 }
