@@ -28,7 +28,7 @@ public class StructToMapConverter<R extends ConnectRecord<R>> {
                 return convertStruct((Struct)record.value(), toReturn);    
             }
         }
-        throw new IllegalArgumentException(String.format("Type %s not supported, are you using value.converter=org.apache.kafka.connect.json.JsonConverter? %s", record.value().getClass(), record.value()));
+        throw new IllegalArgumentException(String.format("Type %s not supported, are you using value.converter=org.apache.kafka.connect.json.JsonConverter?", record.value().getClass()));
     }
 
     // convert struct to map by adding key/values to passed in map, and returning it 
