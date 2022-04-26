@@ -30,7 +30,7 @@ the [Kafka Connector documentation](http://docs.confluent.io/3.0.1/connect/userg
 1. `bootstrap.servers`
 2. If using a standalone worker `offset.storage.file.filename`.
 
-## Converter configuration
+### Converter configuration
 
 Usually the kafka distribution defaults (`connect-(standalone|distributed).properties`) are as follows:
 ```
@@ -39,9 +39,12 @@ value.converter=org.apache.kafka.connect.json.JsonConverter
 key.converter.schemas.enable=true
 value.converter.schemas.enable=true
 ```
+
+#### Converter configuration: sink connector
+
 For the sink connector, kafka keys are currently ignored; therefore the key converter settings are not relevant.
 
-For the sink connector, we assume that the values in kafka are serialized JSON objects, and therefore `JsonConverter` is supported [TODO note about how any converter which can return a map or struct will work]. If your values contain a schema (`{"schema": {...}, "payload": {...}}`), then set `value.converter.schemas.enable=true`, otherwise set `value.converter.schemas.enable=false`.
+For the sink connector, we assume that the values in kafka are serialized JSON objects, and therefore `JsonConverter` is supported. If your values contain a schema (`{"schema": {...}, "payload": {...}}`), then set `value.converter.schemas.enable=true`, otherwise set `value.converter.schemas.enable=false`. Any other converter capable of returning a kafka `Struct` or a java `Map` is also supported, with the usual proviso that the converter will need to understand how to deserialize the values stored in kafka.
 
 ### Authentication
 
