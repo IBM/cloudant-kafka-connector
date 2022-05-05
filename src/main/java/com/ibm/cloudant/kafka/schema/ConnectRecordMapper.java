@@ -17,19 +17,27 @@ public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function
     private static Logger LOG = LoggerFactory.getLogger(ConnectRecordMapper.class);
 
     public Map<String, Object> apply(ConnectRecord<R> record) {
-        if (record.valueSchema() == null) {
-            if (record.value() instanceof Map) {
-                return (Map<String, Object>)record.value();
-            }
-        } else {
-            Map<String, Object> toReturn = new HashMap<>();
-            if (record.value() instanceof Map) {
-                return convertMap((Map)record.value(), toReturn);
-            } else if (record.value() instanceof Struct) {
-                return convertStruct((Struct)record.value(), toReturn);    
-            }
+        // we can convert from a struct or a map - assume a map when a value schema is not provided
+        Schema.Type schemaType = record.valueSchema() == null ? Schema.Type.MAP : record.valueSchema().type();
+        Map<String, Object> toReturn = new HashMap<>();
+        switch (schemaType) {
+            case MAP:
+                if (record.value() instanceof Map) {
+                    return convertMap((Map) record.value(), toReturn);
+                } else {
+                    throw new IllegalArgumentException(String.format("Type %s not supported with schema of type Map (or no schema)",
+                            record.value().getClass()));
+                }
+            case STRUCT:
+                if (record.value() instanceof Struct) {
+                    return convertStruct((Struct) record.value(), toReturn);
+                } else {
+                    throw new IllegalArgumentException(String.format("Type %s not supported with schema of type Struct",
+                            record.value().getClass()));
+                }
+            default:
+                throw new IllegalArgumentException(String.format("Schema type %s not supported", record.valueSchema().type()));
         }
-        throw new IllegalArgumentException(String.format("Type %s not supported, are you using value.converter=org.apache.kafka.connect.json.JsonConverter?", record.value().getClass()));
     }
 
     // convert struct to map by adding key/values to passed in map, and returning it 
