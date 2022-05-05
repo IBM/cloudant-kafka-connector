@@ -55,45 +55,21 @@ public class CloudantSinkTask extends SinkTask {
 		 return new CloudantSinkConnector().version();
 	}
 
-	
 	//TODO: all sinkRecords in first Thread
 	@Override
 	public void put(Collection<SinkRecord> sinkRecords) {
-	
-		
+
 		LOG.info("Thread[" + Thread.currentThread().getId() + "].sinkRecords = " + sinkRecords.size());
 		
-		for (SinkRecord record : sinkRecords) {		
-
+		for (SinkRecord record : sinkRecords) {
 			Map<String, Object> recordValue = mapper.apply(record);
-
 			recordValue.remove(CloudantConst.CLOUDANT_REV);
-			
-			if(recordValue.containsKey(CloudantConst.CLOUDANT_DOC_ID)){			
-				if(replication == false) {
-					// TODO this won't work and will come out as null because our JSON serialiser doesn't know what to do with a Connect Schema
-					// it's possible that JsonConverter#asJsonSchema will help here
-					//Add archive schema from SinkRecord when available
-					recordValue.put(InterfaceConst.KC_SCHEMA, record.valueSchema());
-					
-					//Create object id from kafka
-					recordValue.put(CloudantConst.CLOUDANT_DOC_ID, 
-							record.topic() + "_" + 
-							record.kafkaPartition().toString() + "_" + 
-							Long.toString(record.kafkaOffset()) + "_" + 
-							recordValue.get(CloudantConst.CLOUDANT_DOC_ID));	
-				}
-			}					
 			jsonArray.add(recordValue);
-			
 			if (jsonArray.size() >= batch_size) {
-	
 				flush(null);
-	
 			} 
 		} 
 	}
-
 
 	@Override
 	public void stop() {
