@@ -34,8 +34,6 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.sink.SinkRecord;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;

@@ -30,7 +30,7 @@ dependencies {
     testImplementation group: 'org.easymock', name: 'easymock', version: '3.4'
     testImplementation group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.2'
     // for logging output when running tests
-    testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.36'
+    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.36'
 }
 
 // Java versions

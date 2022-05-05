@@ -1,4 +1,4 @@
-package com.ibm.cloudant.kafka.connect;
+package com.ibm.cloudant.kafka.schema;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,11 +11,11 @@ import org.apache.kafka.connect.data.Schema.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StructToMapConverter<R extends ConnectRecord<R>> {
+public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function<ConnectRecord<R>, Map<String, Object>> {
     
     private static Logger LOG = LoggerFactory.getLogger(StructToMapConverter.class);
 
-    public Map<String, Object> convert(ConnectRecord<R> record) {
+    public Map<String, Object> apply(ConnectRecord<R> record) {
         if (record.valueSchema() == null) {
             if (record.value() instanceof Map) {
                 return (Map<String, Object>)record.value();

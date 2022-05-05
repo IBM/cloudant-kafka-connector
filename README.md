@@ -44,7 +44,7 @@ value.converter.schemas.enable=true
 
 For the sink connector, kafka keys are currently ignored; therefore the key converter settings are not relevant.
 
-For the sink connector, we assume that the values in kafka are serialized JSON objects, and therefore `JsonConverter` is supported. If your values contain a schema (`{"schema": {...}, "payload": {...}}`), then set `value.converter.schemas.enable=true`, otherwise set `value.converter.schemas.enable=false`. Any other converter capable of returning a kafka `Struct` or a java `Map` is also supported, with the usual proviso that the converter will need to understand how to deserialize the values stored in kafka.
+For the sink connector, we assume that the values in kafka are serialized JSON objects, and therefore `JsonConverter` is supported. If your values contain a schema (`{"schema": {...}, "payload": {...}}`), then set `value.converter.schemas.enable=true`, otherwise set `value.converter.schemas.enable=false`. Any other converter that converts the message values into `org.apache.kafka.connect.data.Struct` or `java.util.Map` types should also work. However, it must be noted that the subsequent serialization of `Map` or `Struct` values to JSON documents in the sink may not match expectations if a schema has not been provided.
 
 ### Authentication
 
