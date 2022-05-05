@@ -32,7 +32,7 @@ the [Kafka Connector documentation](http://docs.confluent.io/3.0.1/connect/userg
 
 ### Converter configuration
 
-Usually the kafka distribution defaults (`connect-(standalone|distributed).properties`) are as follows:
+The kafka distribution defaults are usually as follows:
 ```
 key.converter=org.apache.kafka.connect.json.JsonConverter
 value.converter=org.apache.kafka.connect.json.JsonConverter
