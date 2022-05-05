@@ -27,10 +27,7 @@ import org.apache.kafka.connect.sink.SinkTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class CloudantSinkTask extends SinkTask {
@@ -46,7 +43,7 @@ public class CloudantSinkTask extends SinkTask {
 	public static String guid_schema = null;
 	private Boolean replication;
 
-	private List<Map<String, Object>> jsonArray = new ArrayList<>();
+	private List<Map<String, Object>> jsonArray = new LinkedList<>();
 
 	private static ConnectRecordMapper<SinkRecord> mapper = new ConnectRecordMapper<>();
 	
