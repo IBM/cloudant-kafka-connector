@@ -33,6 +33,7 @@ import junit.framework.TestCase;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.sink.SinkRecord;
 
 import java.net.MalformedURLException;
@@ -105,51 +106,7 @@ public class CloudantSinkTaskTest extends TestCase {
         assertTrue(result.contains(doc2Expected));
         assertTrue(result.contains(doc3Expected));
     }
-
-    /**
-     * Test method for
-     * {@link com.ibm.cloudant.kafka.connect.CloudantSinkTask#put(java.util.Collection)}.
-     */
-    public void testNonReplicateSinkRecordSchema() throws MalformedURLException {
-        targetProperties.put(InterfaceConst.REPLICATION, "false");
-        List<JsonObject> result = testPutCollectionOfSinkRecord();
-
-        //Add Information (id_schema, kcschema)
-        JsonObject kcschema = new JsonObject();
-        kcschema.addProperty("type", "STRING");
-        kcschema.addProperty("optional", false);
-
-        Gson gson = new Gson();
-
-        JsonObject doc1Expected = (JsonObject)gson.toJsonTree(doc1);
-        JsonObject doc2Expected = (JsonObject)gson.toJsonTree(doc2);
-        JsonObject doc3Expected = (JsonObject)gson.toJsonTree(doc3);
-
-        doc1Expected.add(InterfaceConst.KC_SCHEMA, kcschema);
-        doc1Expected.addProperty("_id",
-                targetProperties.get(InterfaceConst.TOPIC) +
-                        "_" + 0 + "_" + doc1.get("number") +
-                        "_" + doc1.get("_id"));
-
-        doc2Expected.add(InterfaceConst.KC_SCHEMA, kcschema);
-        doc2Expected.addProperty("_id",
-                targetProperties.get(InterfaceConst.TOPIC) +
-                        "_" + 0 + "_" + doc2.get("number") +
-                        "_" + doc2.get("_id"));
-
-        doc3Expected.add(InterfaceConst.KC_SCHEMA, kcschema);
-        doc3Expected.addProperty("_id",
-                targetProperties.get(InterfaceConst.TOPIC) +
-                        "_" + 0 + "_" + doc3.get("number") +
-                        "_" + doc3.get("_id"));
-
-        //Test results
-        assertEquals(3, result.size());
-        assertTrue(result.contains(doc1Expected));
-        assertTrue(result.contains(doc2Expected));
-        assertTrue(result.contains(doc3Expected));
-    }
-
+    
     private List<JsonObject> testPutCollectionOfSinkRecord() {
 
         // Get the current update sequence
@@ -168,16 +125,16 @@ public class CloudantSinkTaskTest extends TestCase {
 
         task.put(Collections.singletonList(
                 new SinkRecord(targetProperties.get(InterfaceConst.TOPIC), 0,
-                        null, null, Schema.STRING_SCHEMA, doc1, (long)doc1.get("number"))));
+                        null, null, SchemaBuilder.map(Schema.STRING_SCHEMA, Schema.STRING_SCHEMA), doc1, (long)doc1.get("number"))));
 
         task.flush(offsets);
 
         task.put(Arrays.asList(
                 new SinkRecord(targetProperties.get(InterfaceConst.TOPIC),
-                        0, null, null, Schema.STRING_SCHEMA, doc2, (long)doc2.get("number")),
+                        0, null, null, SchemaBuilder.map(Schema.STRING_SCHEMA, Schema.STRING_SCHEMA), doc2, (long)doc2.get("number")),
 
                 new SinkRecord(targetProperties.get(InterfaceConst.TOPIC),
-                        0, null, null, Schema.STRING_SCHEMA, doc3, (long)doc3.get("number"))
+                        0, null, null, SchemaBuilder.map(Schema.STRING_SCHEMA, Schema.STRING_SCHEMA), doc3, (long)doc3.get("number"))
         ));
 
         task.flush(offsets);
