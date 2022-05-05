@@ -1,6 +1,5 @@
 package com.ibm.cloudant.kafka.schema;
 
-import com.ibm.cloudant.kafka.connect.StructToMapConverter;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
@@ -15,10 +14,10 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class StructToMapConverterTests {
+public class ConnectRecordMapperTests {
 
     // for these tests we will operate on SinkRecords, but they could just as easily be SourceRecords - for our purposes they are equivalent
-    StructToMapConverter<SinkRecord> converter = new StructToMapConverter<>();
+    ConnectRecordMapper<SinkRecord> mapper = new ConnectRecordMapper<>();
 
     @Test
     public void testConvertToMapSchema() {
@@ -28,7 +27,7 @@ public class StructToMapConverterTests {
         value.put("hello", "world");
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
         // when...
-        Map<String, Object> converted = converter.convert(sr);
+        Map<String, Object> converted = mapper.apply(sr);
         // then...
         assertEquals("world", converted.get("hello"));
     }
@@ -41,7 +40,7 @@ public class StructToMapConverterTests {
         value.put("hello", "world");
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
         // when...
-        Map<String, Object> converted = converter.convert(sr);
+        Map<String, Object> converted = mapper.apply(sr);
         // then...
         assertEquals("world", converted.get("hello"));
     }
@@ -95,7 +94,7 @@ public class StructToMapConverterTests {
 
         // do conversion
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
-        Map<String, Object> converted = converter.convert(sr);
+        Map<String, Object> converted = mapper.apply(sr);
 
         // then...
         assertEquals("foo1", converted.get("_id"));
@@ -118,7 +117,7 @@ public class StructToMapConverterTests {
         String value = "hello";
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
         try {
-            Map<String, Object> converted = converter.convert(sr);
+            Map<String, Object> converted = mapper.apply(sr);
             Assert.fail("should throw IllegalArgumentException");
         } catch (IllegalArgumentException iae) {
         }

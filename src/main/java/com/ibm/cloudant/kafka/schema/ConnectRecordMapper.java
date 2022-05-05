@@ -1,19 +1,20 @@
 package com.ibm.cloudant.kafka.schema;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.kafka.connect.connector.ConnectRecord;
 import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.data.Schema.Type;
+import org.apache.kafka.connect.data.Struct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
 public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function<ConnectRecord<R>, Map<String, Object>> {
     
-    private static Logger LOG = LoggerFactory.getLogger(StructToMapConverter.class);
+    private static Logger LOG = LoggerFactory.getLogger(ConnectRecordMapper.class);
 
     public Map<String, Object> apply(ConnectRecord<R> record) {
         if (record.valueSchema() == null) {

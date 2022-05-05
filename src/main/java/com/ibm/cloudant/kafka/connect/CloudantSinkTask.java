@@ -18,7 +18,7 @@ import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
-
+import com.ibm.cloudant.kafka.schema.ConnectRecordMapper;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.errors.ConnectException;
@@ -48,7 +48,7 @@ public class CloudantSinkTask extends SinkTask {
 
 	private List<Map<String, Object>> jsonArray = new ArrayList<>();
 
-	private static StructToMapConverter<SinkRecord> converter = new StructToMapConverter<>();
+	private static ConnectRecordMapper<SinkRecord> mapper = new ConnectRecordMapper<>();
 	
 	@Override
 	public String version() {
@@ -65,7 +65,7 @@ public class CloudantSinkTask extends SinkTask {
 		
 		for (SinkRecord record : sinkRecords) {		
 
-			Map<String, Object> recordValue = converter.convert(record);
+			Map<String, Object> recordValue = mapper.apply(record);
 
 			recordValue.remove(CloudantConst.CLOUDANT_REV);
 			
