@@ -103,7 +103,7 @@ public class CloudantSinkTask extends SinkTask {
 				LOG.info("Committed " + jsonArray.size() + " documents to -> " + config.getString(InterfaceConst.URL));
 		} finally {
 			// Release memory (regardless if documents got committed or not)
-			jsonArray = new ArrayList<>();
+			jsonArray = new LinkedList<>();
 		}
 	}
 	
