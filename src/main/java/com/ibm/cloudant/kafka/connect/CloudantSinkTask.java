@@ -27,7 +27,10 @@ import org.apache.kafka.connect.sink.SinkTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 
 public class CloudantSinkTask extends SinkTask {
@@ -57,15 +60,17 @@ public class CloudantSinkTask extends SinkTask {
 	public void put(Collection<SinkRecord> sinkRecords) {
 
 		LOG.info("Thread[" + Thread.currentThread().getId() + "].sinkRecords = " + sinkRecords.size());
-		
-		for (SinkRecord record : sinkRecords) {
-			Map<String, Object> recordValue = mapper.apply(record);
-			recordValue.remove(CloudantConst.CLOUDANT_REV);
-			jsonArray.add(recordValue);
-			if (jsonArray.size() >= batch_size) {
-				flush(null);
-			} 
-		} 
+
+		sinkRecords.stream()
+				.map(mapper) // Convert ConnectRecord to Map
+				.sequential() // Avoid concurrent access to jsonArray
+				.forEach(recordValueAsMap -> {
+					recordValueAsMap.remove(CloudantConst.CLOUDANT_REV); // Remove the _rev
+					jsonArray.add(recordValueAsMap);
+					if (jsonArray.size() >= batch_size) {
+						flush(null);
+					}
+				});
 	}
 
 	@Override
