@@ -1,4 +1,5 @@
 # UNRELEASED
+- [BREAKING CHANGE] Converter support for sink connector has changed. See README.md for details.
 - [BREAKING CHANGE] Configuration parameters have changed for url, database, authentication, and last change sequence. See README.md for details.
 - [UPGRADED] Connector now supports all authentication types via the `cloudant.auth.type` configuration parameter. When using an authentication type of "iam", the API key is configured via the `cloudant.apikey` configuration parameter.
 - [UPGRADED] Upgraded Gradle distribution from 4.5.1 to 7.4

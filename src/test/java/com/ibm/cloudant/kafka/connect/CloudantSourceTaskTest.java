@@ -13,6 +13,7 @@
  */
 package com.ibm.cloudant.kafka.connect;
 
+import com.google.common.collect.Streams;
 import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
@@ -39,6 +40,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CloudantSourceTaskTest extends TestCase {
 
@@ -60,7 +63,8 @@ public class CloudantSourceTaskTest extends TestCase {
         data = new JSONArray(tokener);
 
         // Load data into the source database (create if it does not exist)
-        JavaCloudantUtil.batchWrite(sourceProperties, data);
+        JavaCloudantUtil.batchWrite(sourceProperties,
+                Streams.stream(data).map(x -> ((JSONObject)x).toMap()).collect(Collectors.toList()));
 
         /*
          * 2. Create connector
@@ -112,7 +116,8 @@ public class CloudantSourceTaskTest extends TestCase {
             data2.put(data.get(i));
         }
 
-        JavaCloudantUtil.batchWrite(sourceProperties, data2);
+        JavaCloudantUtil.batchWrite(sourceProperties,
+                Streams.stream(data2).map(x -> ((JSONObject)x).toMap()).collect(Collectors.toList()));
 
         // Poll again for changes and expect to get the 20 we just inserted
         // (even though database has 999 + 20 documents now)
@@ -144,8 +149,8 @@ public class CloudantSourceTaskTest extends TestCase {
         // Add an additional doc, specifically a design doc
         JSONArray ddocArray = new JSONArray();
         ddocArray.put(Collections.singletonMap("_id", "_design/test"));
-        JavaCloudantUtil.batchWrite(sourceProperties, ddocArray);
-
+        JavaCloudantUtil.batchWrite(sourceProperties,
+                Streams.stream(ddocArray).map(x -> ((JSONObject)x).toMap()).collect(Collectors.toList()));
         PowerMock.replayAll();
 
         // Omit design docs
@@ -222,8 +227,10 @@ public class CloudantSourceTaskTest extends TestCase {
             // Create a second database with different content to the first
             JSONArray data2 = new JSONArray(new JSONTokener(new FileReader
                     ("src/test/resources/data2.json")));
+
             // Load data into the source database (create if it does not exist)
-            JavaCloudantUtil.batchWrite(sourceProps2, data2);
+            JavaCloudantUtil.batchWrite(sourceProps2,
+                    Streams.stream(data2).map(x -> ((JSONObject)x).toMap()).collect(Collectors.toList()));
 
             // Create second connector
             CloudantSourceTask task2 = ConnectorUtils.createCloudantSourceConnector(sourceProps2);

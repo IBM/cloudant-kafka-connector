@@ -15,30 +15,24 @@ package com.ibm.cloudant.kafka.common.utils;
 
 import com.ibm.cloud.cloudant.internal.ServiceFactory;
 import com.ibm.cloud.cloudant.v1.Cloudant;
-import com.ibm.cloud.cloudant.v1.model.BulkDocs;
-import com.ibm.cloud.cloudant.v1.model.Document;
-import com.ibm.cloud.cloudant.v1.model.DocumentResult;
-import com.ibm.cloud.cloudant.v1.model.PostBulkDocsOptions;
-import com.ibm.cloud.cloudant.v1.model.PutDatabaseOptions;
+import com.ibm.cloud.cloudant.v1.model.*;
 import com.ibm.cloud.sdk.core.service.exception.ServiceResponseException;
 import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class JavaCloudantUtil {
 
@@ -67,7 +61,7 @@ public class JavaCloudantUtil {
 		);
 	}
 
-	public static JSONArray batchWrite(Map<String, String> props, JSONArray data)
+	public static JSONArray batchWrite(Map<String, String> props, List<Map<String, Object>> data)
 		throws JSONException {
 		// wrap result to JSONArray
 		JSONArray result = new JSONArray();
@@ -76,13 +70,7 @@ public class JavaCloudantUtil {
 			// get client object
 			Cloudant service = getClientInstance(props);
 
-			List<Document> listOfDocs = new ArrayList<>();
-			for(int i=0; i < data.length(); i++){
-				Map<String, Object> docProperties = data.getJSONObject(i).toMap();
-				Document doc = new Document();
-				doc.setProperties(docProperties);
-				listOfDocs.add(doc);
-			}
+			List<Document> listOfDocs = data.stream().map(d -> {Document doc = new Document(); doc.setProperties(d); return doc; }).collect(Collectors.toList());
 
 			// attempt to create database
 			createTargetDb(service, props.get(InterfaceConst.DB));
@@ -116,6 +104,7 @@ public class JavaCloudantUtil {
 				result.put(jsonResult);
 			}
 		} catch (Exception e) {
+			LOG.error("Exception caught in batchWrite()", e);
 			if(e.getMessage().equals(String.format(ResourceBundleUtil.get(
 				MessageKey.CLOUDANT_LIMITATION)))){
 				// try to put items from jsonResult before exception occurred

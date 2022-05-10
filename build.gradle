@@ -29,6 +29,8 @@ dependencies {
     testImplementation group: 'org.powermock', name: 'powermock-api-easymock', version: '1.6.4'
     testImplementation group: 'org.easymock', name: 'easymock', version: '3.4'
     testImplementation group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.2'
+    // for logging output when running tests
+    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.36'
 }
 
 // Java versions
