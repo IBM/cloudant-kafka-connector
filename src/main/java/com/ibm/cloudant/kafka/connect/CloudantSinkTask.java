@@ -13,6 +13,7 @@
  */
 package com.ibm.cloudant.kafka.connect;
 
+import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
@@ -32,12 +33,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil.getClientInstance;
+
 
 public class CloudantSinkTask extends SinkTask {
 
 	private static Logger LOG = LoggerFactory.getLogger(CloudantSinkTask.class);
 	
 	private CloudantSinkTaskConfig config;
+
+	private Cloudant service;
 	
 	List<String> topics = null;
 
@@ -89,7 +94,8 @@ public class CloudantSinkTask extends SinkTask {
  		try {
 			config = new CloudantSinkTaskConfig(props);
             taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
-            
+			service = getClientInstance(props);
+
             //TODO: split topics from Connector
             topics = config.getList(InterfaceConst.TOPIC);
             
@@ -104,7 +110,7 @@ public class CloudantSinkTask extends SinkTask {
 	public void flush(Map<TopicPartition, org.apache.kafka.clients.consumer.OffsetAndMetadata> offsets) {
 		LOG.debug("Flushing output stream for {" + config.getString(InterfaceConst.URL) + "}");
 		try {
-				JavaCloudantUtil.batchWrite(config.originalsStrings(), jsonArray);
+				JavaCloudantUtil.batchWrite(config.originalsStrings(), service, jsonArray);
 				LOG.info("Committed " + jsonArray.size() + " documents to -> " + config.getString(InterfaceConst.URL));
 		} finally {
 			// Release memory (regardless if documents got committed or not)
