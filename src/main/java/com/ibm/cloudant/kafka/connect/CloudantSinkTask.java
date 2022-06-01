@@ -33,9 +33,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil.getClientInstance;
-
-
 public class CloudantSinkTask extends SinkTask {
 
 	private static Logger LOG = LoggerFactory.getLogger(CloudantSinkTask.class);
@@ -94,7 +91,7 @@ public class CloudantSinkTask extends SinkTask {
  		try {
 			config = new CloudantSinkTaskConfig(props);
             taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
-			service = getClientInstance(props);
+			service = CachedClientManager.getInstance(props);
 
             //TODO: split topics from Connector
             topics = config.getList(InterfaceConst.TOPIC);

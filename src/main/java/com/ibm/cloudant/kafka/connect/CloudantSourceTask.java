@@ -152,7 +152,7 @@ public class CloudantSourceTask extends SourceTask {
 
             url = config.getString(InterfaceConst.URL);
             db = config.getString(InterfaceConst.DB);
-            service = JavaCloudantUtil.getClientInstance(props);
+            service = CachedClientManager.getInstance(props);
             topics = config.getList(InterfaceConst.TOPIC);
             omitDesignDocs = config.getBoolean(InterfaceConst.OMIT_DESIGN_DOCS);
             generateStructSchema = config.getBoolean(InterfaceConst.USE_VALUE_SCHEMA_STRUCT);

@@ -41,9 +41,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil.getClientInstance;
 
 public class CloudantSourceTaskTest extends TestCase {
 
@@ -66,7 +63,7 @@ public class CloudantSourceTaskTest extends TestCase {
 
         // Load data into the source database (create if it does not exist)
         JavaCloudantUtil.batchWrite(sourceProperties,
-                getClientInstance(sourceProperties),
+                CachedClientManager.getInstance(sourceProperties),
                 Streams.stream(data).map(x -> ((JSONObject)x).toMap()).collect(Collectors.toList()));
 
         /*
@@ -120,7 +117,7 @@ public class CloudantSourceTaskTest extends TestCase {
         }
 
         JavaCloudantUtil.batchWrite(sourceProperties,
-                getClientInstance(sourceProperties),
+                CachedClientManager.getInstance(sourceProperties),
                 Streams.stream(data2).map(x -> ((JSONObject)x).toMap()).collect(Collectors.toList()));
 
         // Poll again for changes and expect to get the 20 we just inserted
@@ -154,7 +151,7 @@ public class CloudantSourceTaskTest extends TestCase {
         JSONArray ddocArray = new JSONArray();
         ddocArray.put(Collections.singletonMap("_id", "_design/test"));
         JavaCloudantUtil.batchWrite(sourceProperties,
-                getClientInstance(sourceProperties),
+                CachedClientManager.getInstance(sourceProperties),
                 Streams.stream(ddocArray).map(x -> ((JSONObject)x).toMap()).collect(Collectors.toList()));
         PowerMock.replayAll();
 
@@ -235,7 +232,7 @@ public class CloudantSourceTaskTest extends TestCase {
 
             // Load data into the source database (create if it does not exist)
             JavaCloudantUtil.batchWrite(sourceProps2,
-                    getClientInstance(sourceProperties),
+                    CachedClientManager.getInstance(sourceProperties),
                     Streams.stream(data2).map(x -> ((JSONObject)x).toMap()).collect(Collectors.toList()));
 
             // Create second connector

@@ -21,6 +21,7 @@ import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.cloudant.v1.model.DatabaseInformation;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
+import com.ibm.cloudant.kafka.connect.CachedClientManager;
 import com.ibm.cloudant.kafka.connect.CloudantSourceConnector;
 import com.ibm.cloudant.kafka.connect.CloudantSourceTask;
 import com.ibm.cloudant.kafka.connect.utils.CloudantDbUtils;
@@ -55,7 +56,7 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 		sourceProperties.put(InterfaceConst.URL, sourceProperties.get(ConnectorUtils.PERFORMANCE_URL));
 		
 		// Get the source database handle
-		sourceService = JavaCloudantUtil.getClientInstance(sourceProperties);
+		sourceService = CachedClientManager.getInstance(sourceProperties);
 			
 		sourceConnector = new CloudantSourceConnector();
         ConnectorContext context = PowerMock.createMock(ConnectorContext.class);

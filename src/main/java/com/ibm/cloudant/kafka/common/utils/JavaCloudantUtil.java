@@ -114,10 +114,6 @@ public class JavaCloudantUtil {
 		return result;
 	}
 
-	public static Cloudant getClientInstance(Map<String, String> props) {
-		return ServiceFactory.getInstance(props, VERSION);
-	}
-
 	public static void createTargetDb(Cloudant service, String dbName) {
 		PutDatabaseOptions dbOptions = new PutDatabaseOptions.Builder()
 			.db(dbName)
