@@ -49,8 +49,7 @@ public class CloudantSourceConnector extends SourceConnector {
 
 	@Override
 	public void stop() {
-		// TODO Auto-generated method stub
-		
+		CachedClientManager.stop(configProperties);
 	}
 
 	@Override

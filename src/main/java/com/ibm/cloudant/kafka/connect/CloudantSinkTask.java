@@ -38,8 +38,6 @@ public class CloudantSinkTask extends SinkTask {
 	private static Logger LOG = LoggerFactory.getLogger(CloudantSinkTask.class);
 	
 	private CloudantSinkTaskConfig config;
-
-	private Cloudant service;
 	
 	List<String> topics = null;
 
@@ -91,7 +89,6 @@ public class CloudantSinkTask extends SinkTask {
  		try {
 			config = new CloudantSinkTaskConfig(props);
             taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
-			service = CachedClientManager.getInstance(props);
 
             //TODO: split topics from Connector
             topics = config.getList(InterfaceConst.TOPIC);
@@ -107,7 +104,7 @@ public class CloudantSinkTask extends SinkTask {
 	public void flush(Map<TopicPartition, org.apache.kafka.clients.consumer.OffsetAndMetadata> offsets) {
 		LOG.debug("Flushing output stream for {" + config.getString(InterfaceConst.URL) + "}");
 		try {
-				JavaCloudantUtil.batchWrite(config.originalsStrings(), service, jsonArray);
+				JavaCloudantUtil.batchWrite(config.originalsStrings(), jsonArray);
 				LOG.info("Committed " + jsonArray.size() + " documents to -> " + config.getString(InterfaceConst.URL));
 		} finally {
 			// Release memory (regardless if documents got committed or not)

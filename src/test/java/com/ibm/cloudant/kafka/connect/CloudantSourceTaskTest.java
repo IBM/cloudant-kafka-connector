@@ -63,7 +63,6 @@ public class CloudantSourceTaskTest extends TestCase {
 
         // Load data into the source database (create if it does not exist)
         JavaCloudantUtil.batchWrite(sourceProperties,
-                CachedClientManager.getInstance(sourceProperties),
                 Streams.stream(data).map(x -> ((JSONObject)x).toMap()).collect(Collectors.toList()));
 
         /*
@@ -117,7 +116,6 @@ public class CloudantSourceTaskTest extends TestCase {
         }
 
         JavaCloudantUtil.batchWrite(sourceProperties,
-                CachedClientManager.getInstance(sourceProperties),
                 Streams.stream(data2).map(x -> ((JSONObject)x).toMap()).collect(Collectors.toList()));
 
         // Poll again for changes and expect to get the 20 we just inserted
@@ -151,7 +149,6 @@ public class CloudantSourceTaskTest extends TestCase {
         JSONArray ddocArray = new JSONArray();
         ddocArray.put(Collections.singletonMap("_id", "_design/test"));
         JavaCloudantUtil.batchWrite(sourceProperties,
-                CachedClientManager.getInstance(sourceProperties),
                 Streams.stream(ddocArray).map(x -> ((JSONObject)x).toMap()).collect(Collectors.toList()));
         PowerMock.replayAll();
 
@@ -232,7 +229,6 @@ public class CloudantSourceTaskTest extends TestCase {
 
             // Load data into the source database (create if it does not exist)
             JavaCloudantUtil.batchWrite(sourceProps2,
-                    CachedClientManager.getInstance(sourceProperties),
                     Streams.stream(data2).map(x -> ((JSONObject)x).toMap()).collect(Collectors.toList()));
 
             // Create second connector

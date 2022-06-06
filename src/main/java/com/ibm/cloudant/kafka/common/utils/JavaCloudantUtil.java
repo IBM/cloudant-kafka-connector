@@ -13,14 +13,13 @@
  */
 package com.ibm.cloudant.kafka.common.utils;
 
-import com.ibm.cloud.cloudant.internal.CloudantBaseService;
-import com.ibm.cloud.cloudant.internal.ServiceFactory;
 import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.cloudant.v1.model.*;
 import com.ibm.cloud.sdk.core.service.exception.ServiceResponseException;
 import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
+import com.ibm.cloudant.kafka.connect.CachedClientManager;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -62,14 +61,14 @@ public class JavaCloudantUtil {
 		);
 	}
 
-	public static JSONArray batchWrite(Map<String, String> props,
-									   Cloudant service,
-									   List<Map<String, Object>> data)
+	public static JSONArray batchWrite(Map<String, String> props, List<Map<String, Object>> data)
 		throws JSONException {
 		// wrap result to JSONArray
 		JSONArray result = new JSONArray();
 		JSONObject jsonResult = new JSONObject();
 		try {
+			Cloudant service = CachedClientManager.getInstance(props);
+
 			List<Document> listOfDocs = data.stream().map(d -> {Document doc = new Document(); doc.setProperties(d); return doc; }).collect(Collectors.toList());
 
 			// attempt to create database

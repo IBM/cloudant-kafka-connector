@@ -22,10 +22,8 @@ import com.ibm.cloud.cloudant.v1.model.Document;
 import com.ibm.cloud.cloudant.v1.model.PostChangesOptions;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
-import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloudant.kafka.common.utils.ResourceBundleUtil;
 import com.ibm.cloudant.kafka.schema.DocumentAsSchemaStruct;
-
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
@@ -36,7 +34,6 @@ import org.apache.kafka.connect.storage.OffsetStorageReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,6 +53,7 @@ public class CloudantSourceTask extends SourceTask {
     private AtomicBoolean stop;
     private AtomicBoolean _running;
 
+    Map<String, String> props;
     private String url = null;
     private String db = null;
     private List<String> topics = null;
@@ -66,12 +64,11 @@ public class CloudantSourceTask extends SourceTask {
     private String latestSequenceNumber = null;
     private int batch_size = 0;
 
-    private Cloudant service = null;
     private ChangesResult cloudantChangesResult = null;
 
     @Override
     public List<SourceRecord> poll() throws InterruptedException {
-
+        Cloudant service = CachedClientManager.getInstance(props);
 
         // stop will be set but can be honored only after we release
         // the changes() feed
@@ -148,16 +145,14 @@ public class CloudantSourceTask extends SourceTask {
     public void start(Map<String, String> props) {
 
         try {
+            this.props = props;
             CloudantSourceTaskConfig config = new CloudantSourceTaskConfig(props);
-
             url = config.getString(InterfaceConst.URL);
             db = config.getString(InterfaceConst.DB);
-            service = CachedClientManager.getInstance(props);
             topics = config.getList(InterfaceConst.TOPIC);
             omitDesignDocs = config.getBoolean(InterfaceConst.OMIT_DESIGN_DOCS);
             generateStructSchema = config.getBoolean(InterfaceConst.USE_VALUE_SCHEMA_STRUCT);
             flattenStructSchema = config.getBoolean(InterfaceConst.FLATTEN_VALUE_SCHEMA_STRUCT);
-
             latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
             batch_size = config.getInt(InterfaceConst.BATCH_SIZE) == null ? InterfaceConst
                     .DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
