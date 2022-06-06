@@ -51,9 +51,9 @@ Example configuration:
     ```
     transforms=ReplaceField
     transforms.ReplaceField.type=org.apache.kafka.connect.transforms.ReplaceField$Value 
-    transforms.ReplaceField.blacklist=_rev
+    transforms.ReplaceField.exclude=_rev
     ```
-    For more details, see [`ReplaceField`](https://docs.confluent.io/platform/current/connect/transforms/replacefield.html#replacefield) documentation.
+    See the [Kafka Connect transforms](https://kafka.apache.org/31/documentation.html#connect_transforms) documentation for more details.
 
 ### Authentication
 
