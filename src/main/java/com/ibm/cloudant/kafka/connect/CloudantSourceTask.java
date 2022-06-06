@@ -53,7 +53,7 @@ public class CloudantSourceTask extends SourceTask {
     private AtomicBoolean stop;
     private AtomicBoolean _running;
 
-    Map<String, String> props;
+    CloudantSourceTaskConfig config;
     private String url = null;
     private String db = null;
     private List<String> topics = null;
@@ -68,7 +68,7 @@ public class CloudantSourceTask extends SourceTask {
 
     @Override
     public List<SourceRecord> poll() throws InterruptedException {
-        Cloudant service = CachedClientManager.getInstance(props);
+        Cloudant service = CachedClientManager.getInstance(config.originalsStrings());
 
         // stop will be set but can be honored only after we release
         // the changes() feed
@@ -145,8 +145,7 @@ public class CloudantSourceTask extends SourceTask {
     public void start(Map<String, String> props) {
 
         try {
-            this.props = props;
-            CloudantSourceTaskConfig config = new CloudantSourceTaskConfig(props);
+            this.config = new CloudantSourceTaskConfig(props);
             url = config.getString(InterfaceConst.URL);
             db = config.getString(InterfaceConst.DB);
             topics = config.getList(InterfaceConst.TOPIC);
