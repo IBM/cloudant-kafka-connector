@@ -60,12 +60,11 @@ public class CloudantSinkTask extends SinkTask {
 	public void put(Collection<SinkRecord> sinkRecords) {
 
 		LOG.info("Thread[" + Thread.currentThread().getId() + "].sinkRecords = " + sinkRecords.size());
-
+		// Note: _rev is preserved
 		sinkRecords.stream()
 				.map(mapper) // Convert ConnectRecord to Map
 				.sequential() // Avoid concurrent access to jsonArray
 				.forEach(recordValueAsMap -> {
-					recordValueAsMap.remove(CloudantConst.CLOUDANT_REV); // Remove the _rev
 					jsonArray.add(recordValueAsMap);
 					if (jsonArray.size() >= batch_size) {
 						flush(null);
