@@ -5,6 +5,7 @@
 - [UPGRADED] Upgraded Gradle distribution from 4.5.1 to 7.4
 - [UPGRADED] Upgraded Kafka Connect API to 3.1.0.
 - [UPGRADED] Refactored to use the new `cloudant-java-sdk` library.
+- [FIXED] Preserve `_rev` field message values in sink connector.  See [sink connector config](README.md#converter-configuration-sink-connector) section in README for more details.
 - [FIXED] README to align with the 2.8.0 Kafka version.
 
 # 0.100.2-kafka-1.0.0 (2018-04-13)
