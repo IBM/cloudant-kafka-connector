@@ -1,11 +1,11 @@
 # UNRELEASED
 - [BREAKING CHANGE] Converter support for sink connector has changed. See README.md for details.
 - [BREAKING CHANGE] Configuration parameters have changed for url, database, authentication, and last change sequence. See README.md for details.
+- [BREAKING CHANGE] Preserve `_rev` field message values in sink connector.  See [sink connector config](README.md#converter-configuration-sink-connector) section in README for more details.
 - [UPGRADED] Connector now supports all authentication types via the `cloudant.auth.type` configuration parameter. When using an authentication type of "iam", the API key is configured via the `cloudant.apikey` configuration parameter.
 - [UPGRADED] Upgraded Gradle distribution from 4.5.1 to 7.4
 - [UPGRADED] Upgraded Kafka Connect API to 3.1.0.
 - [UPGRADED] Refactored to use the new `cloudant-java-sdk` library.
-- [FIXED] Preserve `_rev` field message values in sink connector.  See [sink connector config](README.md#converter-configuration-sink-connector) section in README for more details.
 - [FIXED] README to align with the 2.8.0 Kafka version.
 
 # 0.100.2-kafka-1.0.0 (2018-04-13)
