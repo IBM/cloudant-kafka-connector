@@ -42,9 +42,18 @@ value.converter.schemas.enable=true
 
 #### Converter configuration: sink connector
 
-For the sink connector, kafka keys are currently ignored; therefore the key converter settings are not relevant.
-
-For the sink connector, we assume that the values in kafka are serialized JSON objects, and therefore `JsonConverter` is supported. If your values contain a schema (`{"schema": {...}, "payload": {...}}`), then set `value.converter.schemas.enable=true`, otherwise set `value.converter.schemas.enable=false`. Any other converter that converts the message values into `org.apache.kafka.connect.data.Struct` or `java.util.Map` types should also work. However, it must be noted that the subsequent serialization of `Map` or `Struct` values to JSON documents in the sink may not match expectations if a schema has not been provided.
+For the sink connector:
+1. Kafka keys are currently ignored; therefore the key converter settings are not relevant.
+1. We assume that the values in kafka are serialized JSON objects, and therefore `JsonConverter` is supported. If your values contain a schema (`{"schema": {...}, "payload": {...}}`), then set `value.converter.schemas.enable=true`, otherwise set `value.converter.schemas.enable=false`. Any other converter that converts the message values into `org.apache.kafka.connect.data.Struct` or `java.util.Map` types should also work. However, it must be noted that the subsequent serialization of `Map` or `Struct` values to JSON documents in the sink may not match expectations if a schema has not been provided.
+1. Inserting only a single revision of any `_id` is currently supported.  This means it cannot update or delete documents.
+1. The `_rev` field in message values are preserved.  To remove `rev` during data flow, use the `ReplaceField` Single Message Transforms (SMT).
+Example configuration:
+    ```
+    transforms=ReplaceField
+    transforms.ReplaceField.type=org.apache.kafka.connect.transforms.ReplaceField$Value 
+    transforms.ReplaceField.exclude=_rev
+    ```
+    See the [Kafka Connect transforms](https://kafka.apache.org/31/documentation.html#connect_transforms) documentation for more details.
 
 ### Authentication
 

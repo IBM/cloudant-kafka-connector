@@ -95,6 +95,7 @@ public class CloudantSourceAndSinkTest extends TestCase {
                 // source task returns strings but sink task expects structs or maps
                 // in a real kafka instance this would be fixed by using appropriate converters
                 Map recordValue = gson.fromJson((String)record.value(), Map.class);
+                recordValue.remove("_rev");
 
                 SinkRecord sinkRecord = new SinkRecord(sinkTask.getTargetProperties().get
                         (InterfaceConst.TOPIC),
