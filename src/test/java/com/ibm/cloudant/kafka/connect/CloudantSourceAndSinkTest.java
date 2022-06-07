@@ -105,9 +105,6 @@ public class CloudantSourceAndSinkTest extends TestCase {
                         null, // value schema
                         recordValue,  // value
                         0); // offset
-                System.out.println("**** SINK RECORD ****");
-                System.out.println(sinkRecord.toString());
-                System.out.println(recordValue.toString());
                 sinkRecords.add(sinkRecord);
             }
 
