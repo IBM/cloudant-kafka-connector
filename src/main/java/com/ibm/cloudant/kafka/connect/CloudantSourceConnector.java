@@ -49,7 +49,7 @@ public class CloudantSourceConnector extends SourceConnector {
 
 	@Override
 	public void stop() {
-		CachedClientManager.stop(configProperties);
+		CachedClientManager.removeInstance(configProperties);
 	}
 
 	@Override

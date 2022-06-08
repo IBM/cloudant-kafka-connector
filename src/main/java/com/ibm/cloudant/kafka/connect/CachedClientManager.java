@@ -35,7 +35,7 @@ public class CachedClientManager {
         return clientCache.computeIfAbsent(connectorName, p -> ServiceFactory.getInstance(props, VERSION));
     }
 
-    public static void stop(Map<String, String> props) {
+    public static void removeInstance(Map<String, String> props) {
         String connectorName = props.get("name");
         clientCache.remove(connectorName);
     }

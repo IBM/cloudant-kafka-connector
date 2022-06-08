@@ -83,7 +83,7 @@ public class CloudantSinkConnector extends SinkConnector {
 
 	@Override
 	public void stop() {
-		CachedClientManager.stop(configProperties);
+		CachedClientManager.removeInstance(configProperties);
 	}
 
 	@Override
