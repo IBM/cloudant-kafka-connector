@@ -82,7 +82,7 @@ public class CloudantSinkTaskTest extends TestCase {
         doc3.put("number", 3L);
         doc3.put("key", "value3");
 
-        service = JavaCloudantUtil.getClientInstance(targetProperties);
+        service = CachedClientManager.getInstance(targetProperties);
         JavaCloudantUtil.createTargetDb(service, targetProperties.get(InterfaceConst.DB));
     }
 

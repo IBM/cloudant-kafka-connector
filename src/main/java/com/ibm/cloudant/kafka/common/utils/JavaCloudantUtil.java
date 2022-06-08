@@ -13,13 +13,13 @@
  */
 package com.ibm.cloudant.kafka.common.utils;
 
-import com.ibm.cloud.cloudant.internal.ServiceFactory;
 import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.cloudant.v1.model.*;
 import com.ibm.cloud.sdk.core.service.exception.ServiceResponseException;
 import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
+import com.ibm.cloudant.kafka.connect.CachedClientManager;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -67,8 +67,7 @@ public class JavaCloudantUtil {
 		JSONArray result = new JSONArray();
 		JSONObject jsonResult = new JSONObject();
 		try {
-			// get client object
-			Cloudant service = getClientInstance(props);
+			Cloudant service = CachedClientManager.getInstance(props);
 
 			List<Document> listOfDocs = data.stream().map(d -> {Document doc = new Document(); doc.setProperties(d); return doc; }).collect(Collectors.toList());
 
@@ -112,10 +111,6 @@ public class JavaCloudantUtil {
 			}
 		}
 		return result;
-	}
-
-	public static Cloudant getClientInstance(Map<String, String> props) {
-		return ServiceFactory.getInstance(props, VERSION);
 	}
 
 	public static void createTargetDb(Cloudant service, String dbName) {

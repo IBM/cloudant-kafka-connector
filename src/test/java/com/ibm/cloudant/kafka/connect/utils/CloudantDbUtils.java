@@ -21,6 +21,7 @@ import com.ibm.cloud.cloudant.v1.model.Ok;
 import com.ibm.cloud.sdk.core.http.Response;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
+import com.ibm.cloudant.kafka.connect.CachedClientManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.junit.Assert;
@@ -35,7 +36,7 @@ public class CloudantDbUtils {
 
 	public static void dropDatabase(Map<String, String> props)
 		throws MalformedURLException {
-		Cloudant service = JavaCloudantUtil.getClientInstance(props);
+		Cloudant service = CachedClientManager.getInstance(props);
 		String dbName = props.get(InterfaceConst.DB);
 		DeleteDatabaseOptions deleteDbOptions = new DeleteDatabaseOptions.Builder()
 			.db(dbName)

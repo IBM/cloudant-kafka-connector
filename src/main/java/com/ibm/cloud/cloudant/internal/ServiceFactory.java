@@ -12,7 +12,7 @@
  * and limitations under the License.
  */
 
- package com.ibm.cloud.cloudant.internal;
+package com.ibm.cloud.cloudant.internal;
 
 import java.util.Collections;
 import java.util.Map;

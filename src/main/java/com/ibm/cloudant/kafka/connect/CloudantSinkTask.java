@@ -13,6 +13,7 @@
  */
 package com.ibm.cloudant.kafka.connect;
 
+import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.MessageKey;
@@ -31,7 +32,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 
 public class CloudantSinkTask extends SinkTask {
 
@@ -88,7 +88,7 @@ public class CloudantSinkTask extends SinkTask {
  		try {
 			config = new CloudantSinkTaskConfig(props);
             taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
-            
+
             //TODO: split topics from Connector
             topics = config.getList(InterfaceConst.TOPIC);
             

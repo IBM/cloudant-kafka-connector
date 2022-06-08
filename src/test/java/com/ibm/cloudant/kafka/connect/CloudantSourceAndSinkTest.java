@@ -58,7 +58,7 @@ public class CloudantSourceAndSinkTest extends TestCase {
 
 
         // Get the source database handle
-        sourceService = JavaCloudantUtil.getClientInstance(sourceTask.getSourceProperties());
+        sourceService = CachedClientManager.getInstance(sourceTask.getSourceProperties());
 
         sourceDbName = sourceTask.getSourceProperties().get(InterfaceConst.DB);
 
@@ -68,7 +68,7 @@ public class CloudantSourceAndSinkTest extends TestCase {
         targetDbName = sinkTask.getTargetProperties().get(InterfaceConst.DB);
         JavaCloudantUtil.createTargetDb(sourceService, targetDbName);
 
-        targetService = JavaCloudantUtil.getClientInstance(sinkTask.getTargetProperties());
+        targetService = CachedClientManager.getInstance(sinkTask.getTargetProperties());
     }
 
     public void testReplicateAll() throws Exception {

@@ -22,6 +22,7 @@ import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.cloudant.v1.model.DatabaseInformation;
 import com.ibm.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloudant.kafka.common.utils.JavaCloudantUtil;
+import com.ibm.cloudant.kafka.connect.CachedClientManager;
 import com.ibm.cloudant.kafka.connect.CloudantSinkTask;
 import com.ibm.cloudant.kafka.connect.utils.CloudantDbUtils;
 import com.ibm.cloudant.kafka.connect.utils.ConnectorUtils;
@@ -61,7 +62,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
                 .PERFORMANCE_URL) + "_target");
 
         // Create a _target database to replicate data into
-        targetService = JavaCloudantUtil.getClientInstance(targetProperties);
+        targetService = CachedClientManager.getInstance(targetProperties);
 
         //Create Connector
         sinkTask = new CloudantSinkTask();
