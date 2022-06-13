@@ -1,4 +1,5 @@
 # UNRELEASED
+- [BREAKING CHANGE] Rename module from `kafka-connect-cloudant` to `cloudant-kafka-connector`.
 - [BREAKING CHANGE] Converter support for sink connector has changed. See README.md for details.
 - [BREAKING CHANGE] Configuration parameters have changed for url, database, authentication, and last change sequence. See README.md for details.
 - [BREAKING CHANGE] Preserve `_rev` field message values in sink connector.  See [sink connector config](README.md#converter-configuration-sink-connector) section in README for more details.
