@@ -55,6 +55,6 @@ stage('Publish') {
     }
     gitTagAndPublish {
         isDraft=true
-        releaseApiUrl='https://api.github.com/repos/cloudant-labs/kafka-connect-cloudant/releases'
+        releaseApiUrl='https://api.github.com/repos/IBM/cloudant-kafka-connector/releases'
     }
 }
