@@ -52,7 +52,7 @@ public class JavaCloudantUtil {
 			LOG.warn(PROPS_FILE, e);
 		}
 		VERSION = String.format(Locale.ENGLISH, "%s/%s/%s/%s/%s/%s",
-			p.getProperty("user.agent.name", "kafka-connect-cloudant"),
+			p.getProperty("user.agent.name", "cloudant-kafka-connector"),
 			p.getProperty("user.agent.version", "UNKNOWN"),
 			System.getProperty("java.version", "UNKNOWN"),
 			System.getProperty("java.vendor", "UNKNOWN"),

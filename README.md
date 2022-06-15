@@ -1,9 +1,9 @@
-# Kafka Connect Cloudant
+# Cloudant Kafka Connector
 
 [![Build Status](https://travis-ci.org/cloudant-labs/kafka-connect-cloudant.svg?branch=master)](https://travis-ci.org/cloudant-labs/kafka-connect-cloudant)
 [![Maven Central](https://img.shields.io/maven-central/v/com.cloudant/kafka-connect-cloudant.svg)](http://search.maven.org/#search|ga|1|g:"com.cloudant"%20AND%20a:"kafka-connect-cloudant")
 
-Kafka Connect Cloudant Connector. This project includes source & sink connectors.
+This project includes Apache Kafka Connect source & sink connectors for IBM Cloudant.
 
 ## Pre-release
 

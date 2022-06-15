@@ -1,5 +1,5 @@
 # Performance Report
-The report demonstrates the performance of the kafka-connect-cloudant connector with different parameter settings. The performance tests measuring the time and data throughtput rate of the source and sink connector. The objective is to show the performance impact of the individual parameters such as `topics`, `replication` or `batch.size`.
+The report demonstrates the performance of the cloudant-kafka-connector with different parameter settings. The performance tests measuring the time and data throughtput rate of the source and sink connector. The objective is to show the performance impact of the individual parameters such as `topics`, `replication` or `batch.size`.
 
 In the result section, you can see that the number of `topics` and the type of `replication` has no significant impact on the performance. This finding is applicable for the source and sink connector. The parameters `batch.size` as well as the number of documents have a significant impact of the connector performance. Up to a certain `batch.size`, the data throughput increase significantly. Also, the performance increase with a higher number of documents due to the set-up time of the source and sink connector. However, up to a certain number of documents, the set-up time is insignificant for the data throughput.   
 
