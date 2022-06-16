@@ -169,7 +169,7 @@ publishing {
                 name = project.name
                 packaging = 'jar'
                 url = 'https://cloudant.com'
-                description = 'Apache Kafka Connect API connector for Cloudant'
+                description = 'Apache Kafka Connect API connector for IBM Cloudant'
                 inceptionYear = '2016'
                 licenses {
                     license {
@@ -179,9 +179,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:git@github.com:cloudant-labs/kafka-connect-cloudant.git'
-                    developerConnection = 'scm:git:git@github.com:cloudant-labs/kafka-connect-cloudant.git'
-                    url = 'scm:git:git@github.com:cloudant-labs/kafka-connect-cloudant.git'
+                    connection = 'scm:git:git@github.com:IBM/cloudant-kafka-connector.git'
+                    developerConnection = 'scm:git:git@github.com:IBM/cloudant-kafka-connector.git'
+                    url = 'scm:git:git@github.com:IBM/cloudant-kafka-connector.git'
                     tag = 'preview'
                 }
                 developers {
