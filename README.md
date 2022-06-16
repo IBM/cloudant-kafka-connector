@@ -54,6 +54,33 @@ Example configuration:
     ```
     See the [Kafka Connect transforms](https://kafka.apache.org/31/documentation.html#connect_transforms) documentation for more details.
 
+#### Rename, replace, or drop fields using Single Message Transforms
+
+Single Message Transforms, or SMTs, can be used to customize fields or values of messages during data flow.  The examples below will explore modifying fields for messages flowing from the Kafka topic to a Cloudant database using the sink connector.
+
+1. If there's an existing field that will be used as the document ID then use the `ReplaceField` transform.  See the config example below that renames `name` to `_id` field:
+    ```
+    transforms=RenameField
+    transforms.RenameField.type=org.apache.kafka.connect.transforms.ReplaceField$Value 
+    transforms.RenameField.renames=name:_id
+    ```
+1. If you would prefer to have Cloudant generate a UUID for the document ID, use the `ReplaceField` transform to exclude the existing `_id` field:
+    ```
+    transforms=ReplaceField
+    transforms.ReplaceField.type=org.apache.kafka.connect.transforms.ReplaceField$Value 
+    transforms.ReplaceField.exclude=_id
+    ```
+1. If you have messages where the `_id` field is `null` then you'll need to use a transform and predicate to filter out and remove this field:
+    ```
+    transforms=dropNullRecords
+    transforms.dropNullRecords.type=org.apache.kafka.connect.transforms.Filter
+    transforms.dropNullRecords.predicate=isNullRecord
+
+    predicates=isNullRecord
+    predicates.isNullRecord.type=org.apache.kafka.connect.transforms.predicates.RecordIsTombstone
+    ```
+**Note**: For any of the SMTs above, if the field does not exist it will skip over that message and continue processing the next message.
+
 ### Authentication
 
 In order to read from or write to Cloudant, some authentication properties need to be configured. These properties are common to both the source and sink connector.
