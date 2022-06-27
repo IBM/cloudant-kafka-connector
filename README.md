@@ -64,13 +64,14 @@ Single Message Transforms, or SMTs, can be used to customize fields or values of
     transforms.RenameField.type=org.apache.kafka.connect.transforms.ReplaceField$Value 
     transforms.RenameField.renames=name:_id
     ```
-1. If you would prefer to have Cloudant generate a UUID for the document ID, use the `ReplaceField` transform to exclude the existing `_id` field:
+1. If you have `_id` fields and would prefer to have Cloudant generate a UUID for the document ID, use the `ReplaceField` transform to exclude the existing `_id` field:
     ```
     transforms=ReplaceField
     transforms.ReplaceField.type=org.apache.kafka.connect.transforms.ReplaceField$Value 
     transforms.ReplaceField.exclude=_id
     ```
-1. If you have messages where the `_id` field is `null` then you'll need to use a transform and predicate to filter out and remove this field:
+1. If you have messages where the `_id` field is absent or `null` then Cloudant will generate a document ID.  If you don't want this to happen then set an `_id` (see earlier examples) or filter out those documents.
+If you have messages where the `_id` field is `null` then you'll need to use a transform and predicate to filter out and remove this field:
     ```
     transforms=dropNullRecords
     transforms.dropNullRecords.type=org.apache.kafka.connect.transforms.Filter
