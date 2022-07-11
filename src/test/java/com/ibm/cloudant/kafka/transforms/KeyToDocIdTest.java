@@ -214,7 +214,7 @@ public class KeyToDocIdTest {
 
         final SourceRecord transformedRecord = transformRecord.apply(record);
         assertEquals("2-545bceb1a85f41cf558241d7caecb2b3", ((Map) transformedRecord.value()).get("_rev"));
-        assertEquals("test", ((Map) transformedRecord.value()).get("_id"));
+        assertEquals("{key=test}", ((Map) transformedRecord.value()).get("_id"));
     }
 
     @Test

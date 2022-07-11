@@ -76,14 +76,7 @@ public class KeyToDocId<R extends ConnectRecord<R>> implements Transformation<R>
             value = requireMapOrNull(record.value(), PURPOSE);
         }
         final Map<String, Object> updatedValue = new HashMap<>(value);
-        String keyToUseAsId;
-        try {
-            keyToUseAsId = requireMapOrNull(record.key(), PURPOSE).get("key").toString();
-        } catch (Exception e) {
-            LOG.info(String.format("Error occurred when trying to get message's key as a Map object: %s. " +
-                    "Attempting to get string value of message's key.", e.getMessage()));
-            keyToUseAsId = String.valueOf(record.key());
-        }
+        String keyToUseAsId = String.valueOf(record.key());
         if (keyToUseAsId != null) {
             updatedValue.put(idFieldName, keyToUseAsId);
         } else {
