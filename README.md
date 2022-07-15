@@ -64,13 +64,13 @@ Single Message Transforms, or SMTs, can be used to customize fields or values of
     transforms.RenameField.type=org.apache.kafka.connect.transforms.ReplaceField$Value 
     transforms.RenameField.renames=name:_id
     ```
-1. If you have `_id` fields and would prefer to have Cloudant generate a UUID for the document ID, use the `ReplaceField` transform to exclude the existing `_id` field:
+2. If you have `_id` fields and would prefer to have Cloudant generate a UUID for the document ID, use the `ReplaceField` transform to exclude the existing `_id` field:
     ```
     transforms=ReplaceField
     transforms.ReplaceField.type=org.apache.kafka.connect.transforms.ReplaceField$Value 
     transforms.ReplaceField.exclude=_id
     ```
-1. If you have messages where the `_id` field is absent or `null` then Cloudant will generate a document ID.  If you don't want this to happen then set an `_id` (see earlier examples) or filter out those documents.
+3. If you have messages where the `_id` field is absent or `null` then Cloudant will generate a document ID.  If you don't want this to happen then set an `_id` (see earlier examples) or filter out those documents.
 If you have messages where the `_id` field is `null` then you'll need to use a transform and predicate to filter out and remove this field:
     ```
     transforms=dropNullRecords
@@ -81,12 +81,14 @@ If you have messages where the `_id` field is `null` then you'll need to use a t
     predicates.isNullRecord.type=org.apache.kafka.connect.transforms.predicates.RecordIsTombstone
     ```
    
-1. If you would like to use the message key as the value for `_id` field, use the custom `KeyToDocId` transform that is bundled with this library:
+4. If you would like to use the message key as the value for `_id` field, use the custom `KeyToDocId` transform that is bundled with this library:
     ```
     transforms=KeyToDocId
     transforms.KeyToDocId.type=com.ibm.cloudant.kafka.transforms.KeyToDocId
     ```
-    Note: The `_id` must exist in your message value schema.  If it does not exist, a warning message will print in the logging and the message will be unmodified.
+    Note: If a string `_id` field does not exist in the message value schema a modified schema will be created and included in the transformed message.
+    This transform **only** supports message keys of string type.  All other types will be ignored and the message will be left unmodified. Complex keys or other data types 
+    will need to be transformed into a string before running this SMT.
 
 **Note**: For any of the SMTs above, if the field does not exist it will skip over that message and continue processing the next message.
 
