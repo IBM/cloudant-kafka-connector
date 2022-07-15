@@ -58,7 +58,6 @@ public class KeyToDocId<R extends ConnectRecord<R>> implements Transformation<R>
     public R apply(R record) {
         if (requireSinkRecord(record, PURPOSE).key() != null
                 && record.key() instanceof String) {
-            LOG.info("Attempting to apply KeyToDocId transform");
             if (record.valueSchema() == null) {
                 return applySchemaless(record);
             } else {
@@ -94,16 +93,16 @@ public class KeyToDocId<R extends ConnectRecord<R>> implements Transformation<R>
 
     private R applyWithSchema(R record) {
         if (record.value() == null || record.value() instanceof Map) {
-            return updateMapValueStruct(record);
+            return updateValueUsingMapSchema(record);
         } else if (record.value() instanceof Struct) {
-            return updateSchemaValueStruct(record);
+            return updateValueUsingStructSchema(record);
         } else {
             LOG.info("Unsupported record type. Leaving record unmodified.");
             return record;
         }
     }
 
-    private R updateSchemaValueStruct(R record) {
+    private R updateValueUsingStructSchema(R record) {
         Struct recordValue = requireStructOrNull(record.value(), PURPOSE);
         Schema updatedSchema = schemaUpdateCache.get(recordValue.schema());
         Struct updatedValue;
@@ -134,7 +133,7 @@ public class KeyToDocId<R extends ConnectRecord<R>> implements Transformation<R>
         );
     }
 
-    private R updateMapValueStruct(R record) {
+    private R updateValueUsingMapSchema(R record) {
         Map updatedValue = requireMapOrNull(record.value(), PURPOSE);
         if (updatedValue != null) {
             addKeyToValueIdField(record, updatedValue);
