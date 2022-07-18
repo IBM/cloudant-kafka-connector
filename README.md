@@ -54,7 +54,7 @@ Example configuration:
     ```
     See the [Kafka Connect transforms](https://kafka.apache.org/31/documentation.html#connect_transforms) documentation for more details.
 
-#### Rename, replace, or drop fields using Single Message Transforms
+#### Single Message Transforms
 
 Single Message Transforms, or SMTs, can be used to customize fields or values of messages during data flow.  The examples below will explore modifying fields for messages flowing from the Kafka topic to a Cloudant database using the sink connector.
 
@@ -64,14 +64,23 @@ Single Message Transforms, or SMTs, can be used to customize fields or values of
     transforms.RenameField.type=org.apache.kafka.connect.transforms.ReplaceField$Value 
     transforms.RenameField.renames=name:_id
     ```
-1. If you have `_id` fields and would prefer to have Cloudant generate a UUID for the document ID, use the `ReplaceField` transform to exclude the existing `_id` field:
+2. If you have `_id` fields and would prefer to have Cloudant generate a UUID for the document ID, use the `ReplaceField` transform to exclude the existing `_id` field:
     ```
     transforms=ReplaceField
     transforms.ReplaceField.type=org.apache.kafka.connect.transforms.ReplaceField$Value 
     transforms.ReplaceField.exclude=_id
     ```
-1. If you have messages where the `_id` field is absent or `null` then Cloudant will generate a document ID.  If you don't want this to happen then set an `_id` (see earlier examples) or filter out those documents.
-If you have messages where the `_id` field is `null` then you'll need to use a transform and predicate to filter out and remove this field:
+3. If you have messages where the `_id` field is absent or `null` then Cloudant will generate
+a document ID. If you don't want this to happen then set an `_id` (see earlier examples).
+Alternatively filter out those documents. For example if you have messages where the `_id`
+field is `null` then you'll need to use a transform and predicate to filter out and remove this
+field:
+    ```
+    TODO 
+    ```
+
+4. If you have records where there is no value e.g. tombstones (and don't want the Cloudant sink connector to generate an empty doc with a generated ID) then 
+you'll need to use a `dropNullRecords` transform and predicate to filter out and remove these tombstone records:  
     ```
     transforms=dropNullRecords
     transforms.dropNullRecords.type=org.apache.kafka.connect.transforms.Filter
@@ -80,6 +89,7 @@ If you have messages where the `_id` field is `null` then you'll need to use a t
     predicates=isNullRecord
     predicates.isNullRecord.type=org.apache.kafka.connect.transforms.predicates.RecordIsTombstone
     ```
+
 **Note**: For any of the SMTs above, if the field does not exist it will skip over that message and continue processing the next message.
 
 ### Authentication
