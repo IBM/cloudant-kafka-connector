@@ -39,26 +39,16 @@ public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function
         switch (schemaType) {
             case MAP:
                 if (record.value() instanceof Map) {
-                    if (headerValue != null) {
-                        convertMap((Map) record.value(), toReturn);
-                        toReturn.put("_id", headerValue);
-                        return toReturn;
-                    } else {
-                        return convertMap((Map) record.value(), toReturn);
-                    }
+                    convertMap((Map) record.value(), toReturn);
+                    break;
                 } else {
                     throw new IllegalArgumentException(String.format("Type %s not supported with schema of type Map (or no schema)",
                             record.value().getClass()));
                 }
             case STRUCT:
                 if (record.value() instanceof Struct) {
-                    if (headerValue != null) {
-                        convertStruct((Struct) record.value(), toReturn);
-                        toReturn.put("_id", headerValue);
-                        return toReturn;
-                    } else {
-                        return convertStruct((Struct) record.value(), toReturn);
-                    }
+                    convertStruct((Struct) record.value(), toReturn);
+                    break;
                 } else {
                     throw new IllegalArgumentException(String.format("Type %s not supported with schema of type Struct",
                             record.value().getClass()));
@@ -66,6 +56,10 @@ public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function
             default:
                 throw new IllegalArgumentException(String.format("Schema type %s not supported", record.valueSchema().type()));
         }
+        if (!toReturn.isEmpty() && headerValue != null) {
+            toReturn.put("_id", headerValue);
+        }
+        return toReturn;
     }
 
     // convert struct to map by adding key/values to passed in map, and returning it 
@@ -129,7 +123,7 @@ public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function
     }
 
     private String getHeaderForDocId(ConnectRecord<R> record) {
-        Header value = record.headers().lastWithName("CLOUDANT_PREFERRED_ID");
+        Header value = record.headers().lastWithName("cloudant_doc_id");
         if (value != null && value.value() instanceof String) {
             return value.value().toString();
         }

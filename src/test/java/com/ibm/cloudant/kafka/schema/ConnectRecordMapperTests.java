@@ -31,6 +31,8 @@ public class ConnectRecordMapperTests {
 
     // for these tests we will operate on SinkRecords, but they could just as easily be SourceRecords - for our purposes they are equivalent
     ConnectRecordMapper<SinkRecord> mapper = new ConnectRecordMapper<>();
+    
+    String headerKey = "cloudant_doc_id";
 
     @Test
     public void testConvertToMapSchema() {
@@ -66,7 +68,7 @@ public class ConnectRecordMapperTests {
         Map<String, String> value = new HashMap<>();
         value.put("hello", "world");
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
-        sr.headers().addString("CLOUDANT_PREFERRED_ID", headerValue);
+        sr.headers().addString(headerKey, headerValue);
         // when...
         Map<String, Object> converted = mapper.apply(sr);
         // then...
@@ -162,7 +164,7 @@ public class ConnectRecordMapperTests {
 
         // do conversion
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
-        sr.headers().addString("CLOUDANT_PREFERRED_ID", headerValue);
+        sr.headers().addString(headerKey, headerValue);
         Map<String, Object> converted = mapper.apply(sr);
 
         // then...
@@ -190,7 +192,7 @@ public class ConnectRecordMapperTests {
 
         // do conversion
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
-        sr.headers().addString("CLOUDANT_PREFERRED_ID", headerValue);
+        sr.headers().addString(headerKey, headerValue);
         Map<String, Object> converted = mapper.apply(sr);
 
         // then...

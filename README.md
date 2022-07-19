@@ -54,6 +54,12 @@ Example configuration:
     ```
     See the [Kafka Connect transforms](https://kafka.apache.org/31/documentation.html#connect_transforms) documentation for more details.
 
+**Note:** For each message record that the sink connector writes to Cloudant the document ID from this priority order:
+
+1. From the value of the `cloudant_doc_id` header on the message.  The value passed to this header must be a string and the `header.converter=org.apache.kafka.connect.storage.StringConverter` config is required.  This will overwrite the `_id` field if it already exists.
+1. The value of the `_id` field in the JSON
+1. If no other non-null or non-empty value is available the document will be created with a new UUID.
+
 #### Single Message Transforms
 
 Single Message Transforms, or SMTs, can be used to customize fields or values of messages during data flow.  The examples below will explore modifying fields for messages flowing from the Kafka topic to a Cloudant database using the sink connector.
@@ -90,16 +96,16 @@ you'll need to use a `dropNullRecords` transform and predicate to filter out and
     predicates.isNullRecord.type=org.apache.kafka.connect.transforms.predicates.RecordIsTombstone
     ```
 
-5. If you want to use the message key or another custom value as the document ID then use the `CLOUDANT_PREFERRED_ID` custom header.
+5. If you want to use the message key or another custom value as the document ID then use the `cloudant_doc_id` custom header.
    The value set in this custom header will be added to the `_id` field.  If the `_id` field already exists then it will be overwritten
    with the value in this header.
    You can use the `HeaderFrom` SMT to move or copy a key to the custom header. The example config below adds the transform to move 
-   the `docid` record key to the `CLOUDANT_PREFERRED_ID` custom header and sets the header converter to string:
+   the `docid` record key to the `cloudant_doc_id` custom header and sets the header converter to string:
    ```
    transforms=moveFieldsToHeaders
    transforms.moveFieldsToHeaders.type=org.apache.kafka.connect.transforms.HeaderFrom$Key
    transforms.moveFieldsToHeaders.fields=docid
-   transforms.moveFieldsToHeaders.headers=CLOUDANT_PREFERRED_ID
+   transforms.moveFieldsToHeaders.headers=cloudant_doc_id
    transforms.moveFieldsToHeaders.operation=move
    
    header.converter=org.apache.kafka.connect.storage.StringConverter
