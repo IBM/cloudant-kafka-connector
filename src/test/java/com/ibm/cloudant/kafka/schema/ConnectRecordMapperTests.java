@@ -1,3 +1,16 @@
+/*
+ * Copyright © 2022 IBM Corp. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
 package com.ibm.cloudant.kafka.schema;
 
 import org.apache.kafka.connect.data.Schema;
@@ -43,6 +56,22 @@ public class ConnectRecordMapperTests {
         Map<String, Object> converted = mapper.apply(sr);
         // then...
         assertEquals("world", converted.get("hello"));
+    }
+
+    @Test
+    public void testConvertToMapNoSchemaWithHeader() {
+        // given...
+        Schema s = null; // no schema
+        String headerValue = "example-doc-id";
+        Map<String, String> value = new HashMap<>();
+        value.put("hello", "world");
+        SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
+        sr.headers().addString("CLOUDANT_PREFERRED_ID", headerValue);
+        // when...
+        Map<String, Object> converted = mapper.apply(sr);
+        // then...
+        assertEquals("world", converted.get("hello"));
+        assertEquals(headerValue, converted.get("_id"));
     }
 
     @Test
@@ -109,6 +138,64 @@ public class ConnectRecordMapperTests {
         assertEquals("foo4", ((Map<String, Object>) converted.get("struct")).get("string_1"));
         assertEquals("foo5", ((Map<String, Object>) ((Map<String, Object>) ((Map<String, Object>) converted.get("struct")).get("map")).get("struct2")).get("string_2"));
 
+    }
+
+    @Test
+    public void testConvertStructOverwriteIdWithHeader() {
+        // given...
+        String headerValue = "example-doc-id";
+        Schema s = SchemaBuilder.struct()
+                .field("_id", Schema.STRING_SCHEMA)
+                .field("_rev", Schema.STRING_SCHEMA)
+                        .build();
+
+        Struct value = new Struct(s);
+        value.put("_id", "foo1");
+        value.put("_rev", "foo2");
+
+        // when...
+        try {
+            value.validate();
+        } catch (DataException de) {
+            fail("Data invalid according to schema");
+        }
+
+        // do conversion
+        SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
+        sr.headers().addString("CLOUDANT_PREFERRED_ID", headerValue);
+        Map<String, Object> converted = mapper.apply(sr);
+
+        // then...
+        assertEquals(headerValue, converted.get("_id"));
+        assertEquals("foo2", converted.get("_rev"));
+    }
+
+    @Test
+    public void testConvertStructWithHeader() {
+        // given...
+        String headerValue = "example-doc-id";
+        Schema s = SchemaBuilder.struct()
+                .field("_rev", Schema.STRING_SCHEMA)
+                .build();
+
+        Struct value = new Struct(s);
+        value.put("_rev", "foo2");
+
+        // when...
+        try {
+            value.validate();
+        } catch (DataException de) {
+            fail("Data invalid according to schema");
+        }
+
+        // do conversion
+        SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
+        sr.headers().addString("CLOUDANT_PREFERRED_ID", headerValue);
+        Map<String, Object> converted = mapper.apply(sr);
+
+        // then...
+        assertEquals(headerValue, converted.get("_id"));
+        assertEquals("foo2", converted.get("_rev"));
     }
 
     @Test

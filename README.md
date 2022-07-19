@@ -90,6 +90,23 @@ you'll need to use a `dropNullRecords` transform and predicate to filter out and
     predicates.isNullRecord.type=org.apache.kafka.connect.transforms.predicates.RecordIsTombstone
     ```
 
+5. If you want to use the message key or another custom value as the document ID then use the `CLOUDANT_PREFERRED_ID` custom header.
+   The value set in this custom header will be added to the `_id` field.  If the `_id` field already exists then it will be overwritten
+   with the value in this header.
+   You can use the `HeaderFrom` SMT to move or copy a key to the custom header. The example config below adds the transform to move 
+   the `docid` record key to the `CLOUDANT_PREFERRED_ID` custom header and sets the header converter to string:
+   ```
+   transforms=moveFieldsToHeaders
+   transforms.moveFieldsToHeaders.type=org.apache.kafka.connect.transforms.HeaderFrom$Key
+   transforms.moveFieldsToHeaders.fields=docid
+   transforms.moveFieldsToHeaders.headers=CLOUDANT_PREFERRED_ID
+   transforms.moveFieldsToHeaders.operation=move
+   
+   header.converter=org.apache.kafka.connect.storage.StringConverter
+   ```
+
+   **Note**: The `header.converter` is required to be set to `StringConverter` since the document ID field only supports strings.
+
 **Note**: For any of the SMTs above, if the field does not exist it will skip over that message and continue processing the next message.
 
 ### Authentication
