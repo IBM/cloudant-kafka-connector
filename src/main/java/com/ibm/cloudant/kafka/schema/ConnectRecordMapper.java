@@ -28,7 +28,7 @@ import java.util.function.Function;
 
 public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function<ConnectRecord<R>, Map<String, Object>> {
 
-    public static final String HEADER_DOC_ID_KEY = "cloudant_doc_id";
+    static final String HEADER_DOC_ID_KEY = "cloudant_doc_id";
     
     private static Logger LOG = LoggerFactory.getLogger(ConnectRecordMapper.class);
 
@@ -125,7 +125,7 @@ public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function
     }
 
     private String getHeaderForDocId(ConnectRecord<R> record) {
-        Header value = record.headers().lastWithName("cloudant_doc_id");
+        Header value = record.headers().lastWithName(HEADER_DOC_ID_KEY);
         if (value != null && value.value() instanceof String) {
             return value.value().toString();
         }
