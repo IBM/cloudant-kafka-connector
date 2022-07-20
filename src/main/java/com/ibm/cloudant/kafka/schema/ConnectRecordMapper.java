@@ -27,12 +27,12 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function<ConnectRecord<R>, Map<String, Object>> {
+
+    public static final String HEADER_DOC_ID_KEY = "cloudant_doc_id";
     
     private static Logger LOG = LoggerFactory.getLogger(ConnectRecordMapper.class);
 
     public Map<String, Object> apply(ConnectRecord<R> record) {
-        // Check if custom header exists on the record and use the value for the document's id
-        String headerValue = getHeaderForDocId(record);
         // we can convert from a struct or a map - assume a map when a value schema is not provided
         Schema.Type schemaType = record.valueSchema() == null ? Schema.Type.MAP : record.valueSchema().type();
         Map<String, Object> toReturn = new HashMap<>();
@@ -56,7 +56,9 @@ public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function
             default:
                 throw new IllegalArgumentException(String.format("Schema type %s not supported", record.valueSchema().type()));
         }
-        if (!toReturn.isEmpty() && headerValue != null) {
+        // Check if custom header exists on the record and use the value for the document's id
+        String headerValue = getHeaderForDocId(record);
+        if (!toReturn.isEmpty() && headerValue != null && !headerValue.isEmpty()) {
             toReturn.put("_id", headerValue);
         }
         return toReturn;
