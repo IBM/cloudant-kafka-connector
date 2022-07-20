@@ -70,22 +70,14 @@ Single Message Transforms, or SMTs, can be used to customize fields or values of
     transforms.RenameField.type=org.apache.kafka.connect.transforms.ReplaceField$Value 
     transforms.RenameField.renames=name:_id
     ```
-2. If you have `_id` fields and would prefer to have Cloudant generate a UUID for the document ID, use the `ReplaceField` transform to exclude the existing `_id` field:
+1. If you have `_id` fields and would prefer to have Cloudant generate a UUID for the document ID, use the `ReplaceField` transform to exclude the existing `_id` field:
     ```
     transforms=ReplaceField
     transforms.ReplaceField.type=org.apache.kafka.connect.transforms.ReplaceField$Value 
     transforms.ReplaceField.exclude=_id
     ```
-3. If you have messages where the `_id` field is absent or `null` then Cloudant will generate
-a document ID. If you don't want this to happen then set an `_id` (see earlier examples).
-Alternatively filter out those documents. For example if you have messages where the `_id`
-field is `null` then you'll need to use a transform and predicate to filter out and remove this
-field:
-    ```
-    TODO 
-    ```
 
-4. If you have records where there is no value e.g. tombstones (and don't want the Cloudant sink connector to generate an empty doc with a generated ID) then 
+1. If you have records where there is no value e.g. tombstones (and don't want the Cloudant sink connector to generate an empty doc with a generated ID) then 
 you'll need to use a `dropNullRecords` transform and predicate to filter out and remove these tombstone records:  
     ```
     transforms=dropNullRecords
@@ -96,7 +88,7 @@ you'll need to use a `dropNullRecords` transform and predicate to filter out and
     predicates.isNullRecord.type=org.apache.kafka.connect.transforms.predicates.RecordIsTombstone
     ```
 
-5. If you want to use the message key or another custom value as the document ID then use the `cloudant_doc_id` custom header.
+1. If you want to use the message key or another custom value as the document ID then use the `cloudant_doc_id` custom header.
    The value set in this custom header will be added to the `_id` field.  If the `_id` field already exists then it will be overwritten
    with the value in this header.
    You can use the `HeaderFrom` SMT to move or copy a key to the custom header. The example config below adds the transform to move 
@@ -113,7 +105,11 @@ you'll need to use a `dropNullRecords` transform and predicate to filter out and
 
    **Note**: The `header.converter` is required to be set to `StringConverter` since the document ID field only supports strings.
 
-**Note**: For any of the SMTs above, if the field does not exist it will skip over that message and continue processing the next message.
+1. If you have messages where the `_id` field is absent or `null` then Cloudant will generate
+a document ID. If you don't want this to happen then set an `_id` (see earlier examples).
+If you need to filter out those documents or drop `_id` fields when the value is `null` then you'll need to create a custom SMT.
+
+**Note**: For any of the SMTs above, if the field does not exist it will leave the message unmodified and continue processing the next message.
 
 ### Authentication
 
