@@ -6,10 +6,11 @@ apply plugin: 'signing'
 // If you change this kafkaVersion, you must update the VERSION file to match
 def kafkaVersion = '3.1.0'
 
-group = 'com.cloudant'
+group = 'com.ibm.cloud'
 version = new File(rootDir, 'VERSION').text.trim()
 // If the version says "snapshot" anywhere assume it is not a release
-ext.isReleaseVersion = !version.toUpperCase(Locale.ENGLISH).contains("SNAPSHOT")
+ext.isReleaseVersion = !version.toUpperCase(Locale.ENGLISH).endsWith("-SNAPSHOT")
+ext.kafkaConnectorPropertyFileName = 'com.ibm.cloud.cloudant.kafka.client.properties'
 
 repositories {
     mavenLocal()
@@ -20,12 +21,16 @@ repositories {
     }
 }
 
+configurations {
+    bundledImplementation
+    implementation.extendsFrom bundledImplementation
+}
+
 dependencies {
-    implementation group: 'com.ibm.cloud', name: 'cloudant', version: '0.1.1'
-    implementation group: 'org.json', name: 'json', version: '20210307'
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
+    bundledImplementation group: 'com.ibm.cloud', name: 'cloudant', version: '0.2.0'
+    bundledImplementation group: 'org.json', name: 'json', version: '20210307'
     implementation group: 'org.apache.kafka', name: 'connect-api', version: "${kafkaVersion}"
-    implementation group: 'org.apache.kafka', name: 'connect-transforms', version: "${kafkaVersion}"
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation group: 'org.powermock', name: 'powermock-api-easymock', version: '1.6.4'
     testImplementation group: 'org.easymock', name: 'easymock', version: '3.4'
@@ -50,9 +55,8 @@ tasks.withType(JavaCompile) {
 //task for generating a client properties file
 class ClientProperties extends DefaultTask {
 
-    //allow this to be configured, default to "com.ibm.cloudant.kafka.client.properties"
     @OutputFile
-    File clientPropsPath = new File("com.ibm.cloudant.kafka.client.properties")
+    File clientPropsPath = new File(project.kafkaConnectorPropertyFileName)
 
     //internal
     private Properties p = new Properties()
@@ -78,7 +82,7 @@ class ClientProperties extends DefaultTask {
 
 //generate a client props file, make the jar task depend on this
 task generateClientPropertiesFile(type: ClientProperties) {
-    clientPropsPath = new File(buildDir, "tmp/com.ibm.cloudant.kafka.client.properties")
+    clientPropsPath = new File(buildDir, "tmp/${project.kafkaConnectorPropertyFileName}")
     outputs.upToDateWhen {
         if (clientPropsPath.exists()) {
             it.load()
@@ -93,65 +97,20 @@ jar.dependsOn generateClientPropertiesFile
 // modify the jar task to pull in required dependencies and add the client properties file
 jar {
     duplicatesStrategy(duplicatesStrategy.EXCLUDE)
-    into "META-INF", { from generateClientPropertiesFile.clientPropsPath }
+    into "META-INF", { 
+        from generateClientPropertiesFile.clientPropsPath
+        from 'LICENSE'
+    }
     from {
-        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-}
-
-// We also want a sources jar ...
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    sourceSets.all {
-        into(name + "/java", { from allJava })
-        into(name + "/resources", { from resources })
-    }
-}
-
-// ... and a javadoc jar
-javadoc {
-    options.encoding 'UTF-8'
-    options.setMemberLevel JavadocMemberLevel.PROTECTED
-    // Add a logging listener to check for javadoc warnings and fail the build if there are any
-    boolean hasJavaDocWarnings = false;
-    doFirst {
-        getLogging().addStandardErrorListener(new StandardOutputListener() {
-            void onOutput(CharSequence output) {
-                if (output =~ "warning:") {
-                    hasJavaDocWarnings = true
-                }
-            }
-        })
-    }
-    doLast {
-        if (hasJavaDocWarnings) {
-            throw new GradleException("Build failed due to javadoc warnings.");
+        configurations.bundledImplementation.collect {
+            it.isDirectory() ? it : zipTree(it)
         }
-    }
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives sourcesJar, javadocJar
-}
-
-// Load signing and repository parameters from system properties
-['signing.keyId', 'signing.password', 'signing.secretKeyRingFile', 'ossrhUsername', 'ossrhPassword']
-        .each { propName ->
-    //set a property with the given name if the system property is set
-    //if the system property is not set then set the property to null if it isn't a signing one
-    if (System.properties.(propName.toString()) != null || !propName.startsWith("signing")) {
-        ext.(propName.toString()) = System.properties.(propName.toString())
     }
 }
 
 test {
     // Exclude the performance tests
-    exclude 'com/ibm/cloudant/kafka/performance/**'
+    exclude 'com/ibm/cloud/cloudant/kafka/performance/**'
 }
 
 tasks.withType(Test) {
@@ -159,64 +118,4 @@ tasks.withType(Test) {
     systemProperties = System.getProperties()
     // Make sure it is UTF-8 for tests
     systemProperty "file.encoding", "UTF-8"
-}
-
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            pom {
-                name = project.name
-                packaging = 'jar'
-                url = 'https://cloudant.com'
-                description = 'Apache Kafka Connect API connector for IBM Cloudant'
-                inceptionYear = '2016'
-                licenses {
-                    license {
-                        name = 'The Apache Software License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution = 'repo'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git@github.com:IBM/cloudant-kafka-connector.git'
-                    developerConnection = 'scm:git:git@github.com:IBM/cloudant-kafka-connector.git'
-                    url = 'scm:git:git@github.com:IBM/cloudant-kafka-connector.git'
-                    tag = 'preview'
-                }
-                developers {
-                    developer {
-                        name = 'IBM Cloudant'
-                        email = 'cldtsdks@us.ibm.com'
-                        url = 'https://cloudant.com'
-                        organization = 'IBM'
-                        organizationUrl = 'http://www.ibm.com'
-                    }
-                }
-            }
-        }
-    }
-
-    // Only sign release versions
-    tasks.withType(Sign) {
-        onlyIf { isReleaseVersion }
-    }
-
-    signing {
-        // When signing, sign the archives
-        sign publishing.publications.mavenJava
-    }
-
-    repositories {
-        maven {
-            url = version.endsWith('SNAPSHOT') ?
-                "https://oss.sonatype.org/content/repositories/snapshots" :
-                "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            credentials(PasswordCredentials) {
-                username = ossrhUsername
-                password = ossrhPassword
-            }
-        }
-    }
 }
