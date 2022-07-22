@@ -19,7 +19,7 @@ Memory 			|16.0 GB
 
 ### Test execution
 
-The package `com.ibm.cloudant.kafka.performance` contains the performance tests of the source and sink connector. The package includes the test cases `CloudantSourcePerformanceTest`, `CloudantSinkPerformanceTest` and `CloudantSourceAndSinkPerformanceTest`   
+The package `com.ibm.cloud.cloudant.kafka.performance` contains the performance tests of the source and sink connector. The package includes the test cases `CloudantSourcePerformanceTest`, `CloudantSinkPerformanceTest` and `CloudantSourceAndSinkPerformanceTest`   
 
 Test 									|Description|Results
 :--------------------------------------:|:--:|:--:
@@ -27,7 +27,7 @@ Test 									|Description|Results
 `CloudantSink PerformanceTest`			|Writes documents from Apache Kafka topics into a Cloudant database|Time, Docs/Sec, Data/Sec
 `CloudantSourceAndSink PerformanceTest` |Writes documents from a Cloudant database into Apache Kafka topics and subsequently into another Cloudant database (End-to-End Test)|Time, Docs/Sec, Data/Sec  
 
-The performance tests were executed 3 times each. The mean was taken from the 3 test runs respectively. All tests were executed with the default values listed in the table below. For your own individual performance tests, you may adapt the parameters in the test package `com.ibm.cloudant.kafka.performance` or the `test.properties`.
+The performance tests were executed 3 times each. The mean was taken from the 3 test runs respectively. All tests were executed with the default values listed in the table below. For your own individual performance tests, you may adapt the parameters in the test package `com.ibm.cloud.cloudant.kafka.performance` or the `test.properties`.
 
 Parameter 			|Describtion 	|Default Value 			|Performance Impact
 :-------------------|:--------------------------------------------------------------------------|:-------:|:--:

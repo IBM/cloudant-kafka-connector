@@ -19,7 +19,7 @@ import java.util.Map;
 
 import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.sdk.core.security.Authenticator;
-import com.ibm.cloudant.kafka.common.InterfaceConst;
+import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 
 public class ServiceFactory {
 
