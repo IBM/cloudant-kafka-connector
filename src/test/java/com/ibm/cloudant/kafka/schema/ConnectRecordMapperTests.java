@@ -27,6 +27,7 @@ import java.util.Map;
 import static com.ibm.cloudant.kafka.schema.ConnectRecordMapper.HEADER_DOC_ID_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
 
 public class ConnectRecordMapperTests {
 
@@ -73,6 +74,25 @@ public class ConnectRecordMapperTests {
         // then...
         assertEquals("world", converted.get("hello"));
         assertEquals(headerValue, converted.get("_id"));
+    }
+
+    @Test
+    public void testConvertToMapNoSchemaWithInvalidHeader() {
+        // given...
+        Schema s = null; // no schema
+        Schema headerSchema = SchemaBuilder.map(Schema.STRING_SCHEMA, Schema.STRING_SCHEMA);
+        Map headerValue = new HashMap();
+        headerValue.put("invalid", "value");
+        Map<String, String> value = new HashMap<>();
+        value.put("_id", "foo");
+        value.put("hello", "world");
+        SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
+        sr.headers().addMap(HEADER_DOC_ID_KEY, headerValue, headerSchema);
+        // when...
+        Map<String, Object> converted = mapper.apply(sr);
+        // then...
+        assertEquals("world", converted.get("hello"));
+        assertEquals("foo", converted.get("_id"));
     }
 
     @Test
@@ -196,6 +216,34 @@ public class ConnectRecordMapperTests {
 
         // then...
         assertEquals(headerValue, converted.get("_id"));
+        assertEquals("foo2", converted.get("_rev"));
+    }
+
+    @Test
+    public void testConvertStructWithInvalidHeader() {
+        // given...
+        int headerValue = 100;
+        Schema s = SchemaBuilder.struct()
+                .field("_rev", Schema.STRING_SCHEMA)
+                .build();
+
+        Struct value = new Struct(s);
+        value.put("_rev", "foo2");
+
+        // when...
+        try {
+            value.validate();
+        } catch (DataException de) {
+            fail("Data invalid according to schema");
+        }
+
+        // do conversion
+        SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
+        sr.headers().addInt(HEADER_DOC_ID_KEY, headerValue);
+        Map<String, Object> converted = mapper.apply(sr);
+
+        // then...
+        assertNull(converted.get("_id"));
         assertEquals("foo2", converted.get("_rev"));
     }
 
