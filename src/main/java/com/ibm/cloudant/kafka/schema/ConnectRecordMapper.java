@@ -1,3 +1,16 @@
+/*
+ * Copyright © 2022 IBM Corp. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
 package com.ibm.cloudant.kafka.schema;
 
 import org.apache.kafka.connect.connector.ConnectRecord;
@@ -5,6 +18,7 @@ import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Schema.Type;
 import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.header.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +27,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function<ConnectRecord<R>, Map<String, Object>> {
+
+    static final String HEADER_DOC_ID_KEY = "cloudant_doc_id";
     
     private static Logger LOG = LoggerFactory.getLogger(ConnectRecordMapper.class);
 
@@ -23,14 +39,16 @@ public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function
         switch (schemaType) {
             case MAP:
                 if (record.value() instanceof Map) {
-                    return convertMap((Map) record.value(), toReturn);
+                    convertMap((Map) record.value(), toReturn);
+                    break;
                 } else {
                     throw new IllegalArgumentException(String.format("Type %s not supported with schema of type Map (or no schema)",
                             record.value().getClass()));
                 }
             case STRUCT:
                 if (record.value() instanceof Struct) {
-                    return convertStruct((Struct) record.value(), toReturn);
+                    convertStruct((Struct) record.value(), toReturn);
+                    break;
                 } else {
                     throw new IllegalArgumentException(String.format("Type %s not supported with schema of type Struct",
                             record.value().getClass()));
@@ -38,6 +56,12 @@ public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function
             default:
                 throw new IllegalArgumentException(String.format("Schema type %s not supported", record.valueSchema().type()));
         }
+        // Check if custom header exists on the record and use the value for the document's id
+        String headerValue = getHeaderForDocId(record);
+        if (!toReturn.isEmpty() && headerValue != null && !headerValue.isEmpty()) {
+            toReturn.put("_id", headerValue);
+        }
+        return toReturn;
     }
 
     // convert struct to map by adding key/values to passed in map, and returning it 
@@ -98,6 +122,14 @@ public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function
                 throw new IllegalArgumentException("unknown type " + type);
         }
             
+    }
+
+    private String getHeaderForDocId(ConnectRecord<R> record) {
+        Header value = record.headers().lastWithName(HEADER_DOC_ID_KEY);
+        if (value != null && value.value() instanceof String) {
+            return value.value().toString();
+        }
+        return null;
     }
 
 }

@@ -45,7 +45,7 @@ For the sink connector:
 1. Kafka keys are currently ignored; therefore the key converter settings are not relevant.
 1. We assume that the values in kafka are serialized JSON objects, and therefore `JsonConverter` is supported. If your values contain a schema (`{"schema": {...}, "payload": {...}}`), then set `value.converter.schemas.enable=true`, otherwise set `value.converter.schemas.enable=false`. Any other converter that converts the message values into `org.apache.kafka.connect.data.Struct` or `java.util.Map` types should also work. However, it must be noted that the subsequent serialization of `Map` or `Struct` values to JSON documents in the sink may not match expectations if a schema has not been provided.
 1. Inserting only a single revision of any `_id` is currently supported.  This means it cannot update or delete documents.
-1. The `_rev` field in message values are preserved.  To remove `rev` during data flow, use the `ReplaceField` Single Message Transforms (SMT).
+1. The `_rev` field in event values are preserved.  To remove `rev` during data flow, use the `ReplaceField` Single Message Transforms (SMT).
 Example configuration:
     ```
     transforms=ReplaceField
@@ -53,6 +53,63 @@ Example configuration:
     transforms.ReplaceField.exclude=_rev
     ```
     See the [Kafka Connect transforms](https://kafka.apache.org/31/documentation.html#connect_transforms) documentation for more details.
+
+**Note:** The ID of each document written to Cloudant by the sink connector can be configured as follows:
+
+1. From the value of the `cloudant_doc_id` header on the event.  The value passed to this header must be a string and the `header.converter=org.apache.kafka.connect.storage.StringConverter` config is required.  This will overwrite the `_id` field if it already exists.
+1. The value of the `_id` field in the JSON
+1. If no other non-null or non-empty value is available the document will be created with a new UUID.
+
+#### Single Message Transforms
+
+Single Message Transforms, or SMTs, can be used to customize fields or values of events during data flow.  The examples below will explore modifying fields for events flowing from the Kafka topic to a Cloudant database using the sink connector.
+
+1. If the event value contains an existing field, not called `_id`, that is suitable to use as the Cloudant document ID, then you can use the `RenameField` transform.
+    ```
+    transforms=RenameField
+    transforms.RenameField.type=org.apache.kafka.connect.transforms.ReplaceField$Value 
+    transforms.RenameField.renames=name:_id
+    ```
+1. If you have `_id` fields and would prefer to have Cloudant generate a UUID for the document ID, use the `ReplaceField` transform to exclude the existing `_id` field:
+    ```
+    transforms=ReplaceField
+    transforms.ReplaceField.type=org.apache.kafka.connect.transforms.ReplaceField$Value 
+    transforms.ReplaceField.exclude=_id
+    ```
+
+1. If you have events where there is no value e.g. tombstones (and don't want the Cloudant sink connector to generate an empty doc with a generated ID) then 
+you'll need to use a `dropNullRecords` transform and predicate to filter out and remove these tombstone events:  
+    ```
+    transforms=dropNullRecords
+    transforms.dropNullRecords.type=org.apache.kafka.connect.transforms.Filter
+    transforms.dropNullRecords.predicate=isNullRecord
+
+    predicates=isNullRecord
+    predicates.isNullRecord.type=org.apache.kafka.connect.transforms.predicates.RecordIsTombstone
+    ```
+
+1. If you want to use the event key or another custom value as the document ID then use the `cloudant_doc_id` custom header.
+   The value set in this custom header will be added to the `_id` field.  If the `_id` field already exists then it will be overwritten
+   with the value in this header.
+   You can use the `HeaderFrom` SMT to move or copy a key to the custom header. The example config below adds the transform to move 
+   the `docid` event key to the `cloudant_doc_id` custom header and sets the header converter to string:
+   ```
+   transforms=moveFieldsToHeaders
+   transforms.moveFieldsToHeaders.type=org.apache.kafka.connect.transforms.HeaderFrom$Key
+   transforms.moveFieldsToHeaders.fields=docid
+   transforms.moveFieldsToHeaders.headers=cloudant_doc_id
+   transforms.moveFieldsToHeaders.operation=move
+   
+   header.converter=org.apache.kafka.connect.storage.StringConverter
+   ```
+
+   **Note**: The `header.converter` is required to be set to `StringConverter` since the document ID field only supports strings.
+
+1. If you have events where the `_id` field is absent or `null` then Cloudant will generate
+a document ID. If you don't want this to happen then set an `_id` (see earlier examples).
+If you need to filter out those documents or drop `_id` fields when the value is `null` then you'll need to create a custom SMT.
+
+**Note**: For any of the SMTs above, if the field does not exist it will leave the event unmodified and continue processing the next event.
 
 ### Authentication
 
