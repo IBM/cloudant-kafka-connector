@@ -23,8 +23,10 @@ Experimental
 
 ## Configuration
 
+The Cloudant Kafka connector is designed to be used with Kafka Connect API 3.x.
+
 The Cloudant Kafka connector can be configured in standalone or distributed mode according to 
-the [Kafka Connector documentation](http://docs.confluent.io/3.0.1/connect/userguide.html#configuring-connectors). At a minimum it is necessary to configure:
+the [Kafka Connector documentation](https://kafka.apache.org/documentation.html#connect_configuring). At a minimum it is necessary to configure:
 
 1. `bootstrap.servers`
 2. If using a standalone worker `offset.storage.file.filename`.
@@ -174,7 +176,7 @@ In addition to those properties related to authentication, the Cloudant source c
 Parameter | Value | Required | Default value | Description
 ---:|:---|:---|:---|:---
 name|cloudant-source|YES|None|A unique name to identify the connector with.
-connector.class|com.ibm.cloudant.kafka.connect.CloudantSourceConnector|YES|None|The connector class name.
+connector.class|com.ibm.cloud.cloudant.kafka.connect.CloudantSourceConnector|YES|None|The connector class name.
 topics|\<topic1\>,\<topic2\>,..|YES|None|A list of topics you want messages to be written to.
 cloudant.url|https://\<uuid\>.cloudantnosqldb.appdomain.cloud|YES|None|The Cloudant server to read documents from.
 cloudant.db|\<your-db\>|YES|None|The Cloudant database to read documents from.
@@ -190,7 +192,7 @@ To read from a Cloudant database as source and write documents to a Kafka topic,
 
 ```
 name=cloudant-source
-connector.class=com.ibm.cloudant.kafka.connect.CloudantSourceConnector
+connector.class=com.ibm.cloud.cloudant.kafka.connect.CloudantSourceConnector
 topics=mytopic
 cloudant.url=https://some-uuid.cloudantnosqldb.appdomain.cloud
 cloudant.db=my-db
@@ -204,7 +206,7 @@ In addition to those properties related to authentication, the Cloudant sink con
 Parameter | Value | Required | Default value | Description
 ---:|:---|:---|:---|:---
 name|cloudant-sink|YES|None|A unique name to identify the connector with.
-connector.class|com.ibm.cloudant.kafka.connect.CloudantSinkConnector|YES|None|The connector class name.
+connector.class|com.ibm.cloud.cloudant.kafka.connect.CloudantSinkConnector|YES|None|The connector class name.
 topics|\<topic1\>,\<topic2\>,..|YES|None|The list of topics you want to consume messages from.
 cloudant.url|https://\<your-account\>.cloudant.com|YES|None|The Cloudant server to write documents to.
 cloudant.db|\<your-db\>|YES|None|The Cloudant database to write documents to.
@@ -218,7 +220,7 @@ To consume messages from a Kafka topic and save as documents into a Cloudant dat
 
 ```
 name=cloudant-sink
-connector.class=com.ibm.cloudant.kafka.connect.CloudantSinkConnector
+connector.class=com.ibm.cloud.cloudant.kafka.connect.CloudantSinkConnector
 topics=mytopic
 cloudant.url=https://some-uuid.cloudantnosqldb.appdomain.cloud
 cloudant.db=my-db
@@ -227,9 +229,10 @@ cloudant.apikey=my-apikey
 
 ## Usage
 
-The kafka-cloudant-connect jar is available to download from [Maven Central](http://search.maven.org/#search|ga|1|g:"com.cloudant"%20AND%20a:"kafka-connect-cloudant").
+From version `0.200.0` the cloudant-kafka-connector jar is available to download from the [releases page](https://github.com/IBM/cloudant-kafka-connector/releases).
 
-Kafka will use the $CLASSPATH to locate available connectors. Make sure to add the connector library to your $CLASSPATH first.
+The jar file contains the plugin and the non-Kafka dependencies needed to run. Once copied into a
+[configured `plugin.path`](https://kafka.apache.org/documentation.html#connectconfigs_plugin.path) of a Kafka 3.x installation it will be available for use.
 
 Connector execution in Kafka is available through scripts in the Kafka install path:
 
@@ -264,4 +267,4 @@ INFO level logging is configured by default to the console. To change log levels
 
 and add log settings like
 
-`log4j.logger.com.ibm.cloudant.kafka=DEBUG, stdout`
+`log4j.logger.com.ibm.cloud.cloudant.kafka=DEBUG, stdout`

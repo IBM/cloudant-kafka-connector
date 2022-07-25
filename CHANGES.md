@@ -1,4 +1,6 @@
 # UNRELEASED
+- [BREAKING CHANGE] Publish releases to https://github.com/IBM/cloudant-kafka-connector/releases.
+- [BREAKING CHANGE] Rename package from `com.ibm.cloudant.kafka` to `com.ibm.cloud.cloudant.kafka`.
 - [BREAKING CHANGE] Rename module from `kafka-connect-cloudant` to `cloudant-kafka-connector`.
 - [BREAKING CHANGE] Converter support for sink connector has changed. See README.md for details.
 - [BREAKING CHANGE] Configuration parameters have changed for url, database, authentication, and last change sequence. See README.md for details.
