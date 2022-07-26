@@ -67,7 +67,7 @@ pipeline {
                                 {
                                     tag_name: "${TAG_NAME}",
                                     name: "${prefixlessTag(TAG_NAME)} ${java.time.format.DateTimeFormatter.ISO_LOCAL_DATE.format(java.time.Instant.ofEpochMilli(TAG_DATE))}",
-                                    draft: false,
+                                    draft: true,
                                     prerelease: true,
                                     generate_release_notes: true
                                 }
