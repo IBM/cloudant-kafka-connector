@@ -14,47 +14,87 @@
  * and limitations under the License.
  */
 
-stage('Build') {
-    // Checkout, build and assemble the source and doc
-    node('sdks-kafka-executor') {
-        checkout scm
-        sh './gradlew clean assemble'
-        stash name: 'built'
-    }
+def prefixlessTag(tag) {
+    return tag.replaceFirst('v','')
 }
+def uploadUrl
+def jarName
 
-stage('QA') {
-    node('sdks-kafka-executor') {
-        unstash name: 'built'
-        withCredentials([string(credentialsId: 'testServerIamApiKey',
-                variable: 'APIKEY')]) {
+pipeline {
+    agent {
+        label 'sdks-executor'
+    }
 
-            try {
-                sh './gradlew -Dcloudant.url=$SDKS_TEST_SERVER_URL -Dcloudant.auth.url=$SDKS_TEST_IAM_URL -Dcloudant.apikey=$APIKEY test'
-            } finally {
-                junit '**/build/test-results/test/*.xml'
+    stages {
+        stage('Build') {
+            steps {
+                sh './gradlew clean assemble'
             }
         }
-    }
-}
 
-// Publish the master branch
-stage('Publish') {
-    if (env.BRANCH_NAME == "master") {
-        node('sdks-kafka-executor') {
-            unstash name: 'built'
-            // read the version name and determine if it is a release build
-            version = readFile('VERSION').trim()
-            isReleaseVersion = !version.toUpperCase(Locale.ENGLISH).contains("SNAPSHOT")
-
-            // Upload using the ossrh creds (upload destination logic is in build.gradle)
-            withCredentials([usernamePassword(credentialsId: 'ossrh-creds', passwordVariable: 'OSSRH_PASSWORD', usernameVariable: 'OSSRH_USER'), usernamePassword(credentialsId: 'signing-creds', passwordVariable: 'KEY_PASSWORD', usernameVariable: 'KEY_ID'), file(credentialsId: 'signing-key', variable: 'SIGNING_FILE')]) {
-                sh './gradlew -Dsigning.keyId=$KEY_ID -Dsigning.password=$KEY_PASSWORD -Dsigning.secretKeyRingFile=$SIGNING_FILE -DossrhUsername=$OSSRH_USER -DossrhPassword=$OSSRH_PASSWORD publish'
+        stage('QA') {
+            steps {
+                withCredentials([string(credentialsId: 'testServerIamApiKey',
+                        variable: 'APIKEY')]) {
+                    sh './gradlew -Dcloudant.url=$SDKS_TEST_SERVER_URL -Dcloudant.auth.url=$SDKS_TEST_IAM_URL -Dcloudant.apikey=$APIKEY test'
+                }
+            }
+            post {
+                always {
+                    junit (
+                        testResults: '**/build/test-results/test/*.xml'
+                    )
+                }
             }
         }
-    }
-    gitTagAndPublish {
-        isDraft=true
-        releaseApiUrl='https://api.github.com/repos/IBM/cloudant-kafka-connector/releases'
+
+        // Publish tags
+        stage('Publish release') {    
+            // Publish releases for semver tags that equal the verison in the file
+            when {
+                allOf {
+                    buildingTag()
+                    tag pattern: /${env.SVRE_PRE_RELEASE_TAG}/, comparator: 'REGEXP'
+                    tag pattern: 'v' + readFile('VERSION').trim(), comparator : 'EQUALS'
+                }
+            }
+            steps {
+                // Create a GitHub release for the tag
+                httpRequest authentication: 'gh-sdks-automation',
+                            contentType: 'APPLICATION_JSON_UTF8',
+                            customHeaders: [[name: 'Accept', value: 'application/vnd.github+json']],
+                            httpMode: 'POST',
+                            outputFile: 'release_response.json',
+                            requestBody: """
+                                {
+                                    "tag_name": "${TAG_NAME}",
+                                    "name": "${prefixlessTag(TAG_NAME)} (${new Date(TAG_TIMESTAMP as long).format('yyyy-MM-dd')})"
+                                    "draft": false,
+                                    "prerelease": true,
+                                    "generate_release_notes": true
+                                }
+                                """.stripIndent(),
+                            timeout: 60,
+                            url: 'https://api.github.com/repos/IBM/cloudant-kafka-connector/releases',
+                            validResponseCodes: '201',
+                            wrapAsMultipart: false
+                script {
+                    jarName = "cloudant-kafka-connector-${prefixlessTag(TAG_NAME)}.jar"
+                    // Process the release response to get the asset upload_url
+                    def responseJson = readJSON file: 'release_response.json'
+                    // Replace the path parameter template with a name
+                    uploadUrl = responseJson.upload_url.replace('{?name,label}',"?name=${jarName}")
+                }
+                // Upload the asset to the release
+                httpRequest authentication: 'gh-sdks-automation',
+                            customHeaders: [[name: 'Accept', value: 'application/vnd.github+json'],[name: 'Content-Type', value: 'application/java-archive']],
+                            httpMode: 'POST',
+                            timeout: 60,
+                            uploadFile: "build/libs/${jarName}",
+                            url: uploadUrl,
+                            validResponseCodes: '201',
+                            wrapAsMultipart: false
+            }
+        }
     }
 }
