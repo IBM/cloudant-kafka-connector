@@ -61,20 +61,14 @@ public class CloudantSourceConnector extends SourceConnector {
 	public List<Map<String, String>> taskConfigs(int maxTasks) {
 		
 		try {
-			ArrayList<String> topics = ResourceBundleUtil.balanceTopicsTasks(configProperties, maxTasks);
-			int topicsLength = ResourceBundleUtil.numberOfTopics(configProperties);
-			List<Map<String, String>> taskConfigs = new ArrayList<Map<String, String>>(maxTasks);
-			
-			for (int i = 0; i < maxTasks; i++) {
-				Map<String, String> taskProps = new HashMap<String, String>(configProperties);
-			
-				// add task specific properties here (if any)
-				taskProps.put(InterfaceConst.TASK_NUMBER, String.valueOf(i));
-				//taskProps.replace(InterfaceConst.TOPIC, topics.get(i % topicsLength));
-	    
-				taskConfigs.add(taskProps);
+			if (maxTasks > 1) {
+				LOG.warn(String.format("tasks.max requested was %d, but only 1 task supported", maxTasks));
 			}
-			return taskConfigs;		
+			List<Map<String, String>> taskConfigs = new ArrayList<Map<String, String>>(1);
+			Map<String, String> taskProps = new HashMap<String, String>(configProperties);
+			taskProps.put(InterfaceConst.TASK_NUMBER, String.valueOf(0));
+			taskConfigs.add(taskProps);
+			return taskConfigs;
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION), e);
