@@ -78,9 +78,11 @@ Single Message Transforms, or SMTs, can be used to customize fields or values of
     transforms.ReplaceField.type=org.apache.kafka.connect.transforms.ReplaceField$Value 
     transforms.ReplaceField.exclude=_id
     ```
+1. If you have events where there is no value ([_tombstone_ events](https://kafka.apache.org/documentation.html#compaction)), you may wish to filter these out.
+    - In the Cloudant sink connector, these may be undesirable as they will generate an empty document.
+    - In the Cloudant source connector, tombstone events are generated for deleted documents (in addition to the deleted document itself).
+    - In either case, you can use the `RecordIsTombstone` predicate with a filter to remove these tombstone events as shown in this example:
 
-1. If you have events where there is no value e.g. tombstones (and don't want the Cloudant sink connector to generate an empty doc with a generated ID) then 
-you'll need to use a `dropNullRecords` transform and predicate to filter out and remove these tombstone events:  
     ```
     transforms=dropNullRecords
     transforms.dropNullRecords.type=org.apache.kafka.connect.transforms.Filter
