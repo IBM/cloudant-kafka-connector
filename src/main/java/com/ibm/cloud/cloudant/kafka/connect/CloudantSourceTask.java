@@ -116,12 +116,21 @@ public class CloudantSourceTask extends SourceTask {
                             SourceRecord sourceRecord = new SourceRecord(offset(url, db),
                                     offsetValue(latestSequenceNumber),
                                     topic, // topics
-                                    //Integer.valueOf(row_.getId())%3, // partition
                                     Schema.STRING_SCHEMA, // key schema
                                     id, // key
                                     docSchema, // value schema
                                     docValue); // value
                             records.add(sourceRecord);
+                            if (doc.isDeleted() != null && doc.isDeleted()) {
+                                SourceRecord tombstone = new SourceRecord(offset(url, db),
+                                        offsetValue(latestSequenceNumber),
+                                        topic, // topics
+                                        Schema.STRING_SCHEMA, // key schema
+                                        id, // key
+                                        null, // value schema
+                                        null); // value
+                                records.add(tombstone);
+                            }
                         }
                     }
                 }

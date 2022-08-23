@@ -1,4 +1,5 @@
 # UNRELEASED
+- [BREAKING CHANGE] Source connector now emits tombstone events for deleted documents. See [single message transforms](README.md#single-message-transforms) section in README for details.
 - [BREAKING CHANGE] Publish releases to https://github.com/IBM/cloudant-kafka-connector/releases.
 - [BREAKING CHANGE] Rename package from `com.ibm.cloudant.kafka` to `com.ibm.cloud.cloudant.kafka`. Existing `connector.class` property values must be updated to use the new package.
 - [BREAKING CHANGE] Rename module from `kafka-connect-cloudant` to `cloudant-kafka-connector`.
