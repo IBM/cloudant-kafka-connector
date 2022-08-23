@@ -1,3 +1,16 @@
+/*
+ * Copyright © 2022 IBM Corp. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
 package com.ibm.cloud.cloudant.kafka.connect;
 
 import com.ibm.cloud.cloudant.v1.Cloudant;
@@ -30,24 +43,22 @@ public class TombstoneTest {
     @Test
     public void testDeletedDocumentEmitsTombstones() throws Exception{
 
-        String id = "123";
+        //
+        // given
+        //
 
+        // chain of mocks is Cloudant (client) response -> changes result -> changes result item -> change -> document
+        Cloudant mockCloudant = PowerMock.createMock(Cloudant.class);
+        Response<ChangesResult> mockResponse = PowerMock.createMock(Response.class);
+        ChangesResult mockChangesResult = PowerMock.createMock(ChangesResult.class);
+        ChangesResultItem mockChangesResultItem = PowerMock.createMock(ChangesResultItem.class);
+        Change mockChange = PowerMock.createMock(Change.class);
+        // NB document not mocked
+        String id = "123";
         Document document = new Document();
         document.setId(id);
         document.setDeleted(Boolean.TRUE);
-
-        ChangesResultItem changesResultItem = PowerMock.createMock(ChangesResultItem.class);
-        Change change = PowerMock.createMock(Change.class);
-        Cloudant mockCloudant = PowerMock.createMock(Cloudant.class);
-        Response<ChangesResult> mockResponse = PowerMock.createMock(Response.class);
-        ChangesResult mockResult = PowerMock.createMock(ChangesResult.class);
-        expect(mockResponse.getResult()).andReturn(mockResult);
-        expect(mockResult.getResults()).andReturn(Collections.singletonList(changesResultItem));
-        expect(mockResult.getResults()).andReturn(Collections.singletonList(changesResultItem));
-        expect(mockResult.getLastSeq()).andReturn("100");
-        expect(changesResultItem.getChanges()).andReturn(Collections.singletonList(change));
-        expect(changesResultItem.getDoc()).andReturn(document);
-        expect(changesResultItem.getId()).andReturn(id);
+        // expects in same order as above (could mock ServiceCall, but it's just as easy to use an anonymous class)
         expect(mockCloudant.postChanges(anyObject())).andReturn(new ServiceCall<ChangesResult>() {
             @Override
             public ServiceCall<ChangesResult> addHeader(String s, String s1) {
@@ -74,7 +85,17 @@ public class TombstoneTest {
 
             }
         });
+        expect(mockResponse.getResult()).andReturn(mockChangesResult);
+        // NB mocked twice - first for logging call, second for actual use
+        expect(mockChangesResult.getResults()).andReturn(Collections.singletonList(mockChangesResultItem));
+        expect(mockChangesResult.getResults()).andReturn(Collections.singletonList(mockChangesResultItem));
+        expect(mockChangesResult.getLastSeq()).andReturn("100");
+        expect(mockChangesResultItem.getChanges()).andReturn(Collections.singletonList(mockChange));
+        expect(mockChangesResultItem.getDoc()).andReturn(document);
+        expect(mockChangesResultItem.getId()).andReturn(id);
+        // force the task to use our mock client
         ClientManagerUtils.addClientToCache(connectionName, mockCloudant);
+        // setup task with some minimal config
         CloudantSourceTask cloudantSourceTask = new CloudantSourceTask();
         Map<String, String> configMap = new HashMap<>();
         configMap.put("name", connectionName);
@@ -82,17 +103,25 @@ public class TombstoneTest {
         configMap.put("cloudant.url", "http://foo");
         configMap.put("cloudant.db", "foo");
         configMap.put("topics", "foo");
+
+        //
+        // when
+        //
+
         replay(mockCloudant);
         replay(mockResponse);
-        replay(mockResult);
-        replay(change);
-        replay(changesResultItem);
+        replay(mockChangesResult);
+        replay(mockChange);
+        replay(mockChangesResultItem);
         cloudantSourceTask.start(configMap);
         List<SourceRecord> records = cloudantSourceTask.poll();
+
+        //
+        // then
+        //
         Assert.assertEquals(2, records.size());
         Assert.assertNotNull(records.get(0).value());
         Assert.assertNull(records.get(1).value());
-        // TODO unpack record json and assert on it
         Assert.assertEquals(id, records.get(0).key());
         Assert.assertEquals(id, records.get(1).key());
     }
