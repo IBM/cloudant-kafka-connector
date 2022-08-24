@@ -13,21 +13,22 @@
  */
 package com.ibm.cloud.cloudant.kafka.connect;
 
-import com.ibm.cloud.cloudant.v1.Cloudant;
-import com.ibm.cloud.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.common.MessageKey;
 import com.ibm.cloud.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloud.cloudant.kafka.common.utils.ResourceBundleUtil;
 import com.ibm.cloud.cloudant.kafka.schema.ConnectRecordMapper;
+import com.ibm.cloud.cloudant.v1.model.DocumentResult;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.errors.ConnectException;
+import org.apache.kafka.connect.sink.ErrantRecordReporter;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,10 +47,14 @@ public class CloudantSinkTask extends SinkTask {
 	public static String guid_schema = null;
 	private Boolean replication;
 
-	private List<Map<String, Object>> jsonArray = new LinkedList<>();
 
 	private static ConnectRecordMapper<SinkRecord> mapper = new ConnectRecordMapper<>();
-	
+
+	private ErrantRecordReporter reporter;
+
+	// will be constructed on-demand
+	private Collection<SinkRecord> accumulatedSinkRecords = null;
+
 	@Override
 	public String version() {
 		 return new CloudantSinkConnector().version();
@@ -59,17 +64,15 @@ public class CloudantSinkTask extends SinkTask {
 	@Override
 	public void put(Collection<SinkRecord> sinkRecords) {
 
+		if (accumulatedSinkRecords == null) {
+			accumulatedSinkRecords = new LinkedList<>();
+		}
+
+		System.out.println(Arrays.toString(Thread.currentThread().getStackTrace()));
+
 		LOG.info("Thread[" + Thread.currentThread().getId() + "].sinkRecords = " + sinkRecords.size());
-		// Note: _rev is preserved
-		sinkRecords.stream()
-				.map(mapper) // Convert ConnectRecord to Map
-				.sequential() // Avoid concurrent access to jsonArray
-				.forEach(recordValueAsMap -> {
-					jsonArray.add(recordValueAsMap);
-					if (jsonArray.size() >= batch_size) {
-						flush(null);
-					}
-				});
+
+		accumulatedSinkRecords.addAll(sinkRecords);
 	}
 
 	@Override
@@ -84,7 +87,9 @@ public class CloudantSinkTask extends SinkTask {
     */
 	@Override
 	public void start(Map<String, String> props) {
- 		
+
+		reporter = context.errantRecordReporter();
+
  		try {
 			config = new CloudantSinkTaskConfig(props);
             taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
@@ -101,13 +106,46 @@ public class CloudantSinkTask extends SinkTask {
 
 	@Override
 	public void flush(Map<TopicPartition, org.apache.kafka.clients.consumer.OffsetAndMetadata> offsets) {
-		LOG.debug("Flushing output stream for {" + config.getString(InterfaceConst.URL) + "}");
+
+		System.out.println(Arrays.toString(Thread.currentThread().getStackTrace()));
+
+		List<Map<String, Object>> jsonArray = new LinkedList<>();
+
+		if (accumulatedSinkRecords != null) {
+			// Note: _rev is preserved
+			accumulatedSinkRecords.stream()
+					.map(mapper) // Convert ConnectRecord to Map
+					.sequential() // Avoid concurrent access to jsonArray
+					.forEach(recordValueAsMap -> {
+						jsonArray.add(recordValueAsMap);
+					});
+		}
+
+
 		try {
-				JavaCloudantUtil.batchWrite(config.originalsStrings(), jsonArray);
-				LOG.info("Committed " + jsonArray.size() + " documents to -> " + config.getString(InterfaceConst.URL));
+			LOG.info(String.format("Calling batchWrite with %d documents to %s", jsonArray.size(), config.getString(InterfaceConst.URL)));
+			List<DocumentResult> writeResults = JavaCloudantUtil.batchWrite(config.originalsStrings(), jsonArray);
+			boolean ok = writeResults.stream().allMatch(DocumentResult::isOk);
+			if (!ok) {
+				LOG.error("Failed to write some documents");
+				for (DocumentResult dr : writeResults) {
+					// TODO match back to failed sink record and report
+				}
+			}
+		} catch (RuntimeException re) {
+			LOG.error(String.format("Exception thrown when trying to write documents: %s", re.getMessage()));
+			if (reporter != null) {
+				if (accumulatedSinkRecords != null) {
+					// all failed
+					for (SinkRecord r : accumulatedSinkRecords) {
+						reporter.report(r, re);
+					}
+				}
+			} else {
+				throw new ConnectException("Exception thrown when trying to write documents", re);
+			}
 		} finally {
-			// Release memory (regardless if documents got committed or not)
-			jsonArray = new LinkedList<>();
+			accumulatedSinkRecords = null;
 		}
 	}
 	

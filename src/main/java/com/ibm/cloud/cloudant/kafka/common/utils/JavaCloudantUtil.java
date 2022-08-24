@@ -16,13 +16,8 @@ package com.ibm.cloud.cloudant.kafka.common.utils;
 import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.cloudant.v1.model.*;
 import com.ibm.cloud.sdk.core.service.exception.ServiceResponseException;
-import com.ibm.cloud.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
-import com.ibm.cloud.cloudant.kafka.common.MessageKey;
 import com.ibm.cloud.cloudant.kafka.connect.CachedClientManager;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,56 +56,25 @@ public class JavaCloudantUtil {
 		);
 	}
 
-	public static JSONArray batchWrite(Map<String, String> props, List<Map<String, Object>> data)
-		throws JSONException {
-		// wrap result to JSONArray
-		JSONArray result = new JSONArray();
-		JSONObject jsonResult = new JSONObject();
-		try {
-			Cloudant service = CachedClientManager.getInstance(props);
+	public static List<DocumentResult> batchWrite(Map<String, String> props, List<Map<String, Object>> data)
+		throws RuntimeException {
+		Cloudant service = CachedClientManager.getInstance(props);
 
-			List<Document> listOfDocs = data.stream().map(d -> {Document doc = new Document(); doc.setProperties(d); return doc; }).collect(Collectors.toList());
+		List<Document> listOfDocs = data.stream().map(d -> {Document doc = new Document(); doc.setProperties(d); return doc; }).collect(Collectors.toList());
 
-			// attempt to create database
-			createTargetDb(service, props.get(InterfaceConst.DB));
+		// attempt to create database
+		createTargetDb(service, props.get(InterfaceConst.DB));
 
-			//perform bulk insert for array of documents
-			BulkDocs docs = new BulkDocs.Builder().docs(listOfDocs).build();
-			PostBulkDocsOptions postBulkDocsOptions = new PostBulkDocsOptions.Builder()
-				.db(props.get(InterfaceConst.DB))
-				.bulkDocs(docs)
-				.build();
-			List<DocumentResult> resList = service.postBulkDocs(postBulkDocsOptions).execute().getResult();
+		// perform bulk insert for array of documents
+		BulkDocs docs = new BulkDocs.Builder().docs(listOfDocs).build();
+		PostBulkDocsOptions postBulkDocsOptions = new PostBulkDocsOptions.Builder()
+			.db(props.get(InterfaceConst.DB))
+			.bulkDocs(docs)
+			.build();
 
-			for(int j=0; j < resList.size();j++){
-				DocumentResult documentResult = resList.get(j);
-
-				// construct response which is similar to doPost()
-				// {"rev":"380-270e81b096fe9ed54dc42a14b47467b9","id":"kafka@database","ok":true}
-				jsonResult.put(CloudantConst.RESPONSE_ID,documentResult.getId());
-				jsonResult.put(CloudantConst.RESPONSE_REV,documentResult.getRev());
-				jsonResult.put(CloudantConst.RESPONSE_ERROR,documentResult.getError());
-				jsonResult.put(CloudantConst.RESPONSE_REASON,documentResult.getReason());
-				if (documentResult.getError() != null) {
-					jsonResult.put(CloudantConst.RESPONSE_OK,false);
-					// TODO support status code field in documentresult schema?
-					jsonResult.put(CloudantConst.RESPONSE_CODE, 400);
-				} else {
-					jsonResult.put(CloudantConst.RESPONSE_OK,true);
-					jsonResult.put(CloudantConst.RESPONSE_CODE, 201);
-				}
-
-				result.put(jsonResult);
-			}
-		} catch (Exception e) {
-			LOG.error("Exception caught in batchWrite()", e);
-			if(e.getMessage().equals(String.format(ResourceBundleUtil.get(
-				MessageKey.CLOUDANT_LIMITATION)))){
-				// try to put items from jsonResult before exception occurred
-				result.put(jsonResult);
-			}
-		}
-		return result;
+		// caller's responsibility to catch RuntimeException on execute() if thrown
+		List<DocumentResult> resList = service.postBulkDocs(postBulkDocsOptions).execute().getResult();
+		return resList;
 	}
 
 	public static void createTargetDb(Cloudant service, String dbName) {
