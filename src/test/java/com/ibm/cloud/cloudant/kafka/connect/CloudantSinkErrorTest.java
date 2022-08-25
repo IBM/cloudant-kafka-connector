@@ -45,6 +45,9 @@ public class CloudantSinkErrorTest {
     @Test
     public void testErrorsInResults() {
 
+        //
+        // given
+        //
         Map map = new HashMap();
         map.put("_id", "foo");
         SinkRecord sr1 = new SinkRecord("test", 13, null, "0001", null, map, 0);
@@ -90,19 +93,29 @@ public class CloudantSinkErrorTest {
         replay(mockDocumentResult1);
         replay(mockDocumentResult2);
 
+        //
+        // when
+        //
         cloudantSinkTask.start(configMap);
         cloudantSinkTask.put(Collections.singleton(sr1));
         cloudantSinkTask.put(Collections.singleton(sr2));
         cloudantSinkTask.flush(new HashMap<>());
 
+        //
+        // then
+        //
         EasyMock.verify(mockRecordReporter);
 
+        // TODO more asserts?
     }
 
     // verify that throwing an exception causes record reporter to be invoked
     @Test
     public void testExceptionWhenCallingPostBulkDocs() {
 
+        //
+        // given
+        //
         Map map = new HashMap();
         map.put("_id", "foo");
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", null, map, 0);
@@ -136,11 +149,18 @@ public class CloudantSinkErrorTest {
         replay(mockRecordReporter);
         replay(mockContext);
 
+        //
+        // when
+        //
         cloudantSinkTask.start(configMap);
         cloudantSinkTask.put(Collections.singleton(sr));
         cloudantSinkTask.flush(new HashMap<>());
 
+        //
+        // then
+        //
         EasyMock.verify(mockRecordReporter);
 
+        // TODO more asserts?
     }
 }
