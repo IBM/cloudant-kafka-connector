@@ -54,7 +54,7 @@ public class CloudantSinkTask extends SinkTask {
 	private ErrantRecordReporter reporter;
 
 	// will be constructed on-demand
-	private Collection<SinkRecord> accumulatedSinkRecords = null;
+	private List<SinkRecord> accumulatedSinkRecords = null;
 
 	@Override
 	public String version() {
@@ -129,8 +129,13 @@ public class CloudantSinkTask extends SinkTask {
 			boolean ok = writeResults.stream().allMatch(DocumentResult::isOk);
 			if (!ok) {
 				LOG.error("Failed to write some documents");
-				for (DocumentResult dr : writeResults) {
-					// TODO match back to failed sink record and report
+				for (int i=0; i<writeResults.size(); i++) {
+					// TODO - is checking isOk sufficient?
+					// TODO - are bulk doc results guaranteed to be in same order?
+					// TODO - think of a better exception to raise here
+					if (!writeResults.get(i).isOk()) {
+						reporter.report(accumulatedSinkRecords.get(i), new RuntimeException("not ok"));
+					}
 				}
 			}
 		} catch (RuntimeException re) {
