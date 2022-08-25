@@ -25,6 +25,7 @@ import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.ErrantRecordReporter;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTask;
+import org.apache.kafka.connect.sink.SinkTaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -159,6 +160,12 @@ public class CloudantSinkTask extends SinkTask {
 	@Override
 	public void close(Collection<TopicPartition> partitions) {
 		LOG.info("Committed ");
+	}
+
+	// for testing
+	// TODO find out if there is a better way to do this without changing production classes
+	public void setContext(SinkTaskContext ctx) {
+		this.context = ctx;
 	}
 
 }
