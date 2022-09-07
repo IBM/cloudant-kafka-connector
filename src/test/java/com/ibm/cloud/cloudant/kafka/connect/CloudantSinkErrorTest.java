@@ -22,6 +22,7 @@ import org.apache.kafka.connect.sink.ErrantRecordReporter;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTaskContext;
 import org.easymock.EasyMock;
+import org.junit.After;
 import org.junit.Test;
 import org.powermock.api.easymock.PowerMock;
 
@@ -77,7 +78,6 @@ public class CloudantSinkErrorTest {
         ClientManagerUtils.addClientToCache(connectionName, mockCloudant);
         // setup task with some minimal config
         CloudantSinkTask cloudantSinkTask = new CloudantSinkTask();
-        cloudantSinkTask.setContext(mockContext);
 
         Map<String, String> configMap = new HashMap<>();
         configMap.put("name", connectionName);
@@ -96,6 +96,7 @@ public class CloudantSinkErrorTest {
         //
         // when
         //
+        cloudantSinkTask.initialize(mockContext);
         cloudantSinkTask.start(configMap);
         cloudantSinkTask.put(Collections.singleton(sr1));
         cloudantSinkTask.put(Collections.singleton(sr2));
@@ -135,7 +136,6 @@ public class CloudantSinkErrorTest {
         ClientManagerUtils.addClientToCache(connectionName, mockCloudant);
         // setup task with some minimal config
         CloudantSinkTask cloudantSinkTask = new CloudantSinkTask();
-        cloudantSinkTask.setContext(mockContext);
 
         Map<String, String> configMap = new HashMap<>();
         configMap.put("name", connectionName);
@@ -152,6 +152,7 @@ public class CloudantSinkErrorTest {
         //
         // when
         //
+        cloudantSinkTask.initialize(mockContext);
         cloudantSinkTask.start(configMap);
         cloudantSinkTask.put(Collections.singleton(sr));
         cloudantSinkTask.flush(new HashMap<>());
@@ -162,5 +163,10 @@ public class CloudantSinkErrorTest {
         EasyMock.verify(mockRecordReporter);
 
         // TODO more asserts?
+    }
+
+    @After
+    public void teardown() {
+        PowerMock.resetAll();
     }
 }

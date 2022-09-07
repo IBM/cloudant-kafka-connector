@@ -89,8 +89,6 @@ public class CloudantSinkTask extends SinkTask {
 	@Override
 	public void start(Map<String, String> props) {
 
-		reporter = context.errantRecordReporter();
-
  		try {
 			config = new CloudantSinkTaskConfig(props);
             taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
@@ -126,8 +124,8 @@ public class CloudantSinkTask extends SinkTask {
 		try {
 			LOG.info(String.format("Calling batchWrite with %d documents to %s", jsonArray.size(), config.getString(InterfaceConst.URL)));
 			List<DocumentResult> writeResults = JavaCloudantUtil.batchWrite(config.originalsStrings(), jsonArray);
-			boolean ok = writeResults.stream().allMatch(DocumentResult::isOk);
-			if (!ok) {
+			boolean someFailed = writeResults.stream().anyMatch(doc -> doc.isOk() == null || !doc.isOk());
+			if (someFailed) {
 				LOG.error("Failed to write some documents");
 				for (int i=0; i<writeResults.size(); i++) {
 					// TODO - is checking isOk sufficient?
@@ -167,10 +165,9 @@ public class CloudantSinkTask extends SinkTask {
 		LOG.info("Committed ");
 	}
 
-	// for testing
-	// TODO find out if there is a better way to do this without changing production classes
-	public void setContext(SinkTaskContext ctx) {
-		this.context = ctx;
+	@Override
+	public void initialize(SinkTaskContext context) {
+		super.initialize(context);
+		this.reporter = context.errantRecordReporter();
 	}
-
 }
