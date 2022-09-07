@@ -153,6 +153,17 @@ The examples below demonstrate modifying records produced by the Cloudant source
     transforms.MapToStruct.type=com.ibm.cloud.cloudant.kafka.connect.transforms.MapToStruct
     ```
 
+1. Omit design documents from the produced events by using the Kafka built-in `org.apache.kafka.connect.transforms.Filter`
+   in conjunction with the predicate `com.ibm.cloud.cloudant.kafka.connect.transforms.predicates.IsDesignDocument`.
+    ```
+    transforms=omitDesignDocs
+    transforms.omitDesignDocs.type=org.apache.kafka.connect.transforms.Filter
+    transforms.omitDesignDocs.predicate=isDesignDoc
+
+    predicates=isDesignDoc
+    predicates.isDesignDoc.type=com.ibm.cloud.cloudant.kafka.connect.transforms.predicates.IsDesignDocument
+    ```
+
 ### Authentication
 
 In order to read from or write to Cloudant, some authentication properties need to be configured. These properties are common to both the source and sink connector.
