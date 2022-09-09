@@ -18,11 +18,13 @@ import com.ibm.cloud.cloudant.kafka.connect.utils.ServiceCallUtils;
 import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.cloudant.v1.model.DocumentResult;
 import com.ibm.cloud.cloudant.v1.model.Ok;
+import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.ErrantRecordReporter;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTaskContext;
 import org.easymock.EasyMock;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.api.easymock.PowerMock;
 
@@ -72,6 +74,8 @@ public class CloudantSinkErrorTest {
         // TODO confirm with the real service how bulk docs errors are reported - checking isOk may not be sufficient;
         // first document result is bad, second is good
         expect(mockDocumentResult1.isOk()).andReturn(false).anyTimes();
+        expect(mockDocumentResult1.getError()).andReturn("some error").anyTimes();
+        expect(mockDocumentResult1.getReason()).andReturn("some cause").anyTimes();
         expect(mockDocumentResult2.isOk()).andReturn(true).anyTimes();
 
         // force the task to use our mock client
@@ -110,7 +114,7 @@ public class CloudantSinkErrorTest {
         // TODO more asserts?
     }
 
-    // verify that throwing an exception causes record reporter to be invoked
+    // verify that throwing an exception causes connect exception to be thrown from flush
     @Test
     public void testExceptionWhenCallingPostBulkDocs() {
 
@@ -155,14 +159,16 @@ public class CloudantSinkErrorTest {
         cloudantSinkTask.initialize(mockContext);
         cloudantSinkTask.start(configMap);
         cloudantSinkTask.put(Collections.singleton(sr));
-        cloudantSinkTask.flush(new HashMap<>());
 
         //
         // then
         //
-        EasyMock.verify(mockRecordReporter);
-
-        // TODO more asserts?
+        try {
+            cloudantSinkTask.flush(new HashMap<>());
+            Assert.fail("ConnectException not thrown");
+        } catch (ConnectException connectException) {
+            Assert.assertEquals("Exception thrown when trying to write documents", connectException.getMessage());
+        }
     }
 
     @After
