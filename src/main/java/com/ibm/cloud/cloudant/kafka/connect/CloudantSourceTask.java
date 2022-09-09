@@ -13,20 +13,16 @@
  */
 package com.ibm.cloud.cloudant.kafka.connect;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.cloudant.v1.model.ChangesResult;
 import com.ibm.cloud.cloudant.v1.model.ChangesResultItem;
-import com.ibm.cloud.cloudant.v1.model.Document;
 import com.ibm.cloud.cloudant.v1.model.PostChangesOptions;
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.common.MessageKey;
 import com.ibm.cloud.cloudant.kafka.common.utils.ResourceBundleUtil;
-import com.ibm.cloud.cloudant.kafka.schema.DocumentAsSchemaStruct;
+import com.ibm.cloud.cloudant.kafka.schema.DocumentToSourceRecord;
 import org.apache.kafka.common.config.ConfigException;
-import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.Struct;
+
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
@@ -34,11 +30,13 @@ import org.apache.kafka.connect.storage.OffsetStorageReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CloudantSourceTask extends SourceTask {
 
@@ -52,19 +50,16 @@ public class CloudantSourceTask extends SourceTask {
     private String url = null;
     private String db = null;
     private List<String> topics = null;
-    private boolean generateStructSchema = false;
-    private boolean flattenStructSchema = false;
-    private boolean omitDesignDocs = false;
 
     private String latestSequenceNumber = null;
     private int batch_size = 0;
 
+    private ChangesResult cloudantChangesResult = null;
+    private BiFunction<String, ChangesResultItem, SourceRecord> documentToSourceRecord;
+
     @Override
     public List<SourceRecord> poll() throws InterruptedException {
         Cloudant service = CachedClientManager.getInstance(config.originalsStrings());
-
-        // the array to be returned
-        ArrayList<SourceRecord> records = new ArrayList<SourceRecord>();
 
         LOG.debug("Process lastSeq: " + latestSequenceNumber);
 
@@ -75,62 +70,37 @@ public class CloudantSourceTask extends SourceTask {
             .since(latestSequenceNumber)
             .limit(batch_size)
             .build();
-        ChangesResult cloudantChangesResult = service.postChanges(postChangesOptions).execute().getResult();
+        cloudantChangesResult = service.postChanges(postChangesOptions).execute().getResult();
 
         if (cloudantChangesResult != null) {
             LOG.debug("Got " + cloudantChangesResult.getResults().size() + " changes");
             latestSequenceNumber = cloudantChangesResult.getLastSeq();
 
             // process the results into the array to be returned
-            for (ChangesResultItem row : cloudantChangesResult.getResults()) {
-                Document doc = row.getDoc();
-                Schema docSchema;
-                Object docValue;
-                if (generateStructSchema) {
-                    Struct docStruct = DocumentAsSchemaStruct.convert(
-                        new Gson().fromJson(doc.toString(), JsonObject.class),
-                        flattenStructSchema);
-                    docSchema = docStruct.schema();
-                    docValue = docStruct;
-                } else {
-                    docSchema = Schema.STRING_SCHEMA;
-                    docValue = doc.toString();
-                }
-
-                String id = row.getId();
-                if (!omitDesignDocs || !id.startsWith("_design/")) {
-                    // Emit the record to every topic configured
-                    for (String topic : topics) {
-                        SourceRecord sourceRecord = new SourceRecord(offset(url, db),
-                                offsetValue(latestSequenceNumber),
-                                topic, // topics
-                                Schema.STRING_SCHEMA, // key schema
-                                id, // key
-                                docSchema, // value schema
-                                docValue); // value
-                        records.add(sourceRecord);
-                        if (doc.isDeleted() != null && doc.isDeleted()) {
-                            SourceRecord tombstone = new SourceRecord(offset(url, db),
-                                    offsetValue(latestSequenceNumber),
-                                    topic, // topics
-                                    Schema.STRING_SCHEMA, // key schema
-                                    id, // key
-                                    null, // value schema
-                                    null); // value
-                            records.add(tombstone);
+            List<SourceRecord> records = cloudantChangesResult.getResults().stream()
+                .flatMap(row -> {
+                    return topics.stream().flatMap(topic -> {
+                        SourceRecord record = documentToSourceRecord.apply(topic, row);
+                        if (Optional.ofNullable(row.isDeleted()).orElse(false).booleanValue()) {
+                            // row is deleted, produce a tombstone message from the record as well
+                            SourceRecord tombstone = record.newRecord(record.topic(), record.kafkaPartition(), record.keySchema(), record.key(), null, null, record.timestamp());
+                            return Stream.of(record, tombstone);
+                        } else {
+                            return Stream.of(record);
                         }
-                    }
-                }
-            }
+                    });
+                }).collect(Collectors.toList());
 
             LOG.info("Return " + records.size() / topics.size() + " records with last offset "
                     + latestSequenceNumber);
 
+            cloudantChangesResult = null;
             return records;
         }
+
+        // Only in case of shutdown
         return null;
     }
-
 
     @Override
     public void start(Map<String, String> props) {
@@ -140,13 +110,10 @@ public class CloudantSourceTask extends SourceTask {
             url = config.getString(InterfaceConst.URL);
             db = config.getString(InterfaceConst.DB);
             topics = config.getList(InterfaceConst.TOPIC);
-            omitDesignDocs = config.getBoolean(InterfaceConst.OMIT_DESIGN_DOCS);
-            generateStructSchema = config.getBoolean(InterfaceConst.USE_VALUE_SCHEMA_STRUCT);
-            flattenStructSchema = config.getBoolean(InterfaceConst.FLATTEN_VALUE_SCHEMA_STRUCT);
             latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
             batch_size = config.getInt(InterfaceConst.BATCH_SIZE) == null ? InterfaceConst
                     .DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
-				
+			this.documentToSourceRecord = new DocumentToSourceRecord(offset(url, db), CloudantSourceTask::offsetValue);
 			/*if (tasks_max > 1) {
 				throw new ConfigException("CouchDB _changes API only supports 1 thread. Configure
 				tasks.max=1");
@@ -185,7 +152,7 @@ public class CloudantSourceTask extends SourceTask {
         return Collections.singletonMap(OFFSET_KEY, String.format("%s/%s", url, db));
     }
 
-    private Map<String, String> offsetValue(String lastSeqNumber) {
+    private static Map<String, String> offsetValue(String lastSeqNumber) {
         return Collections.singletonMap(InterfaceConst.LAST_CHANGE_SEQ, lastSeqNumber);
     }
 
