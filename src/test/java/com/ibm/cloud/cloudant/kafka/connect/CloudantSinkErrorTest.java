@@ -39,6 +39,7 @@ import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.mock;
 import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class CloudantSinkErrorTest {
 
@@ -132,7 +133,6 @@ public class CloudantSinkErrorTest {
         SinkTaskContext mockContext = mock(SinkTaskContext.class);
 
         expect(mockContext.errantRecordReporter()).andReturn(mockRecordReporter).anyTimes();
-        expect(mockRecordReporter.report(eq(sr), eq(exception))).andReturn(null);
         expect(mockCloudant.postBulkDocs(anyObject())).andThrow(exception).anyTimes();
         expect(mockCloudant.putDatabase(anyObject())).andReturn(ServiceCallUtils.makeServiceCallWithResult(mockOk)).anyTimes();
 
@@ -169,6 +169,8 @@ public class CloudantSinkErrorTest {
         } catch (ConnectException connectException) {
             Assert.assertEquals("Exception thrown when trying to write documents", connectException.getMessage());
         }
+        // no expects for this - should never be called
+        verify(mockRecordReporter);
     }
 
     @After
