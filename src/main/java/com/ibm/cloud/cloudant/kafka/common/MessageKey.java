@@ -66,5 +66,10 @@ public class MessageKey {
 	public static final String KAFKA_TOPIC_LIST_DOC = "KafkaTopicListDoc";
 	public static final String KAFKA_TOPIC_LIST_DISP = "KafkaTopicListDisp";
 
+	public static final String CLOUDANT_TRANSFORM_FILTER_RECORD = "CloudantTransformFilterRecord";
+
+	public static final String CLOUDANT_ARRAY_DELIMITER_DOC = "CloudantArrayDelimiterDoc";
+	public static final String CLOUDANT_ARRAY_PURPOSE = "CloudantArrayPurpose";
+
 	public static final String GUID_SCHEMA = "GuidSchema";
 }
