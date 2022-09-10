@@ -71,5 +71,11 @@ public class MessageKey {
 	public static final String CLOUDANT_ARRAY_DELIMITER_DOC = "CloudantArrayDelimiterDoc";
 	public static final String CLOUDANT_ARRAY_PURPOSE = "CloudantArrayPurpose";
 
+	public static final String CLOUDANT_STRUCT_PURPOSE = "CloudantStructPurpose";
+	public static final String CLOUDANT_STRUCT_UNDETECTABLE_ARRAY = "CloudantStructUndetectableArrayType";
+	public static final String CLOUDANT_STRUCT_MIXED_TYPE_ARRAY = "CloudantStructMixedTypeArray";
+	public static final String CLOUDANT_STRUCT_UNHANDLED_TYPE = "CloudantStructUnhandledType";
+	public static final String CLOUDANT_STRUCT_UNKNOWN_TYPE =	"CloudantStructUnknownType";
+
 	public static final String GUID_SCHEMA = "GuidSchema";
 }
