@@ -41,6 +41,15 @@ key.converter.schemas.enable=true
 value.converter.schemas.enable=true
 ```
 
+#### Converter configuration: source connector
+
+For the source connector:
+* Keys are produced as `java.util.Map<String, String>` containing an `_id` entry with the original Cloudant document ID.
+* Values are produced as a (schemaless) `java.util.Map<String, Object>`.
+* These types are compatible with the default `org.apache.kafka.connect.json.JsonConverter` and should be compatible with any other converter that can accept a `Map`.
+* The `schemas.enabled` may be safely used with a `key.converter` if desired.
+* The source connector does not generate schemas for the record values by default. To use `schemas.enable` with the `value.converter` consider using a schema registry or the `MapToStruct` SMT detailed below.
+
 #### Converter configuration: sink connector
 
 For the sink connector:
@@ -64,7 +73,10 @@ Example configuration:
 
 #### Single Message Transforms
 
-Single Message Transforms, or SMTs, can be used to customize fields or values of events during data flow.  The examples below will explore modifying fields for events flowing from the Kafka topic to a Cloudant database using the sink connector.
+Single Message Transforms, or SMTs, can be used to customize fields or values of events during data flow.  
+
+##### Sink
+The examples below demonstrate modifying fields for events flowing from the Kafka topic to a Cloudant database using the sink connector.
 
 1. If the event value contains an existing field, not called `_id`, that is suitable to use as the Cloudant document ID, then you can use the `RenameField` transform.
     ```
@@ -114,6 +126,32 @@ a document ID. If you don't want this to happen then set an `_id` (see earlier e
 If you need to filter out those documents or drop `_id` fields when the value is `null` then you'll need to create a custom SMT.
 
 **Note**: For any of the SMTs above, if the field does not exist it will leave the event unmodified and continue processing the next event.
+
+##### Source
+The examples below demonstrate modifying records produced by the Cloudant source connector.
+
+1. Flatten maps in the JSON document using the Kafka built-in `org.apache.kafka.connect.transforms.ReplaceField$Value`
+    ```
+    transforms=FlattenMaps
+    transforms.FlattenMaps.type=org.apache.kafka.connect.transforms.Flatten
+    ```
+
+1. Flatten arrays in the JSON document using `com.ibm.cloud.cloudant.kafka.connect.transforms.ArrayFlatten`. Note that this transform
+   is only suitable for use with Map record values and will filter records that do not conform. As such if used in conjunction with the
+   `MapToStruct` transform, this `ArrayFlatten` operation must precede `MapToStruct` in the SMT pipeline.
+   The `delimiter` configuration property may be used to customize the delimiter, which defaults to `.`.
+    ```
+    transforms=FlattenArrays
+    transforms.FlattenArrays.type=com.ibm.cloud.cloudant.kafka.connect.transforms.ArrayFlatten
+    ```
+
+1. Convert schemaless `java.util.Map` values to `org.apache.kafka.connect.data.Struct` with an inferred schema. This transform is designed
+   to improve compatibility with other connectors and converters that requires a `Struct` type record. For complex schemas a schema registry
+   should be used.
+    ```
+    transforms=MapToStruct
+    transforms.MapToStruct.type=com.ibm.cloud.cloudant.kafka.connect.transforms.MapToStruct
+    ```
 
 ### Authentication
 
