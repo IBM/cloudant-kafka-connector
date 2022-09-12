@@ -121,7 +121,7 @@ public class CloudantSinkTask extends SinkTask {
 					LOG.info(String.format("Calling batchWrite with %d documents to %s", jsonSubArray.size(), config.getString(InterfaceConst.URL)));
 					List<DocumentResult> writeResults = JavaCloudantUtil.batchWrite(config.originalsStrings(), jsonSubArray);
 					boolean someFailed = writeResults.stream().anyMatch(doc -> doc.isOk() == null || !doc.isOk());
-					if (someFailed) {
+					if (reporter != null && someFailed) {
 						// logging not needed - user can enable `errors.log.enable` if required
 						for (int i = 0; i < writeResults.size(); i++) {
 							DocumentResult writeResult = writeResults.get(i);
