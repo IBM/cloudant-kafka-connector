@@ -69,15 +69,14 @@ public class CloudantSinkErrorTest {
         documentResults.add(mockDocumentResult2);
 
         expect(mockContext.errantRecordReporter()).andReturn(mockRecordReporter).anyTimes();
-        expect(mockRecordReporter.report(eq(sr1), anyObject())).andReturn(null);
+        expect(mockRecordReporter.report(eq(sr1), anyObject(RuntimeException.class))).andReturn(null);
         expect(mockCloudant.postBulkDocs(anyObject())).andReturn(ServiceCallUtils.makeServiceCallWithResult(documentResults)).anyTimes();
         expect(mockCloudant.putDatabase(anyObject())).andReturn(ServiceCallUtils.makeServiceCallWithResult(mockOk)).anyTimes();
-        // TODO confirm with the real service how bulk docs errors are reported - checking isOk may not be sufficient;
         // first document result is bad, second is good
-        expect(mockDocumentResult1.isOk()).andReturn(false).anyTimes();
+        expect(mockDocumentResult1.isOk()).andReturn(null).anyTimes(); // NB service may return null or false if not ok
         expect(mockDocumentResult1.getError()).andReturn("some error").anyTimes();
         expect(mockDocumentResult1.getReason()).andReturn("some cause").anyTimes();
-        expect(mockDocumentResult2.isOk()).andReturn(true).anyTimes();
+        expect(mockDocumentResult2.isOk()).andReturn(Boolean.TRUE).anyTimes();
 
         // force the task to use our mock client
         ClientManagerUtils.addClientToCache(connectionName, mockCloudant);
@@ -111,8 +110,6 @@ public class CloudantSinkErrorTest {
         // then
         //
         EasyMock.verify(mockRecordReporter);
-
-        // TODO more asserts?
     }
 
     // verify that throwing an exception causes connect exception to be thrown from flush

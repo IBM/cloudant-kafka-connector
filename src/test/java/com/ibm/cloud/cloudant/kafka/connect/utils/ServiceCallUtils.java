@@ -31,7 +31,7 @@ public class ServiceCallUtils {
         return new ServiceCall<T>() {
             @Override
             public ServiceCall<T> addHeader(String s, String s1) {
-                return null;
+                throw new UnsupportedOperationException("Unsupported in mock");
             }
 
             @Override
@@ -41,17 +41,17 @@ public class ServiceCallUtils {
 
             @Override
             public void enqueue(ServiceCallback<T> serviceCallback) {
-
+                throw new UnsupportedOperationException("Unsupported in mock");
             }
 
             @Override
             public Single<Response<T>> reactiveRequest() {
-                return null;
+                throw new UnsupportedOperationException("Unsupported in mock");
             }
 
             @Override
             public void cancel() {
-
+                throw new UnsupportedOperationException("Unsupported in mock");
             }
         };
     }
