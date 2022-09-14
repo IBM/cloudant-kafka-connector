@@ -13,15 +13,12 @@
  */
 package com.ibm.cloud.cloudant.kafka.connect;
 
+import com.ibm.cloud.cloudant.kafka.connect.utils.ServiceCallUtils;
 import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.cloudant.v1.model.Change;
 import com.ibm.cloud.cloudant.v1.model.ChangesResult;
 import com.ibm.cloud.cloudant.v1.model.ChangesResultItem;
 import com.ibm.cloud.cloudant.v1.model.Document;
-import com.ibm.cloud.sdk.core.http.Response;
-import com.ibm.cloud.sdk.core.http.ServiceCall;
-import com.ibm.cloud.sdk.core.http.ServiceCallback;
-import io.reactivex.Single;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.junit.Assert;
 import org.junit.Test;
@@ -49,7 +46,6 @@ public class TombstoneTest {
 
         // chain of mocks is Cloudant (client) response -> changes result -> changes result item -> change -> document
         Cloudant mockCloudant = PowerMock.createMock(Cloudant.class);
-        Response<ChangesResult> mockResponse = PowerMock.createMock(Response.class);
         ChangesResult mockChangesResult = PowerMock.createMock(ChangesResult.class);
         ChangesResultItem mockChangesResultItem = PowerMock.createMock(ChangesResultItem.class);
         Change mockChange = PowerMock.createMock(Change.class);
@@ -59,36 +55,9 @@ public class TombstoneTest {
         document.setId(id);
         document.setDeleted(Boolean.TRUE);
         // expects in same order as above (could mock ServiceCall, but it's just as easy to use an anonymous class)
-        expect(mockCloudant.postChanges(anyObject())).andReturn(new ServiceCall<ChangesResult>() {
-            @Override
-            public ServiceCall<ChangesResult> addHeader(String s, String s1) {
-                return null;
-            }
-
-            @Override
-            public Response<ChangesResult> execute() throws RuntimeException {
-                return mockResponse;
-            }
-
-            @Override
-            public void enqueue(ServiceCallback<ChangesResult> serviceCallback) {
-
-            }
-
-            @Override
-            public Single<Response<ChangesResult>> reactiveRequest() {
-                return null;
-            }
-
-            @Override
-            public void cancel() {
-
-            }
-        });
-        expect(mockResponse.getResult()).andReturn(mockChangesResult);
+        expect(mockCloudant.postChanges(anyObject())).andReturn(ServiceCallUtils.makeServiceCallWithResult(mockChangesResult)).anyTimes();
         // NB mocked twice - first for logging call, second for actual use
-        expect(mockChangesResult.getResults()).andReturn(Collections.singletonList(mockChangesResultItem));
-        expect(mockChangesResult.getResults()).andReturn(Collections.singletonList(mockChangesResultItem));
+        expect(mockChangesResult.getResults()).andReturn(Collections.singletonList(mockChangesResultItem)).times(2);
         expect(mockChangesResult.getLastSeq()).andReturn("100");
         expect(mockChangesResultItem.getChanges()).andReturn(Collections.singletonList(mockChange));
         expect(mockChangesResultItem.getDoc()).andReturn(document);
@@ -109,7 +78,6 @@ public class TombstoneTest {
         //
 
         replay(mockCloudant);
-        replay(mockResponse);
         replay(mockChangesResult);
         replay(mockChange);
         replay(mockChangesResultItem);
