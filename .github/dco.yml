@@ -1,0 +1,3 @@
+# Exclude members from DCO sign-off on commits
+require:
+  members: false
