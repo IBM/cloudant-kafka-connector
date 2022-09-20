@@ -22,9 +22,6 @@ import com.ibm.cloud.cloudant.kafka.connect.utils.ConnectorUtils;
 
 import junit.framework.TestCase;
 
-import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.Struct;
-import org.apache.kafka.connect.errors.DataException;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -32,7 +29,6 @@ import org.json.JSONTokener;
 import org.powermock.api.easymock.PowerMock;
 
 import java.io.FileReader;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -82,15 +78,10 @@ public class CloudantSourceTaskTest extends TestCase {
 
         // Inspect the first record and make sure it is a valid Cloudant doc
         SourceRecord firstRecord = records.get(0);
-        String firstValue = firstRecord.value().toString();
-
-        JSONTokener tokener = new JSONTokener(firstValue);
-
-        JSONObject firstObject = new JSONObject(tokener);
-        assertNotNull(firstObject);
-
-        assertNotNull(firstObject.get(CloudantConst.CLOUDANT_DOC_ID));
-        assertNotNull(firstObject.get(CloudantConst.CLOUDANT_REV));
+        Map<String, Object> firstValue = (Map<String, Object>) firstRecord.value();
+        assertNotNull(firstValue);
+        assertNotNull(firstValue.get(CloudantConst.CLOUDANT_DOC_ID));
+        assertNotNull(firstValue.get(CloudantConst.CLOUDANT_REV));
 
     }
 
@@ -122,97 +113,6 @@ public class CloudantSourceTaskTest extends TestCase {
         // (even though database has 999 + 20 documents now)
         records2 = task.poll();
         assertEquals(new_changes, records2.size());
-    }
-
-    public void testStructMessage() throws Exception {
-        PowerMock.replayAll();
-
-        // Use the struct message format
-        sourceProperties.put(InterfaceConst.USE_VALUE_SCHEMA_STRUCT, "true");
-
-        runAndAssertDocStructField(false);
-    }
-
-    public void testFlattenedStructMessage() throws Exception {
-        PowerMock.replayAll();
-
-        // Use the struct message format
-        sourceProperties.put(InterfaceConst.USE_VALUE_SCHEMA_STRUCT, "true");
-        // with flattening
-        sourceProperties.put(InterfaceConst.FLATTEN_VALUE_SCHEMA_STRUCT, "true");
-
-        runAndAssertDocStructField(true);
-    }
-
-    public void testOmitDesignDoc() throws Exception {
-        // Add an additional doc, specifically a design doc
-        JSONArray ddocArray = new JSONArray();
-        ddocArray.put(Collections.singletonMap("_id", "_design/test"));
-        JavaCloudantUtil.batchWrite(sourceProperties,
-                StreamSupport.stream(ddocArray.spliterator(), false).map(x -> ((JSONObject)x).toMap()).collect(Collectors.toList()));
-        PowerMock.replayAll();
-
-        // Omit design docs
-        sourceProperties.put(InterfaceConst.OMIT_DESIGN_DOCS, "true");
-
-        task.start(sourceProperties);
-        List<SourceRecord> records = task.poll();
-
-        // We have 1000 docs in the database at this point, but 1 is the design doc which should
-        // be omitted so assert on 999.
-        assertEquals(999, records.size());
-
-    }
-
-    private void runAndAssertDocStructField(boolean isFlattened) throws Exception {
-        // Run the task and process all documents currently in the _changes feed
-        task.start(sourceProperties);
-        List<SourceRecord> records = task.poll();
-        assertTrue(records.size() > 0);
-        assertEquals(999, records.size());
-
-        // Inspect the first record and make sure it is a struct
-        for (int i = 0; i <= 2; i++) {
-            SourceRecord record = records.get(i);
-
-            assertEquals("The key schema should be a string", Schema.STRING_SCHEMA, record
-                    .keySchema());
-
-            Schema schema = record.valueSchema();
-
-            // The default is a String schema, so it should not be that with the option enabled
-            assertEquals("The value schema type should be a struct schema", Schema.Type.STRUCT,
-                    schema.type());
-
-            if (isFlattened) {
-                // The exact record we receive first is undefined, so we don't know how mnany
-                // fields there will be, but we can check we have more fields than in the
-                // non-flattened case
-                assertTrue("There should be more fields than an unflattened doc", schema
-                        .fields().size() > 6);
-            } else {
-                assertEquals("There should be the correct number of fields in the schema", 6, schema
-                        .fields().size());
-            }
-
-            // The exact record we receive is undefined, but we can check for a non-null value
-            Struct s = (Struct) record.value();
-            assertNotNull("The struct should not be null", s);
-            try {
-                if (isFlattened) {
-                    assertNotNull("A value should be present", s.getString("doc.message.body"));
-                } else {
-                    assertNotNull("A value should be present", s.getStruct("doc").getStruct("message")
-                            .getString("body"));
-                }
-                break;
-            } catch(DataException e) {
-                // There are two documents in the dataset that don't have a message, since the order
-                // is undefined we might get one of these and end up here, if we do we should try
-                // again with the next record.
-                continue;
-            }
-        }
     }
 
     public void testMultipleConnectorInstances() throws Exception {

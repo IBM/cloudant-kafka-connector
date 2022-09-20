@@ -66,18 +66,16 @@ public class MessageKey {
 	public static final String KAFKA_TOPIC_LIST_DOC = "KafkaTopicListDoc";
 	public static final String KAFKA_TOPIC_LIST_DISP = "KafkaTopicListDisp";
 
-	public static final String CLOUDANT_OMIT_DDOC_DISP = "CloudantOmitDDocDisp";
-	public static final String CLOUDANT_OMIT_DDOC_DOC = "CloudantOmitDDocDoc";
+	public static final String CLOUDANT_TRANSFORM_FILTER_RECORD = "CloudantTransformFilterRecord";
 
-	public static final String CLOUDANT_STRUCT_SCHEMA_DISP = "CloudantSchemaDisp";
-	public static final String CLOUDANT_STRUCT_SCHEMA_DOC = "CloudantSchemaDoc";
+	public static final String CLOUDANT_ARRAY_DELIMITER_DOC = "CloudantArrayDelimiterDoc";
+	public static final String CLOUDANT_ARRAY_PURPOSE = "CloudantArrayPurpose";
 
-	public static final String CLOUDANT_STRUCT_SCHEMA_FLATTEN_DISP = "CloudantSchemaFlattenDisp";
-	public static final String CLOUDANT_STRUCT_SCHEMA_FLATTEN_DOC = "CloudantSchemaFlattenDoc";
-
-	public static final String CLOUDANT_STRUCT_SCHEMA_JSON_ELEMENT = "CloudantSchemaUnknownJsonElement";
-	public static final String CLOUDANT_STRUCT_SCHEMA_JSON_PRIMITIVE = "CloudantSchemaUnknownJsonPrimitive";
-	public static final String CLOUDANT_STRUCT_SCHEMA_JSON_MIXED_ARRAY = "CloudantSchemaMixedArrays";
+	public static final String CLOUDANT_STRUCT_PURPOSE = "CloudantStructPurpose";
+	public static final String CLOUDANT_STRUCT_UNDETECTABLE_ARRAY = "CloudantStructUndetectableArrayType";
+	public static final String CLOUDANT_STRUCT_MIXED_TYPE_ARRAY = "CloudantStructMixedTypeArray";
+	public static final String CLOUDANT_STRUCT_UNHANDLED_TYPE = "CloudantStructUnhandledType";
+	public static final String CLOUDANT_STRUCT_UNKNOWN_TYPE =	"CloudantStructUnknownType";
 
 	public static final String GUID_SCHEMA = "GuidSchema";
 }

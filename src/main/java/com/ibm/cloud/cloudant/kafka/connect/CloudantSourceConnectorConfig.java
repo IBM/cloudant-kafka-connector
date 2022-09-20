@@ -39,30 +39,7 @@ public class CloudantSourceConnectorConfig extends CloudantConnectorConfig {
                         DATABASE_GROUP,
                         1,
                         Width.LONG,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC))
-                // Whether to omit design documents
-                .define(InterfaceConst.OMIT_DESIGN_DOCS, Type.BOOLEAN,
-                        false,
-                        Importance.LOW,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_OMIT_DDOC_DOC),
-                        DATABASE_GROUP, 1, Width.NONE,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_OMIT_DDOC_DISP))
-
-                // Whether to generate a struct Schema
-                .define(InterfaceConst.USE_VALUE_SCHEMA_STRUCT, Type.BOOLEAN,
-                        false,
-                        Importance.MEDIUM,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_STRUCT_SCHEMA_DOC),
-                        DATABASE_GROUP, 1, Width.NONE,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_STRUCT_SCHEMA_DISP))
-
-                // Whether to flatten nested objects in the generated struct
-                .define(InterfaceConst.FLATTEN_VALUE_SCHEMA_STRUCT, Type.BOOLEAN,
-                        false,
-                        Importance.MEDIUM,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_STRUCT_SCHEMA_FLATTEN_DOC),
-                        DATABASE_GROUP, 1, Width.NONE,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_STRUCT_SCHEMA_FLATTEN_DISP));
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC));
     }
 
     public CloudantSourceConnectorConfig(Map<String, String> originals) {

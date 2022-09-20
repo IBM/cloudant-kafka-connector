@@ -13,6 +13,7 @@
  */
 package com.ibm.cloud.cloudant.kafka.connect;
 
+import com.ibm.cloud.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloud.cloudant.kafka.connect.utils.ServiceCallUtils;
 import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.cloudant.v1.model.Change;
@@ -60,8 +61,11 @@ public class TombstoneTest {
         expect(mockChangesResult.getResults()).andReturn(Collections.singletonList(mockChangesResultItem)).times(2);
         expect(mockChangesResult.getLastSeq()).andReturn("100");
         expect(mockChangesResultItem.getChanges()).andReturn(Collections.singletonList(mockChange));
-        expect(mockChangesResultItem.getDoc()).andReturn(document);
+        expect(mockChangesResultItem.getSeq()).andReturn("123-abc");
         expect(mockChangesResultItem.getId()).andReturn(id);
+        expect(mockChangesResultItem.getDoc()).andReturn(document);
+        expect(mockChangesResultItem.isDeleted()).andReturn(Boolean.TRUE);
+        
         // force the task to use our mock client
         ClientManagerUtils.addClientToCache(connectionName, mockCloudant);
         // setup task with some minimal config
@@ -90,8 +94,8 @@ public class TombstoneTest {
         Assert.assertEquals(2, records.size());
         Assert.assertNotNull(records.get(0).value());
         Assert.assertNull(records.get(1).value());
-        Assert.assertEquals(id, records.get(0).key());
-        Assert.assertEquals(id, records.get(1).key());
+        Assert.assertEquals(Collections.singletonMap(CloudantConst.CLOUDANT_DOC_ID, id), records.get(0).key());
+        Assert.assertEquals(Collections.singletonMap(CloudantConst.CLOUDANT_DOC_ID, id), records.get(1).key());
     }
 
 }
