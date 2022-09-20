@@ -44,14 +44,9 @@ public class CloudantSourceTask extends SourceTask {
 
     private static Logger LOG = LoggerFactory.getLogger(CloudantSourceTask.class);
 
-    private static final long FEED_SLEEP_MILLISEC = 5000;
-    private static final long SHUTDOWN_DELAY_MILLISEC = 10;
     private static final String DEFAULT_CLOUDANT_LAST_SEQ = "0";
 
     private static final String OFFSET_KEY = "cloudant.url.and.db";
-
-    private AtomicBoolean stop;
-    private AtomicBoolean _running;
 
     CloudantSourceTaskConfig config;
     private String url = null;
@@ -64,88 +59,75 @@ public class CloudantSourceTask extends SourceTask {
     private String latestSequenceNumber = null;
     private int batch_size = 0;
 
-    private ChangesResult cloudantChangesResult = null;
-
     @Override
     public List<SourceRecord> poll() throws InterruptedException {
         Cloudant service = CachedClientManager.getInstance(config.originalsStrings());
 
-        // stop will be set but can be honored only after we release
-        // the changes() feed
-        while (!stop.get()) {
-            _running.set(true);
+        // the array to be returned
+        ArrayList<SourceRecord> records = new ArrayList<SourceRecord>();
 
-            // the array to be returned
-            ArrayList<SourceRecord> records = new ArrayList<SourceRecord>();
+        LOG.debug("Process lastSeq: " + latestSequenceNumber);
 
-            LOG.debug("Process lastSeq: " + latestSequenceNumber);
+        // the changes feed for initial processing (not continuous yet)
+        PostChangesOptions postChangesOptions = new PostChangesOptions.Builder()
+            .db(db)
+            .includeDocs(true)
+            .since(latestSequenceNumber)
+            .limit(batch_size)
+            .build();
+        ChangesResult cloudantChangesResult = service.postChanges(postChangesOptions).execute().getResult();
 
-            // the changes feed for initial processing (not continuous yet)
-            PostChangesOptions postChangesOptions = new PostChangesOptions.Builder()
-                .db(db)
-                .includeDocs(true)
-                .since(latestSequenceNumber)
-                .limit(batch_size)
-                .build();
-            cloudantChangesResult = service.postChanges(postChangesOptions).execute().getResult();
+        if (cloudantChangesResult != null) {
+            LOG.debug("Got " + cloudantChangesResult.getResults().size() + " changes");
+            latestSequenceNumber = cloudantChangesResult.getLastSeq();
 
-            if (cloudantChangesResult != null) {
-                LOG.debug("Got " + cloudantChangesResult.getResults().size() + " changes");
-                latestSequenceNumber = cloudantChangesResult.getLastSeq();
+            // process the results into the array to be returned
+            for (ChangesResultItem row : cloudantChangesResult.getResults()) {
+                Document doc = row.getDoc();
+                Schema docSchema;
+                Object docValue;
+                if (generateStructSchema) {
+                    Struct docStruct = DocumentAsSchemaStruct.convert(
+                        new Gson().fromJson(doc.toString(), JsonObject.class),
+                        flattenStructSchema);
+                    docSchema = docStruct.schema();
+                    docValue = docStruct;
+                } else {
+                    docSchema = Schema.STRING_SCHEMA;
+                    docValue = doc.toString();
+                }
 
-                // process the results into the array to be returned
-                for (ChangesResultItem row : cloudantChangesResult.getResults()) {
-                    Document doc = row.getDoc();
-                    Schema docSchema;
-                    Object docValue;
-                    if (generateStructSchema) {
-                        Struct docStruct = DocumentAsSchemaStruct.convert(
-                            new Gson().fromJson(doc.toString(), JsonObject.class),
-                            flattenStructSchema);
-                        docSchema = docStruct.schema();
-                        docValue = docStruct;
-                    } else {
-                        docSchema = Schema.STRING_SCHEMA;
-                        docValue = doc.toString();
-                    }
-
-                    String id = row.getId();
-                    if (!omitDesignDocs || !id.startsWith("_design/")) {
-                        // Emit the record to every topic configured
-                        for (String topic : topics) {
-                            SourceRecord sourceRecord = new SourceRecord(offset(url, db),
+                String id = row.getId();
+                if (!omitDesignDocs || !id.startsWith("_design/")) {
+                    // Emit the record to every topic configured
+                    for (String topic : topics) {
+                        SourceRecord sourceRecord = new SourceRecord(offset(url, db),
+                                offsetValue(latestSequenceNumber),
+                                topic, // topics
+                                Schema.STRING_SCHEMA, // key schema
+                                id, // key
+                                docSchema, // value schema
+                                docValue); // value
+                        records.add(sourceRecord);
+                        if (doc.isDeleted() != null && doc.isDeleted()) {
+                            SourceRecord tombstone = new SourceRecord(offset(url, db),
                                     offsetValue(latestSequenceNumber),
                                     topic, // topics
                                     Schema.STRING_SCHEMA, // key schema
                                     id, // key
-                                    docSchema, // value schema
-                                    docValue); // value
-                            records.add(sourceRecord);
-                            if (doc.isDeleted() != null && doc.isDeleted()) {
-                                SourceRecord tombstone = new SourceRecord(offset(url, db),
-                                        offsetValue(latestSequenceNumber),
-                                        topic, // topics
-                                        Schema.STRING_SCHEMA, // key schema
-                                        id, // key
-                                        null, // value schema
-                                        null); // value
-                                records.add(tombstone);
-                            }
+                                    null, // value schema
+                                    null); // value
+                            records.add(tombstone);
                         }
                     }
                 }
-
-                LOG.info("Return " + records.size() / topics.size() + " records with last offset "
-                        + latestSequenceNumber);
-
-                cloudantChangesResult = null;
-
-                _running.set(false);
-                return records;
             }
-        }
 
-        // Only in case of shutdown
+            LOG.info("Return " + records.size() / topics.size() + " records with last offset "
+                    + latestSequenceNumber);
+
+            return records;
+        }
         return null;
     }
 
@@ -169,9 +151,6 @@ public class CloudantSourceTask extends SourceTask {
 				throw new ConfigException("CouchDB _changes API only supports 1 thread. Configure
 				tasks.max=1");
 			}*/
-
-            _running = new AtomicBoolean(false);
-            stop = new AtomicBoolean(false);
 
             if (latestSequenceNumber == null) {
                 latestSequenceNumber = DEFAULT_CLOUDANT_LAST_SEQ;
@@ -198,26 +177,7 @@ public class CloudantSourceTask extends SourceTask {
 
     @Override
     public void stop() {
-        // TODO needs a custom changes feed
-        if (stop != null) {
-            stop.set(true);
-        }
-
-        // terminate the changes feed
-
-        // graceful shutdown
-        // allow the poll() method to flush records first
-        if (_running == null) {
-            return;
-        }
-
-        while (_running.get()) {
-            try {
-                Thread.sleep(SHUTDOWN_DELAY_MILLISEC);
-            } catch (InterruptedException e) {
-                LOG.error(e.getMessage(), e);
-            }
-        }
+        // nothing to do
     }
 
     // use the url and db name to form a unique offset key
