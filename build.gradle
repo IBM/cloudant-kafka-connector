@@ -27,7 +27,6 @@ configurations {
 
 dependencies {
     bundledImplementation group: 'com.ibm.cloud', name: 'cloudant', version: '0.2.0'
-    bundledImplementation group: 'org.json', name: 'json', version: '20210307'
     implementation group: 'org.apache.kafka', name: 'connect-api', version: "${kafkaVersion}"
     implementation group: 'org.apache.kafka', name: 'connect-json', version: "${kafkaVersion}"
     implementation group: 'org.apache.kafka', name: 'connect-transforms', version: "${kafkaVersion}"
