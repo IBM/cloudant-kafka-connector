@@ -17,14 +17,16 @@ import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.ibm.cloud.cloudant.v1.Cloudant;
-import com.ibm.cloud.cloudant.v1.model.DatabaseInformation;
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
-import com.ibm.cloud.cloudant.kafka.common.utils.JavaCloudantUtil;
-import com.ibm.cloud.cloudant.kafka.connect.*;
+import com.ibm.cloud.cloudant.kafka.connect.CachedClientManager;
+import com.ibm.cloud.cloudant.kafka.connect.CloudantSinkConnector;
+import com.ibm.cloud.cloudant.kafka.connect.CloudantSinkTask;
+import com.ibm.cloud.cloudant.kafka.connect.CloudantSourceConnector;
+import com.ibm.cloud.cloudant.kafka.connect.CloudantSourceTask;
 import com.ibm.cloud.cloudant.kafka.connect.utils.CloudantDbUtils;
 import com.ibm.cloud.cloudant.kafka.connect.utils.ConnectorUtils;
-
+import com.ibm.cloud.cloudant.v1.Cloudant;
+import com.ibm.cloud.cloudant.v1.model.DatabaseInformation;
 import org.apache.kafka.connect.connector.ConnectorContext;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -34,7 +36,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.powermock.api.easymock.PowerMock;
 
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +61,7 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
     private AtomicBoolean _runningSinkThread;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         //Set properties
 
         sourceProperties = ConnectorUtils.getTestProperties();
@@ -167,7 +168,6 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
 
                 _runningSourceThread.set(false);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         });
@@ -186,13 +186,12 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
                     }
                 }
                 while (sourceRecords.size() > 0 || tempRecords.size() > 0 ||
-                    CloudantDbUtils.getDbInfo(
-                        targetProperties.get(InterfaceConst.DB),
-                        targetService).getDocCount() == 0);
+                        CloudantDbUtils.getDbInfo(
+                                targetProperties.get(InterfaceConst.DB),
+                                targetService).getDocCount() == 0);
 
                 _runningSinkThread.set(false);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         });
@@ -234,10 +233,10 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
             testTimes.add(testTime);
             results.addProperty("testRounds", 1);
             DatabaseInformation dbInfo = CloudantDbUtils.getDbInfo(
-                targetProperties.get(InterfaceConst.DB) + "_target",
-                targetService);
+                    targetProperties.get(InterfaceConst.DB) + "_target",
+                    targetService);
             results.addProperty("diskSize", dbInfo.getSizes().getFile());
-            results.addProperty("documents",dbInfo.getDocCount());
+            results.addProperty("documents", dbInfo.getDocCount());
 
             //SourceProperties and TargetProperties should be equal
             results.addProperty(InterfaceConst.TOPIC, targetProperties.get(InterfaceConst.TOPIC));
@@ -256,7 +255,7 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
     }
 
     @After
-    public void tearDown() throws MalformedURLException {
+    public void tearDown() {
         CloudantDbUtils.dropDatabase(targetProperties);
     }
 

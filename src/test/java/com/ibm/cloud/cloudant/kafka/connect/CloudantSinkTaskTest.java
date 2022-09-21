@@ -15,26 +15,23 @@ package com.ibm.cloud.cloudant.kafka.connect;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
+import com.ibm.cloud.cloudant.kafka.common.utils.JavaCloudantUtil;
+import com.ibm.cloud.cloudant.kafka.connect.utils.CloudantDbUtils;
+import com.ibm.cloud.cloudant.kafka.connect.utils.ConnectorUtils;
 import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.cloudant.v1.model.ChangesResult;
 import com.ibm.cloud.cloudant.v1.model.ChangesResultItem;
 import com.ibm.cloud.cloudant.v1.model.Document;
 import com.ibm.cloud.cloudant.v1.model.GetDatabaseInformationOptions;
 import com.ibm.cloud.cloudant.v1.model.PostChangesOptions;
-import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
-import com.ibm.cloud.cloudant.kafka.common.utils.JavaCloudantUtil;
-import com.ibm.cloud.cloudant.kafka.connect.utils.CloudantDbUtils;
-import com.ibm.cloud.cloudant.kafka.connect.utils.ConnectorUtils;
-
 import junit.framework.TestCase;
-
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.sink.SinkRecord;
 
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -88,15 +85,15 @@ public class CloudantSinkTaskTest extends TestCase {
      * Test method for
      * {@link com.ibm.cloud.cloudant.kafka.connect.CloudantSinkTask#put(java.util.Collection)}.
      */
-    public void testReplicateSinkRecordSchema() throws MalformedURLException {
+    public void testReplicateSinkRecordSchema() {
         targetProperties.put(InterfaceConst.REPLICATION, "true");
         List<JsonObject> result = testPutCollectionOfSinkRecord();
 
         Gson gson = new Gson();
 
-        JsonObject doc1Expected = (JsonObject)gson.toJsonTree(doc1);
-        JsonObject doc2Expected = (JsonObject)gson.toJsonTree(doc2);
-        JsonObject doc3Expected = (JsonObject)gson.toJsonTree(doc3);
+        JsonObject doc1Expected = (JsonObject) gson.toJsonTree(doc1);
+        JsonObject doc2Expected = (JsonObject) gson.toJsonTree(doc2);
+        JsonObject doc3Expected = (JsonObject) gson.toJsonTree(doc3);
 
         //Test results
         assertEquals(3, result.size());
@@ -104,15 +101,15 @@ public class CloudantSinkTaskTest extends TestCase {
         assertTrue(result.contains(doc2Expected));
         assertTrue(result.contains(doc3Expected));
     }
-    
+
     private List<JsonObject> testPutCollectionOfSinkRecord() {
 
         // Get the current update sequence
         String dbName = targetProperties.get(InterfaceConst.DB);
         GetDatabaseInformationOptions dbOptions =
-            new GetDatabaseInformationOptions.Builder()
-                .db(dbName)
-                .build();
+                new GetDatabaseInformationOptions.Builder()
+                        .db(dbName)
+                        .build();
         String since = service.getDatabaseInformation(dbOptions).execute().getResult().getUpdateSeq(); // latest seq
 
         // KAFKA
@@ -123,27 +120,27 @@ public class CloudantSinkTaskTest extends TestCase {
 
         task.put(Collections.singletonList(
                 new SinkRecord(targetProperties.get(InterfaceConst.TOPIC), 0,
-                        null, null, SchemaBuilder.map(Schema.STRING_SCHEMA, Schema.STRING_SCHEMA), doc1, (long)doc1.get("number"))));
+                        null, null, SchemaBuilder.map(Schema.STRING_SCHEMA, Schema.STRING_SCHEMA), doc1, (long) doc1.get("number"))));
 
         task.flush(offsets);
 
         task.put(Arrays.asList(
                 new SinkRecord(targetProperties.get(InterfaceConst.TOPIC),
-                        0, null, null, SchemaBuilder.map(Schema.STRING_SCHEMA, Schema.STRING_SCHEMA), doc2, (long)doc2.get("number")),
+                        0, null, null, SchemaBuilder.map(Schema.STRING_SCHEMA, Schema.STRING_SCHEMA), doc2, (long) doc2.get("number")),
 
                 new SinkRecord(targetProperties.get(InterfaceConst.TOPIC),
-                        0, null, null, SchemaBuilder.map(Schema.STRING_SCHEMA, Schema.STRING_SCHEMA), doc3, (long)doc3.get("number"))
+                        0, null, null, SchemaBuilder.map(Schema.STRING_SCHEMA, Schema.STRING_SCHEMA), doc3, (long) doc3.get("number"))
         ));
 
         task.flush(offsets);
 
         // CLOUDANT
         PostChangesOptions options = new PostChangesOptions.Builder()
-            .db(targetProperties.get(InterfaceConst.DB))
-            .since(since)
-            .limit(4)
-            .includeDocs(true)
-            .build();
+                .db(targetProperties.get(InterfaceConst.DB))
+                .since(since)
+                .limit(4)
+                .includeDocs(true)
+                .build();
         ChangesResult changesResult = service.postChanges(options).execute().getResult();
 
         //process the ChangesResult

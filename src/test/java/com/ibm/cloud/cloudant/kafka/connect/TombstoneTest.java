@@ -39,7 +39,7 @@ public class TombstoneTest {
     private static final String connectionName = "_mock";
 
     @Test
-    public void testDeletedDocumentEmitsTombstones() throws Exception{
+    public void testDeletedDocumentEmitsTombstones() throws Exception {
 
         //
         // given

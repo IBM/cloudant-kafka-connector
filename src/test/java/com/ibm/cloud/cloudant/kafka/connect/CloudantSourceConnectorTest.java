@@ -15,9 +15,7 @@ package com.ibm.cloud.cloudant.kafka.connect;
 
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.connect.utils.ConnectorUtils;
-
 import junit.framework.TestCase;
-
 import org.apache.kafka.connect.connector.ConnectorContext;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -56,7 +54,6 @@ public class CloudantSourceConnectorTest extends TestCase {
      * Test method for {@link com.ibm.cloud.cloudant.kafka.connect.CloudantSourceConnector#stop()}.
      */
     public void testStop() {
-        // fail("Not yet implemented");
     }
 
 
@@ -86,9 +83,9 @@ public class CloudantSourceConnectorTest extends TestCase {
         Assert.assertEquals(sourceProperties.get(InterfaceConst.URL), taskConfigs.get(0).get
                 (InterfaceConst.URL));
         Assert.assertEquals(sourceProperties.get(InterfaceConst.USERNAME), taskConfigs.get(0)
-            .get(InterfaceConst.USERNAME));
+                .get(InterfaceConst.USERNAME));
         Assert.assertEquals(sourceProperties.get(InterfaceConst.PASSWORD), taskConfigs.get(0).get
-            (InterfaceConst.PASSWORD));
+                (InterfaceConst.PASSWORD));
         Assert.assertEquals(sourceProperties.get(InterfaceConst.LAST_CHANGE_SEQ), taskConfigs.get
                 (0).get(InterfaceConst.LAST_CHANGE_SEQ));
 

@@ -13,13 +13,11 @@
  */
 package com.ibm.cloud.cloudant.kafka.connect;
 
-import com.ibm.cloud.cloudant.v1.Cloudant;
-import com.ibm.cloud.cloudant.v1.model.GetDatabaseInformationOptions;
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.common.utils.JavaCloudantUtil;
-
+import com.ibm.cloud.cloudant.v1.Cloudant;
+import com.ibm.cloud.cloudant.v1.model.GetDatabaseInformationOptions;
 import junit.framework.TestCase;
-
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.source.SourceRecord;
 
@@ -121,11 +119,11 @@ public class CloudantSourceAndSinkTest extends TestCase {
 
         // 5. Compare the number of documents in the source and target dbs
         GetDatabaseInformationOptions sourceDbOptions = new GetDatabaseInformationOptions.Builder()
-            .db(sourceDbName)
-            .build();
+                .db(sourceDbName)
+                .build();
         GetDatabaseInformationOptions targetDbOptions = new GetDatabaseInformationOptions.Builder()
-            .db(targetDbName)
-            .build();
+                .db(targetDbName)
+                .build();
         long sourceDocCount = sourceService.getDatabaseInformation(sourceDbOptions).execute().getResult().getDocCount();
         long targetDocCount = targetService.getDatabaseInformation(targetDbOptions).execute().getResult().getDocCount();
 

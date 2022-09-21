@@ -13,43 +13,35 @@
  */
 package com.ibm.cloud.cloudant.kafka.connect.utils;
 
+import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
+import com.ibm.cloud.cloudant.kafka.connect.CachedClientManager;
 import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.cloudant.v1.model.DatabaseInformation;
 import com.ibm.cloud.cloudant.v1.model.DeleteDatabaseOptions;
 import com.ibm.cloud.cloudant.v1.model.GetDatabaseInformationOptions;
 import com.ibm.cloud.cloudant.v1.model.Ok;
 import com.ibm.cloud.sdk.core.http.Response;
-import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
-import com.ibm.cloud.cloudant.kafka.common.utils.JavaCloudantUtil;
-import com.ibm.cloud.cloudant.kafka.connect.CachedClientManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 
-import java.net.MalformedURLException;
 import java.util.Map;
 
 public class CloudantDbUtils {
 
-	private static Logger LOG = LoggerFactory.getLogger(CloudantDbUtils.class);
+    public static void dropDatabase(Map<String, String> props) {
+        Cloudant service = CachedClientManager.getInstance(props);
+        String dbName = props.get(InterfaceConst.DB);
+        DeleteDatabaseOptions deleteDbOptions = new DeleteDatabaseOptions.Builder()
+                .db(dbName)
+                .build();
+        Response<Ok> result = service.deleteDatabase(deleteDbOptions).execute();
+        Assert.assertTrue(result.getResult().isOk());
+    }
 
-
-	public static void dropDatabase(Map<String, String> props)
-		throws MalformedURLException {
-		Cloudant service = CachedClientManager.getInstance(props);
-		String dbName = props.get(InterfaceConst.DB);
-		DeleteDatabaseOptions deleteDbOptions = new DeleteDatabaseOptions.Builder()
-			.db(dbName)
-			.build();
-		Response<Ok> result = service.deleteDatabase(deleteDbOptions).execute();
-		Assert.assertTrue(result.getResult().isOk());
-	}
-
-	public static DatabaseInformation getDbInfo(String db, Cloudant service) {
-		GetDatabaseInformationOptions dbInfoOptions;
-		dbInfoOptions = new GetDatabaseInformationOptions.Builder()
-			.db(db)
-			.build();
-		return service.getDatabaseInformation(dbInfoOptions).execute().getResult();
-	}
+    public static DatabaseInformation getDbInfo(String db, Cloudant service) {
+        GetDatabaseInformationOptions dbInfoOptions;
+        dbInfoOptions = new GetDatabaseInformationOptions.Builder()
+                .db(db)
+                .build();
+        return service.getDatabaseInformation(dbInfoOptions).execute().getResult();
+    }
 }

@@ -26,8 +26,8 @@ import java.util.Map;
 
 import static com.ibm.cloud.cloudant.kafka.schema.ConnectRecordMapper.HEADER_DOC_ID_KEY;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 public class ConnectRecordMapperTests {
 
@@ -81,7 +81,7 @@ public class ConnectRecordMapperTests {
         // given...
         Schema s = null; // no schema
         Schema headerSchema = SchemaBuilder.map(Schema.STRING_SCHEMA, Schema.STRING_SCHEMA);
-        Map headerValue = new HashMap();
+        Map<String, String> headerValue = new HashMap<>();
         headerValue.put("invalid", "value");
         Map<String, String> value = new HashMap<>();
         value.put("_id", "foo");
@@ -128,7 +128,7 @@ public class ConnectRecordMapperTests {
         value.put("string", "foo3");
         Struct innerStruct = new Struct(s.field("struct").schema());
         innerStruct.put("string_1", "foo4");
-        Map<String, Object> innerMap = new HashMap();
+        Map<String, Object> innerMap = new HashMap<>();
         Struct innerInnerStruct = new Struct(s.field("struct").schema().field("map").schema().valueSchema());
         innerInnerStruct.put("string_2", "foo5");
         innerMap.put("struct2", innerInnerStruct);
@@ -168,7 +168,7 @@ public class ConnectRecordMapperTests {
         Schema s = SchemaBuilder.struct()
                 .field("_id", Schema.STRING_SCHEMA)
                 .field("_rev", Schema.STRING_SCHEMA)
-                        .build();
+                .build();
 
         Struct value = new Struct(s);
         value.put("_id", "foo1");

@@ -13,15 +13,12 @@
  */
 package com.ibm.cloud.cloudant.kafka.connect;
 
-import java.util.stream.StreamSupport;
 import com.ibm.cloud.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloud.cloudant.kafka.connect.utils.CloudantDbUtils;
 import com.ibm.cloud.cloudant.kafka.connect.utils.ConnectorUtils;
-
 import junit.framework.TestCase;
-
 import org.apache.kafka.connect.source.SourceRecord;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -37,6 +34,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class CloudantSourceTaskTest extends TestCase {
 
@@ -59,7 +57,7 @@ public class CloudantSourceTaskTest extends TestCase {
 
         // Load data into the source database (create if it does not exist)
         JavaCloudantUtil.batchWrite(sourceProperties,
-                StreamSupport.stream(data.spliterator(), false).map(x -> ((JSONObject)x).toMap()).collect(Collectors.toList()));
+                StreamSupport.stream(data.spliterator(), false).map(x -> ((JSONObject) x).toMap()).collect(Collectors.toList()));
 
         /*
          * 2. Create connector
@@ -107,7 +105,7 @@ public class CloudantSourceTaskTest extends TestCase {
         }
 
         JavaCloudantUtil.batchWrite(sourceProperties,
-                StreamSupport.stream(data2.spliterator(), false).map(x -> ((JSONObject)x).toMap()).collect(Collectors.toList()));
+                StreamSupport.stream(data2.spliterator(), false).map(x -> ((JSONObject) x).toMap()).collect(Collectors.toList()));
 
         // Poll again for changes and expect to get the 20 we just inserted
         // (even though database has 999 + 20 documents now)
@@ -129,7 +127,7 @@ public class CloudantSourceTaskTest extends TestCase {
 
             // Load data into the source database (create if it does not exist)
             JavaCloudantUtil.batchWrite(sourceProps2,
-                    StreamSupport.stream(data2.spliterator(), false).map(x -> ((JSONObject)x).toMap()).collect(Collectors.toList()));
+                    StreamSupport.stream(data2.spliterator(), false).map(x -> ((JSONObject) x).toMap()).collect(Collectors.toList()));
 
             // Create second connector
             CloudantSourceTask task2 = ConnectorUtils.createCloudantSourceConnector(sourceProps2);
