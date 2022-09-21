@@ -13,6 +13,7 @@
  */
 package com.ibm.cloud.cloudant.kafka.connect;
 
+import java.io.Reader;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
@@ -53,7 +54,9 @@ public class CloudantSourceTaskTest extends TestCase {
         /*
          * 1. Create a database and load data
          */
-        data = gson.fromJson(new FileReader("src/test/resources/data.json"), List.class);
+        try (Reader reader = new FileReader("src/test/resources/data.json")) {
+            data = gson.fromJson(reader, List.class);
+        }
 
         // Load data into the source database (create if it does not exist)
         JavaCloudantUtil.batchWrite(sourceProperties, data);
@@ -120,7 +123,10 @@ public class CloudantSourceTaskTest extends TestCase {
 
         try {
             // Create a second database with different content to the first
-            List data2 = gson.fromJson(new FileReader("src/test/resources/data2.json"), List.class);
+            List data2;
+            try (Reader reader = new FileReader("src/test/resources/data2.json")) {
+                data2 = gson.fromJson(reader, List.class);
+            }
 
             // Load data into the source database (create if it does not exist)
             JavaCloudantUtil.batchWrite(sourceProps2, data2);
