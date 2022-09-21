@@ -13,6 +13,9 @@
  */
 package com.ibm.cloud.cloudant.kafka.connect;
 
+import java.util.ArrayList;
+
+import com.google.gson.Gson;
 import com.ibm.cloud.cloudant.kafka.common.CloudantConst;
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.common.utils.JavaCloudantUtil;
@@ -20,9 +23,6 @@ import com.ibm.cloud.cloudant.kafka.connect.utils.CloudantDbUtils;
 import com.ibm.cloud.cloudant.kafka.connect.utils.ConnectorUtils;
 import junit.framework.TestCase;
 import org.apache.kafka.connect.source.SourceRecord;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.powermock.api.easymock.PowerMock;
 
 import java.io.FileReader;
@@ -33,15 +33,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class CloudantSourceTaskTest extends TestCase {
 
     private CloudantSourceTask task;
+
     private Map<String, String> sourceProperties;
 
-    private JSONArray data = null;
+    private List data = null;
+
+    private Gson gson = new Gson();
 
     protected void setUp() throws Exception {
 
@@ -52,12 +53,10 @@ public class CloudantSourceTaskTest extends TestCase {
         /*
          * 1. Create a database and load data
          */
-        JSONTokener tokener = new JSONTokener(new FileReader("src/test/resources/data.json"));
-        data = new JSONArray(tokener);
+        data = gson.fromJson(new FileReader("src/test/resources/data.json"), List.class);
 
         // Load data into the source database (create if it does not exist)
-        JavaCloudantUtil.batchWrite(sourceProperties,
-                StreamSupport.stream(data.spliterator(), false).map(x -> ((JSONObject) x).toMap()).collect(Collectors.toList()));
+        JavaCloudantUtil.batchWrite(sourceProperties, data);
 
         /*
          * 2. Create connector
@@ -98,14 +97,13 @@ public class CloudantSourceTaskTest extends TestCase {
         assertEquals(999, records2.size());
 
         // Load 20 new documents
-        JSONArray data2 = new JSONArray();
+        ArrayList data2 = new ArrayList();
         int new_changes = 20;
         for (int i = 0; i < new_changes; i++) {
-            data2.put(data.get(i));
+            data2.add(data.get(i));
         }
 
-        JavaCloudantUtil.batchWrite(sourceProperties,
-                StreamSupport.stream(data2.spliterator(), false).map(x -> ((JSONObject) x).toMap()).collect(Collectors.toList()));
+        JavaCloudantUtil.batchWrite(sourceProperties, data2);
 
         // Poll again for changes and expect to get the 20 we just inserted
         // (even though database has 999 + 20 documents now)
@@ -122,12 +120,10 @@ public class CloudantSourceTaskTest extends TestCase {
 
         try {
             // Create a second database with different content to the first
-            JSONArray data2 = new JSONArray(new JSONTokener(new FileReader
-                    ("src/test/resources/data2.json")));
+            List data2 = gson.fromJson(new FileReader("src/test/resources/data2.json"), List.class);
 
             // Load data into the source database (create if it does not exist)
-            JavaCloudantUtil.batchWrite(sourceProps2,
-                    StreamSupport.stream(data2.spliterator(), false).map(x -> ((JSONObject) x).toMap()).collect(Collectors.toList()));
+            JavaCloudantUtil.batchWrite(sourceProps2, data2);
 
             // Create second connector
             CloudantSourceTask task2 = ConnectorUtils.createCloudantSourceConnector(sourceProps2);
