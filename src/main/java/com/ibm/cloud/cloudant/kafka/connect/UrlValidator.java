@@ -14,14 +14,13 @@
 
 package com.ibm.cloud.cloudant.kafka.connect;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import com.ibm.cloud.cloudant.kafka.common.MessageKey;
 import com.ibm.cloud.cloudant.kafka.common.utils.ResourceBundleUtil;
-
-import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.common.config.ConfigDef.Validator;
+import org.apache.kafka.common.config.ConfigException;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class UrlValidator implements Validator {
 
@@ -31,7 +30,7 @@ public class UrlValidator implements Validator {
             return;
         }
         if (value instanceof String) {
-            String stringValue = (String)value;
+            String stringValue = (String) value;
             try {
                 new URL(stringValue);
             } catch (MalformedURLException mue) {

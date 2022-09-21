@@ -31,30 +31,30 @@ import java.util.stream.Collectors;
 
 public class JavaCloudantUtil {
 
-	public static final String VERSION;
+    public static final String VERSION;
 
-	private static final String PROPS_FILE = "META-INF/com.ibm.cloud.cloudant.kafka.client.properties";
-	private static Logger LOG = LoggerFactory.getLogger(JavaCloudantUtil.class.toString());
+    private static final String PROPS_FILE = "META-INF/com.ibm.cloud.cloudant.kafka.client.properties";
+    private static Logger LOG = LoggerFactory.getLogger(JavaCloudantUtil.class.toString());
 
-	static {
-		Properties p = new Properties();
-		try (InputStream is = JavaCloudantUtil.class.getClassLoader().getResourceAsStream
-			(PROPS_FILE)) {
-			if (is != null) {
-				p.load(is);
-			}
-		} catch (IOException e) {
-			LOG.warn(PROPS_FILE, e);
-		}
-		VERSION = String.format(Locale.ENGLISH, "%s/%s/%s/%s/%s/%s",
-			p.getProperty("user.agent.name", "cloudant-kafka-connector"),
-			p.getProperty("user.agent.version", "UNKNOWN"),
-			System.getProperty("java.version", "UNKNOWN"),
-			System.getProperty("java.vendor", "UNKNOWN"),
-			System.getProperty("os.name", "UNKNOWN"),
-			System.getProperty("os.arch", "UNKNOWN")
-		);
-	}
+    static {
+        Properties p = new Properties();
+        try (InputStream is = JavaCloudantUtil.class.getClassLoader().getResourceAsStream
+                (PROPS_FILE)) {
+            if (is != null) {
+                p.load(is);
+            }
+        } catch (IOException e) {
+            LOG.warn(PROPS_FILE, e);
+        }
+        VERSION = String.format(Locale.ENGLISH, "%s/%s/%s/%s/%s/%s",
+                p.getProperty("user.agent.name", "cloudant-kafka-connector"),
+                p.getProperty("user.agent.version", "UNKNOWN"),
+                System.getProperty("java.version", "UNKNOWN"),
+                System.getProperty("java.vendor", "UNKNOWN"),
+                System.getProperty("os.name", "UNKNOWN"),
+                System.getProperty("os.arch", "UNKNOWN")
+        );
+    }
 
 	public static List<DocumentResult> batchWrite(Map<String, String> props, List<Map<String, Object>> data)
 		throws RuntimeException {
@@ -77,22 +77,22 @@ public class JavaCloudantUtil {
 		return resList;
 	}
 
-	public static void createTargetDb(Cloudant service, String dbName) {
-		PutDatabaseOptions dbOptions = new PutDatabaseOptions.Builder()
-			.db(dbName)
-			.build();
-		try {
-			service.putDatabase(dbOptions).execute();
-		} catch (ServiceResponseException sre) {
-			// error can happen if db exists
-			// pass in error message e.g. "Error during creation of database <dbname>"
-			if (sre.getStatusCode() == 412) {
-				LOG.info(String.format("Tried to create database %s but it already exists.", dbName));
-			} else {
-				LOG.error(String.format("Error during creation of database %s.  Error code: %d Error response: %s",
-					dbName, sre.getStatusCode(), sre.getMessage()));
-				sre.printStackTrace();
-			}
-		}
-	}
+    public static void createTargetDb(Cloudant service, String dbName) {
+        PutDatabaseOptions dbOptions = new PutDatabaseOptions.Builder()
+                .db(dbName)
+                .build();
+        try {
+            service.putDatabase(dbOptions).execute();
+        } catch (ServiceResponseException sre) {
+            // error can happen if db exists
+            // pass in error message e.g. "Error during creation of database <dbname>"
+            if (sre.getStatusCode() == 412) {
+                LOG.info(String.format("Tried to create database %s but it already exists.", dbName));
+            } else {
+                LOG.error(String.format("Error during creation of database %s.  Error code: %d Error response: %s",
+                        dbName, sre.getStatusCode(), sre.getMessage()));
+                sre.printStackTrace();
+            }
+        }
+    }
 }

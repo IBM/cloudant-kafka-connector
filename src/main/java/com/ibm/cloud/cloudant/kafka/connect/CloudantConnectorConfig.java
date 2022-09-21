@@ -14,33 +14,32 @@
 
 package com.ibm.cloud.cloudant.kafka.connect;
 
-import java.util.Map;
-
-import com.ibm.cloud.cloudant.security.CouchDbSessionAuthenticator;
-import com.ibm.cloud.sdk.core.security.Authenticator;
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.common.MessageKey;
 import com.ibm.cloud.cloudant.kafka.common.utils.ResourceBundleUtil;
-
+import com.ibm.cloud.cloudant.security.CouchDbSessionAuthenticator;
+import com.ibm.cloud.sdk.core.security.Authenticator;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
 import org.apache.kafka.common.config.ConfigDef.Width;
 
+import java.util.Map;
+
 public class CloudantConnectorConfig extends AbstractConfig {
 
     protected static final String DATABASE_GROUP = "Database";
     protected static final String AUTH_TYPE_DEFAULT = Authenticator.AUTHTYPE_IAM;
     protected static final ListRecommender VALID_AUTHS = new ListRecommender(
-        Authenticator.AUTHTYPE_IAM,
-        CouchDbSessionAuthenticator.AUTH_TYPE,
-        Authenticator.AUTHTYPE_BASIC,
-        Authenticator.AUTHTYPE_NOAUTH,
-        Authenticator.AUTHTYPE_BEARER_TOKEN,
-        Authenticator.AUTHTYPE_CONTAINER,
-        Authenticator.AUTHTYPE_VPC
-        );
+            Authenticator.AUTHTYPE_IAM,
+            CouchDbSessionAuthenticator.AUTH_TYPE,
+            Authenticator.AUTHTYPE_BASIC,
+            Authenticator.AUTHTYPE_NOAUTH,
+            Authenticator.AUTHTYPE_BEARER_TOKEN,
+            Authenticator.AUTHTYPE_CONTAINER,
+            Authenticator.AUTHTYPE_VPC
+    );
     protected static final String NULL_DEFAULT = null; // null default indicates it could be optional (depending on other config options)
     protected static final String LAST_SEQ_NUM_DEFAULT = "0";
 

@@ -14,14 +14,10 @@
 package com.ibm.cloud.cloudant.kafka.connect;
 
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
-import com.ibm.cloud.cloudant.kafka.common.MessageKey;
 import com.ibm.cloud.cloudant.kafka.common.utils.JavaCloudantUtil;
-import com.ibm.cloud.cloudant.kafka.common.utils.ResourceBundleUtil;
-
 import org.apache.kafka.common.config.Config;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.Task;
-import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.source.SourceConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,57 +29,51 @@ import java.util.Map;
 
 public class CloudantSourceConnector extends SourceConnector {
 
-	private static Logger LOG = LoggerFactory.getLogger(CloudantSourceConnector.class);
-	
-	private Map<String, String> configProperties;
+    private static Logger LOG = LoggerFactory.getLogger(CloudantSourceConnector.class);
 
-	@Override
-	public ConfigDef config() {
-		return CloudantSourceConnectorConfig.CONFIG_DEF;
-	}
+    private Map<String, String> configProperties;
 
-	@Override
-	public void start(Map<String, String> props) {
-	     configProperties = props;
-	}
+    @Override
+    public ConfigDef config() {
+        return CloudantSourceConnectorConfig.CONFIG_DEF;
+    }
 
-	@Override
-	public void stop() {
-		CachedClientManager.removeInstance(configProperties);
-	}
+    @Override
+    public void start(Map<String, String> props) {
+        configProperties = props;
+    }
 
-	@Override
-	public Class<? extends Task> taskClass() {
-		return CloudantSourceTask.class;
-	}
-	
-	@Override
-	public List<Map<String, String>> taskConfigs(int maxTasks) {
-		
-		try {
-			if (maxTasks > 1) {
-				LOG.warn(String.format("tasks.max requested was %d, but only 1 task supported", maxTasks));
-			}
-			List<Map<String, String>> taskConfigs = new ArrayList<Map<String, String>>(1);
-			Map<String, String> taskProps = new HashMap<String, String>(configProperties);
-			taskProps.put(InterfaceConst.TASK_NUMBER, String.valueOf(0));
-			taskConfigs.add(taskProps);
-			return taskConfigs;
-		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
-			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION), e);
-		}
-	}
+    @Override
+    public void stop() {
+        CachedClientManager.removeInstance(configProperties);
+    }
 
-	@Override
-	public String version() {
-		return JavaCloudantUtil.VERSION;
-	}
+    @Override
+    public Class<? extends Task> taskClass() {
+        return CloudantSourceTask.class;
+    }
 
-	@Override
-	public Config validate(Map<String, String> connectorConfigs) {
-		CloudantConfigValidator validator = new CloudantConfigValidator(connectorConfigs, config());
-		return validator.validate();
-	}
+    @Override
+    public List<Map<String, String>> taskConfigs(int maxTasks) {
+        if (maxTasks > 1) {
+            LOG.warn(String.format("tasks.max requested was %d, but only 1 task supported", maxTasks));
+        }
+        List<Map<String, String>> taskConfigs = new ArrayList<>(1);
+        Map<String, String> taskProps = new HashMap<>(configProperties);
+        taskProps.put(InterfaceConst.TASK_NUMBER, String.valueOf(0));
+        taskConfigs.add(taskProps);
+        return taskConfigs;
+    }
+
+    @Override
+    public String version() {
+        return JavaCloudantUtil.VERSION;
+    }
+
+    @Override
+    public Config validate(Map<String, String> connectorConfigs) {
+        CloudantConfigValidator validator = new CloudantConfigValidator(connectorConfigs, config());
+        return validator.validate();
+    }
 
 }

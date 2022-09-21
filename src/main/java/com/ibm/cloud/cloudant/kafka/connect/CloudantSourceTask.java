@@ -13,17 +13,12 @@
  */
 package com.ibm.cloud.cloudant.kafka.connect;
 
+import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
+import com.ibm.cloud.cloudant.kafka.schema.DocumentToSourceRecord;
 import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.cloudant.v1.model.ChangesResult;
 import com.ibm.cloud.cloudant.v1.model.ChangesResultItem;
 import com.ibm.cloud.cloudant.v1.model.PostChangesOptions;
-import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
-import com.ibm.cloud.cloudant.kafka.common.MessageKey;
-import com.ibm.cloud.cloudant.kafka.common.utils.ResourceBundleUtil;
-import com.ibm.cloud.cloudant.kafka.schema.DocumentToSourceRecord;
-import org.apache.kafka.common.config.ConfigException;
-
-import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
 import org.apache.kafka.connect.storage.OffsetStorageReader;
@@ -40,8 +35,7 @@ import java.util.stream.Stream;
 
 public class CloudantSourceTask extends SourceTask {
 
-    private static Logger LOG = LoggerFactory.getLogger(CloudantSourceTask.class);
-
+    private static final Logger LOG = LoggerFactory.getLogger(CloudantSourceTask.class);
     private static final String DEFAULT_CLOUDANT_LAST_SEQ = "0";
 
     private static final String OFFSET_KEY = "cloudant.url.and.db";
@@ -52,9 +46,8 @@ public class CloudantSourceTask extends SourceTask {
     private List<String> topics = null;
 
     private String latestSequenceNumber = null;
-    private int batch_size = 0;
+    private int batchSize = 0;
 
-    private ChangesResult cloudantChangesResult = null;
     private BiFunction<String, ChangesResultItem, SourceRecord> documentToSourceRecord;
 
     @Override
@@ -65,12 +58,12 @@ public class CloudantSourceTask extends SourceTask {
 
         // the changes feed for initial processing (not continuous yet)
         PostChangesOptions postChangesOptions = new PostChangesOptions.Builder()
-            .db(db)
-            .includeDocs(true)
-            .since(latestSequenceNumber)
-            .limit(batch_size)
-            .build();
-        cloudantChangesResult = service.postChanges(postChangesOptions).execute().getResult();
+                .db(db)
+                .includeDocs(true)
+                .since(latestSequenceNumber)
+                .limit(batchSize)
+                .build();
+        ChangesResult cloudantChangesResult = service.postChanges(postChangesOptions).execute().getResult();
 
         if (cloudantChangesResult != null) {
             LOG.debug("Got " + cloudantChangesResult.getResults().size() + " changes");
@@ -78,23 +71,20 @@ public class CloudantSourceTask extends SourceTask {
 
             // process the results into the array to be returned
             List<SourceRecord> records = cloudantChangesResult.getResults().stream()
-                .flatMap(row -> {
-                    return topics.stream().flatMap(topic -> {
+                    .flatMap(row -> topics.stream().flatMap(topic -> {
                         SourceRecord record = documentToSourceRecord.apply(topic, row);
-                        if (Optional.ofNullable(row.isDeleted()).orElse(false).booleanValue()) {
+                        if (Optional.ofNullable(row.isDeleted()).orElse(false)) {
                             // row is deleted, produce a tombstone message from the record as well
                             SourceRecord tombstone = record.newRecord(record.topic(), record.kafkaPartition(), record.keySchema(), record.key(), null, null, record.timestamp());
                             return Stream.of(record, tombstone);
                         } else {
                             return Stream.of(record);
                         }
-                    });
-                }).collect(Collectors.toList());
+                    })).collect(Collectors.toList());
 
             LOG.info("Return " + records.size() / topics.size() + " records with last offset "
                     + latestSequenceNumber);
 
-            cloudantChangesResult = null;
             return records;
         }
 
@@ -104,42 +94,29 @@ public class CloudantSourceTask extends SourceTask {
 
     @Override
     public void start(Map<String, String> props) {
+        this.config = new CloudantSourceTaskConfig(props);
+        url = config.getString(InterfaceConst.URL);
+        db = config.getString(InterfaceConst.DB);
+        topics = config.getList(InterfaceConst.TOPIC);
+        latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
+        batchSize = config.getInt(InterfaceConst.BATCH_SIZE) == null ? InterfaceConst
+                .DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
+        this.documentToSourceRecord = new DocumentToSourceRecord(offset(url, db), CloudantSourceTask::offsetValue);
 
-        try {
-            this.config = new CloudantSourceTaskConfig(props);
-            url = config.getString(InterfaceConst.URL);
-            db = config.getString(InterfaceConst.DB);
-            topics = config.getList(InterfaceConst.TOPIC);
-            latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
-            batch_size = config.getInt(InterfaceConst.BATCH_SIZE) == null ? InterfaceConst
-                    .DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
-			this.documentToSourceRecord = new DocumentToSourceRecord(offset(url, db), CloudantSourceTask::offsetValue);
-			/*if (tasks_max > 1) {
-				throw new ConfigException("CouchDB _changes API only supports 1 thread. Configure
-				tasks.max=1");
-			}*/
+        if (latestSequenceNumber == null) {
+            latestSequenceNumber = DEFAULT_CLOUDANT_LAST_SEQ;
 
-            if (latestSequenceNumber == null) {
-                latestSequenceNumber = DEFAULT_CLOUDANT_LAST_SEQ;
+            OffsetStorageReader offsetReader = context.offsetStorageReader();
 
-                OffsetStorageReader offsetReader = context.offsetStorageReader();
-
-                if (offsetReader != null) {
-                    Map<String, Object> offset = offsetReader.offset(offset(url, db));
-                    if (offset != null) {
-                        latestSequenceNumber = (String) offset.get(InterfaceConst.LAST_CHANGE_SEQ);
-                        LOG.info("Start with current offset (last sequence): " +
-                                latestSequenceNumber);
-                    }
+            if (offsetReader != null) {
+                Map<String, Object> offset = offsetReader.offset(offset(url, db));
+                if (offset != null) {
+                    latestSequenceNumber = (String) offset.get(InterfaceConst.LAST_CHANGE_SEQ);
+                    LOG.info("Start with current offset (last sequence): " +
+                            latestSequenceNumber);
                 }
             }
-
-        } catch (ConfigException e) {
-            // TODO remove this catch block to throw config exceptions when properties don't exist
-            throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION)
-                    , e);
         }
-
     }
 
     @Override

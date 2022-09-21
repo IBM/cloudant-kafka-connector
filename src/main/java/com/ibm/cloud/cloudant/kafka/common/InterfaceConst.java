@@ -14,43 +14,42 @@
 package com.ibm.cloud.cloudant.kafka.common;
 
 public class InterfaceConst {
-	
-	public final static String URL = "cloudant.url";
-	public final static String DB = "cloudant.db";
-	public final static String USERNAME = "cloudant.username";
-	public final static String PASSWORD = "cloudant.password";
-	public final static String BEARER_TOKEN = "cloudant.bearer.token";
-	public final static String IAM_PROFILE_ID = "cloudant.iam.profile.id";
-	public final static String IAM_PROFILE_NAME = "cloudant.iam.profile.name";
-	public final static String CR_TOKEN_FILENAME = "cloudant.cr.token.filename";
-	public final static String IAM_PROFILE_CRN = "cloudant.iam.profile.crn";
-	public final static String AUTH_URL = "cloudant.auth.url";
-	public final static String SCOPE = "cloudant.scope";
-	public final static String CLIENT_ID = "cloudant.client.id";
-	public final static String CLIENT_SECRET = "cloudant.client.secret";
-	public final static String APIKEY = "cloudant.apikey";
-	public final static String AUTH_TYPE = "cloudant.auth.type";
-	
-	public final static String LAST_CHANGE_SEQ = "cloudant.since";
 
-	public final static String TOPIC = "topics";
-	
-	public final static String TASKS_MAX = "tasks.max";
-	public final static String TASK_NUMBER = "task.number";
-	public final static String BATCH_SIZE = "batch.size";
-		
-	public static final int DEFAULT_BATCH_SIZE = 1000;
-	public static final int DEFAULT_TASKS_MAX = 1;
-	public static final int DEFAULT_TASK_NUMBER = 0;
-	
-	public final static String REPLICATION = "replication";	
-	public final static Boolean DEFAULT_REPLICATION = false;
-	public final static String KC_SCHEMA = "kc_schema";
+    public final static String URL = "cloudant.url";
+    public final static String DB = "cloudant.db";
+    public final static String USERNAME = "cloudant.username";
+    public final static String PASSWORD = "cloudant.password";
+    public final static String BEARER_TOKEN = "cloudant.bearer.token";
+    public final static String IAM_PROFILE_ID = "cloudant.iam.profile.id";
+    public final static String IAM_PROFILE_NAME = "cloudant.iam.profile.name";
+    public final static String CR_TOKEN_FILENAME = "cloudant.cr.token.filename";
+    public final static String IAM_PROFILE_CRN = "cloudant.iam.profile.crn";
+    public final static String AUTH_URL = "cloudant.auth.url";
+    public final static String SCOPE = "cloudant.scope";
+    public final static String CLIENT_ID = "cloudant.client.id";
+    public final static String CLIENT_SECRET = "cloudant.client.secret";
+    public final static String APIKEY = "cloudant.apikey";
+    public final static String AUTH_TYPE = "cloudant.auth.type";
 
-	// Whether to omit design documents
-	public final static String OMIT_DESIGN_DOCS = "cloudant.omit.design.docs";
+    public final static String LAST_CHANGE_SEQ = "cloudant.since";
 
-	// Whether to use a struct schema for the message values
-	public final static String USE_VALUE_SCHEMA_STRUCT = "cloudant.value.schema.struct";
-	public final static String FLATTEN_VALUE_SCHEMA_STRUCT = "cloudant.value.schema.struct.flatten";
+    public final static String TOPIC = "topics";
+
+    public final static String TASKS_MAX = "tasks.max";
+    public final static String TASK_NUMBER = "task.number";
+    public final static String BATCH_SIZE = "batch.size";
+
+    public static final int DEFAULT_BATCH_SIZE = 1000;
+    public static final int DEFAULT_TASKS_MAX = 1;
+    public static final int DEFAULT_TASK_NUMBER = 0;
+
+    public final static String REPLICATION = "replication";
+    public final static Boolean DEFAULT_REPLICATION = false;
+
+    // Whether to omit design documents
+    public final static String OMIT_DESIGN_DOCS = "cloudant.omit.design.docs";
+
+    // Whether to use a struct schema for the message values
+    public final static String USE_VALUE_SCHEMA_STRUCT = "cloudant.value.schema.struct";
+    public final static String FLATTEN_VALUE_SCHEMA_STRUCT = "cloudant.value.schema.struct.flatten";
 }
