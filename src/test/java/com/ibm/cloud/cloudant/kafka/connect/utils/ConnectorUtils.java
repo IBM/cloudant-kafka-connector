@@ -19,7 +19,6 @@ import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.connect.CloudantConnectorConfig;
 import com.ibm.cloud.cloudant.kafka.connect.CloudantSourceConnector;
 import com.ibm.cloud.cloudant.kafka.connect.CloudantSourceTask;
-
 import org.apache.kafka.connect.connector.ConnectorContext;
 import org.apache.kafka.connect.source.SourceTaskContext;
 import org.easymock.EasyMock;
@@ -113,14 +112,14 @@ public class ConnectorUtils {
         Map<String, String> connectorProperties = new HashMap<>();
 
         // some hardcoded properties we don't normally need to override
-        connectorProperties.put(InterfaceConst.DB, "kafka-test-db-" + UUID.randomUUID().toString());
+        connectorProperties.put(InterfaceConst.DB, "kafka-test-db-" + UUID.randomUUID());
         connectorProperties.put(InterfaceConst.TOPIC, "test-topic");
         connectorProperties.put(InterfaceConst.TASKS_MAX, "1");
         connectorProperties.put(InterfaceConst.BATCH_SIZE, "10000");
         // cached connection manager needs this - in real life this would be the name set in the connector properties file
         connectorProperties.put("name", "cloudant-connector-test");
 
-        Collection<String> properties = new ArrayList();
+        Collection<String> properties = new ArrayList<>();
         properties.addAll(CloudantConnectorConfig.CONFIG_DEF.configKeys().keySet());
         properties.addAll(connectorProperties.keySet());
 

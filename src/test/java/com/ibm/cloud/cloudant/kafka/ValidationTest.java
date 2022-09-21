@@ -14,28 +14,26 @@
 
 package com.ibm.cloud.cloudant.kafka;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.HashMap;
-
-import com.ibm.cloud.cloudant.kafka.connect.CloudantSinkConnectorConfig;
 import com.ibm.cloud.cloudant.kafka.connect.CloudantConfigValidator;
-
-import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.APIKEY;
-import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.AUTH_TYPE;
-import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.USERNAME;
-import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.PASSWORD;
-import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.URL;
-import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.TOPIC;
-import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.DB;
-import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.BEARER_TOKEN;
-import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.IAM_PROFILE_ID;
-
+import com.ibm.cloud.cloudant.kafka.connect.CloudantSinkConnectorConfig;
 import org.apache.kafka.common.config.Config;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigValue;
 import org.junit.Test;
+
+import java.util.HashMap;
+
+import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.APIKEY;
+import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.AUTH_TYPE;
+import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.BEARER_TOKEN;
+import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.DB;
+import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.IAM_PROFILE_ID;
+import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.PASSWORD;
+import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.TOPIC;
+import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.URL;
+import static com.ibm.cloud.cloudant.kafka.common.InterfaceConst.USERNAME;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ValidationTest {
 

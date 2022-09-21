@@ -18,15 +18,13 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.ibm.cloud.cloudant.v1.Cloudant;
-import com.ibm.cloud.cloudant.v1.model.DatabaseInformation;
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
-import com.ibm.cloud.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloud.cloudant.kafka.connect.CachedClientManager;
 import com.ibm.cloud.cloudant.kafka.connect.CloudantSinkTask;
 import com.ibm.cloud.cloudant.kafka.connect.utils.CloudantDbUtils;
 import com.ibm.cloud.cloudant.kafka.connect.utils.ConnectorUtils;
-
+import com.ibm.cloud.cloudant.v1.Cloudant;
+import com.ibm.cloud.cloudant.v1.model.DatabaseInformation;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.connect.data.Schema;
@@ -36,7 +34,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +50,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
     private List<SinkRecord> sinkRecords;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         //Set properties
         targetProperties = ConnectorUtils.getTestProperties();
 
@@ -126,9 +123,9 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
             testTimes.add(testTime);
             results.addProperty("testRounds", 1);
             DatabaseInformation dbInfo = CloudantDbUtils.getDbInfo(
-                targetProperties.get(InterfaceConst.DB), targetService);
+                    targetProperties.get(InterfaceConst.DB), targetService);
             results.addProperty("diskSize", dbInfo.getSizes().getFile());
-            results.addProperty("documents",dbInfo.getDocCount());
+            results.addProperty("documents", dbInfo.getDocCount());
 
             results.addProperty(InterfaceConst.TOPIC, targetProperties.get(InterfaceConst.TOPIC));
             results.addProperty(InterfaceConst.BATCH_SIZE, targetProperties.get(InterfaceConst
@@ -167,7 +164,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
     }
 
     @After
-    public void tearDown() throws MalformedURLException {
+    public void tearDown() {
         CloudantDbUtils.dropDatabase(targetProperties);
     }
 

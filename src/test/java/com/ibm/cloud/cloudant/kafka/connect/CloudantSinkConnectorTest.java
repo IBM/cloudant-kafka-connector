@@ -16,9 +16,7 @@ package com.ibm.cloud.cloudant.kafka.connect;
 
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.connect.utils.ConnectorUtils;
-
 import junit.framework.TestCase;
-
 import org.apache.kafka.connect.connector.ConnectorContext;
 import org.junit.Assert;
 import org.powermock.api.easymock.PowerMock;
@@ -61,9 +59,9 @@ public class CloudantSinkConnectorTest extends TestCase {
         Assert.assertEquals(targetProperties.get(InterfaceConst.URL), taskConfigs.get(0).get
                 (InterfaceConst.URL));
         Assert.assertEquals(targetProperties.get(InterfaceConst.USERNAME), taskConfigs.get(0)
-            .get(InterfaceConst.USERNAME));
+                .get(InterfaceConst.USERNAME));
         Assert.assertEquals(targetProperties.get(InterfaceConst.PASSWORD), taskConfigs.get(0).get
-            (InterfaceConst.PASSWORD));
+                (InterfaceConst.PASSWORD));
         Assert.assertEquals(targetProperties.get(InterfaceConst.TOPIC), taskConfigs.get(0).get
                 (InterfaceConst.TOPIC));
 
