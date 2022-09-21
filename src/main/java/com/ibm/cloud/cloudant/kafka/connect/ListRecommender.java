@@ -14,16 +14,15 @@
 
 package com.ibm.cloud.cloudant.kafka.connect;
 
+import com.ibm.cloud.cloudant.kafka.common.MessageKey;
+import com.ibm.cloud.cloudant.kafka.common.utils.ResourceBundleUtil;
+import org.apache.kafka.common.config.ConfigDef.Recommender;
+import org.apache.kafka.common.config.ConfigDef.Validator;
+import org.apache.kafka.common.config.ConfigException;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import com.ibm.cloud.cloudant.kafka.common.MessageKey;
-import com.ibm.cloud.cloudant.kafka.common.utils.ResourceBundleUtil;
-
-import org.apache.kafka.common.config.ConfigException;
-import org.apache.kafka.common.config.ConfigDef.Recommender;
-import org.apache.kafka.common.config.ConfigDef.Validator;
 
 // Recommend and Validate that value must be one from a given list
 // NB matching is case insensitive for Strings
@@ -32,9 +31,9 @@ public class ListRecommender implements Recommender, Validator {
     List<Object> validValues = new LinkedList<>();
 
     public ListRecommender(Object... validValues) {
-        for (Object validValue: validValues) {
+        for (Object validValue : validValues) {
             if (validValue instanceof String) {
-                this.validValues.add(((String)validValue).toLowerCase());
+                this.validValues.add(((String) validValue).toLowerCase());
             } else {
                 this.validValues.add(validValue);
             }
@@ -59,7 +58,7 @@ public class ListRecommender implements Recommender, Validator {
         }
 
         if (value instanceof String) {
-            value = ((String)value).toLowerCase();
+            value = ((String) value).toLowerCase();
         }
 
         if (!validValues.contains(value)) {

@@ -13,67 +13,36 @@
  */
 package com.ibm.cloud.cloudant.kafka.common.utils;
 
-import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Locale;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 public class ResourceBundleUtil {
 
-	private static Logger LOG = LoggerFactory.getLogger(ResourceBundleUtil.class);
+    private static Logger LOG = LoggerFactory.getLogger(ResourceBundleUtil.class);
 
-	private static ResourceBundle rb = null;
-	
-	public static ResourceBundle getRb() {
-		
-		if(rb == null){
-			Locale locale = new Locale("en", "US"); 
-			rb = ResourceBundle.getBundle("message", locale);
-		}
-		
-		Enumeration<String> keys = rb.getKeys();
-		while(keys.hasMoreElements()){
-			String key = (String)  keys.nextElement();
-			LOG.debug(key);
-		}
+    private static ResourceBundle rb = null;
 
-		return rb;
-	}
+    public static ResourceBundle getRb() {
 
-	public static String get(String key){
-		return getRb().getString(key);
-	}
-	
-	public static int numberOfTopics(Map<String, String> configProperties) {
-		return configProperties.get(InterfaceConst.TOPIC).split(",").length;
-	}
-	
-	/***
-	 * Generate topics to be consumed considering number of 
-	 * tasks
-	 * @param configProperties the configuration properties from which to extract the list of topics
-	 * @param maxTasks max number of tasks
-	 * @return a list of topics
-	 */
-	public static ArrayList<String> balanceTopicsTasks(Map<String, String> configProperties, int maxTasks) {
-		// Get topics
-		String[] topics = configProperties.get(InterfaceConst.TOPIC).split(",");
-		
-		int topicsLength = numberOfTopics(configProperties);  
-		ArrayList<String> topicsInTask = new ArrayList<String>();
-		for (int n=0; n < topicsLength; n++){
-			if (n < maxTasks) {
-				topicsInTask.add(topics[n]);
-			} else {
-				topicsInTask.set(n % maxTasks, topicsInTask.get(n % maxTasks) + "," + topics[n]);
-			}
-		}	
-		return topicsInTask;
-	}
+        if (rb == null) {
+            Locale locale = new Locale("en", "US");
+            rb = ResourceBundle.getBundle("message", locale);
+        }
 
+        Enumeration<String> keys = rb.getKeys();
+        while (keys.hasMoreElements()) {
+            String key = keys.nextElement();
+            LOG.debug(key);
+        }
+
+        return rb;
+    }
+
+    public static String get(String key) {
+        return getRb().getString(key);
+    }
 }

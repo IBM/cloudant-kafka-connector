@@ -14,12 +14,12 @@
 
 package com.ibm.cloud.cloudant.internal;
 
-import java.util.Collections;
-import java.util.Map;
-
+import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.sdk.core.security.Authenticator;
-import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
+
+import java.util.Collections;
+import java.util.Map;
 
 public class ServiceFactory {
 

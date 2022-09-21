@@ -29,7 +29,7 @@ import java.util.function.Function;
 public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function<ConnectRecord<R>, Map<String, Object>> {
 
     static final String HEADER_DOC_ID_KEY = "cloudant_doc_id";
-    
+
     private static Logger LOG = LoggerFactory.getLogger(ConnectRecordMapper.class);
 
     public Map<String, Object> apply(ConnectRecord<R> record) {
@@ -67,7 +67,7 @@ public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function
     // convert struct to map by adding key/values to passed in map, and returning it 
     private Map<String, Object> convertStruct(Struct struct, Map<String, Object> outMap) {
         Schema schema = struct.schema();
-        
+
         // iterate fields and add to map
         for (Field f : schema.fields()) {
             Object value = struct.get(f);
@@ -83,12 +83,12 @@ public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function
             if (k instanceof String) {
                 Object v = inMap.get(k);
                 if (v instanceof Map) {
-                    outMap.put((String)k, convertMap((Map)v, new HashMap<>()));
+                    outMap.put((String) k, convertMap((Map) v, new HashMap<>()));
                 } else if (v instanceof Struct) {
-                    outMap.put((String)k, convertStruct((Struct)v, new HashMap<>()));
+                    outMap.put((String) k, convertStruct((Struct) v, new HashMap<>()));
                 } else {
                     // assume that JSON serialiser knows how to deal with it
-                    outMap.put((String)k, v);
+                    outMap.put((String) k, v);
                 }
             } else {
                 throw new IllegalArgumentException("unsupported type in map key " + k.getClass());
@@ -115,13 +115,13 @@ public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function
                 return value;
             // map/struct cases: chain a new map onto this one, as the value, and recursively fill in its contents 
             case MAP:
-                return convertMap((Map)value, new HashMap<>());
+                return convertMap((Map) value, new HashMap<>());
             case STRUCT:
-                return convertStruct((Struct)value, new HashMap<>());
+                return convertStruct((Struct) value, new HashMap<>());
             default:
                 throw new IllegalArgumentException("unknown type " + type);
         }
-            
+
     }
 
     private String getHeaderForDocId(ConnectRecord<R> record) {

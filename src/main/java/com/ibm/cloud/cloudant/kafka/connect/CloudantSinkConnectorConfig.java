@@ -13,24 +13,20 @@
  */
 package com.ibm.cloud.cloudant.kafka.connect;
 
-import java.util.Map;
-
 import org.apache.kafka.common.config.ConfigDef;
+
+import java.util.Map;
 
 public class CloudantSinkConnectorConfig extends CloudantConnectorConfig {
 
     public static final ConfigDef CONFIG_DEF = baseConfigDef();
 
-	public static ConfigDef baseConfigDef() {
-		return new ConfigDef(CloudantConnectorConfig.CONFIG_DEF);
-	}
-	
-	public CloudantSinkConnectorConfig(Map<String, String> originals) {
-		super(CONFIG_DEF, originals, false);
-	}
-	
-	protected CloudantSinkConnectorConfig(ConfigDef subclassConfigDef, Map<String, String> originals) {
-	    super(subclassConfigDef, originals);
-	}
+    public static ConfigDef baseConfigDef() {
+        return new ConfigDef(CloudantConnectorConfig.CONFIG_DEF);
+    }
+
+    protected CloudantSinkConnectorConfig(ConfigDef subclassConfigDef, Map<String, String> originals) {
+        super(subclassConfigDef, originals);
+    }
 
 }

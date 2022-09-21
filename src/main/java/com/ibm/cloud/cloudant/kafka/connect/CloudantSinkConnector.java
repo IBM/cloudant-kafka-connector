@@ -14,14 +14,10 @@
 package com.ibm.cloud.cloudant.kafka.connect;
 
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
-import com.ibm.cloud.cloudant.kafka.common.MessageKey;
 import com.ibm.cloud.cloudant.kafka.common.utils.JavaCloudantUtil;
-import com.ibm.cloud.cloudant.kafka.common.utils.ResourceBundleUtil;
-
 import org.apache.kafka.common.config.Config;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.Task;
-import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.SinkConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,63 +29,54 @@ import java.util.Map;
 
 public class CloudantSinkConnector extends SinkConnector {
 
-	private static Logger LOG = LoggerFactory.getLogger(CloudantSinkConnector.class);
-	
-	private Map<String, String> configProperties;
+    private static Logger LOG = LoggerFactory.getLogger(CloudantSinkConnector.class);
 
-	@Override
-	public ConfigDef config() {
-		return CloudantSinkConnectorConfig.CONFIG_DEF;
-	}
+    private Map<String, String> configProperties;
 
-	
-	@Override
-	public String version() {
-		return JavaCloudantUtil.VERSION;
-	}
+    @Override
+    public ConfigDef config() {
+        return CloudantSinkConnectorConfig.CONFIG_DEF;
+    }
 
-	@Override
-	public void start(Map<String, String> props) {
-	     configProperties = props;
-	}
 
-	@Override
-	public Class<? extends Task> taskClass() {
-			return CloudantSinkTask.class;
-	}
+    @Override
+    public String version() {
+        return JavaCloudantUtil.VERSION;
+    }
 
-	@Override
-	public List<Map<String, String>> taskConfigs(int maxTasks) {
-		
-		try {			
-			ArrayList<String> topics = ResourceBundleUtil.balanceTopicsTasks(configProperties, maxTasks);
-			int topicsLength = ResourceBundleUtil.numberOfTopics(configProperties);
-			List<Map<String, String>> taskConfigs = new ArrayList<Map<String, String>>(maxTasks);
-			
-			for (int i = 0; i < maxTasks; i++) {
-				Map<String, String> taskProps = new HashMap<String, String>(configProperties);		
-				// add task specific properties here (if any)
-				taskProps.put(InterfaceConst.TASK_NUMBER, String.valueOf(i));
-				//taskProps.replace(InterfaceConst.TOPIC, topics.get(i % topicsLength));
-				
-				taskConfigs.add(taskProps);
-			}
-			return taskConfigs;		
-		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
-			throw new ConnectException(ResourceBundleUtil.get(MessageKey.CONFIGURATION_EXCEPTION), e);
-		}
-	}
+    @Override
+    public void start(Map<String, String> props) {
+        configProperties = props;
+    }
 
-	@Override
-	public void stop() {
-		CachedClientManager.removeInstance(configProperties);
-	}
+    @Override
+    public Class<? extends Task> taskClass() {
+        return CloudantSinkTask.class;
+    }
 
-	@Override
-	public Config validate(Map<String, String> connectorConfigs) {
-		CloudantConfigValidator validator = new CloudantConfigValidator(connectorConfigs, config());
-		return validator.validate();
-	}
+    @Override
+    public List<Map<String, String>> taskConfigs(int maxTasks) {
+        List<Map<String, String>> taskConfigs = new ArrayList<>(maxTasks);
+
+        for (int i = 0; i < maxTasks; i++) {
+            Map<String, String> taskProps = new HashMap<>(configProperties);
+            // add task specific properties here (if any)
+            taskProps.put(InterfaceConst.TASK_NUMBER, String.valueOf(i));
+
+            taskConfigs.add(taskProps);
+        }
+        return taskConfigs;
+    }
+
+    @Override
+    public void stop() {
+        CachedClientManager.removeInstance(configProperties);
+    }
+
+    @Override
+    public Config validate(Map<String, String> connectorConfigs) {
+        CloudantConfigValidator validator = new CloudantConfigValidator(connectorConfigs, config());
+        return validator.validate();
+    }
 
 }
