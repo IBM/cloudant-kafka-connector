@@ -1,5 +1,5 @@
 # UNRELEASED
-- [BREAKING CHANGE] Source connector flatten, schema generation and omit design documents options have been replaced by message tranforms. See README for details.
+- [BREAKING CHANGE] Source connector flatten, schema generation and omit design documents options have been replaced by message transforms. See README for details.
 - [BREAKING CHANGE] Source connector now emits `java.util.Map` (not `String`) record values by default. See README for details.
 - [BREAKING CHANGE] Source connector now emits tombstone events for deleted documents. See [single message transforms](README.md#single-message-transforms) section in README for details.
 - [BREAKING CHANGE] Publish releases to https://github.com/IBM/cloudant-kafka-connector/releases.

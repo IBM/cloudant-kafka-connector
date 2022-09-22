@@ -14,6 +14,7 @@
 package com.ibm.cloud.cloudant.kafka.common;
 
 public class CloudantConst {
+    public static final String CLOUDANT_DESIGN_PREFIX = "_design/";
     public static final String CLOUDANT_DOC_ID = "_id";
     public static final String CLOUDANT_REV = "_rev";
 
