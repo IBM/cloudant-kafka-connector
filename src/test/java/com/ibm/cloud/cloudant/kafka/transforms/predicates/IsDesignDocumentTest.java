@@ -49,6 +49,11 @@ public class IsDesignDocumentTest {
         isDDoc.test(wrapInRecord(Schema.STRING_SCHEMA, "foo"));
     }
 
+    @Test(expected = DataException.class)
+    public void testKeyNoId() {
+        isDDoc.test(wrapInRecord(RECORD_KEY_SCHEMA, Collections.singletonMap("foo", "bar")));
+    }
+
     @Test
     public void testDesignDocument() {
         assertTrue("The design document should be filtered.",
