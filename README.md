@@ -154,7 +154,9 @@ The examples below demonstrate modifying records produced by the Cloudant source
     ```
 
 1. Omit design documents from the produced events by using the Kafka built-in `org.apache.kafka.connect.transforms.Filter`
-   in conjunction with the predicate `com.ibm.cloud.cloudant.kafka.connect.transforms.predicates.IsDesignDocument`.
+   in conjunction with the predicate `com.ibm.cloud.cloudant.kafka.connect.transforms.predicates.IsDesignDocument`. Note that this
+   predicate relies on the key format of the Cloudant source connector events so must be applied before any other transformations that
+   alter the key format.
     ```
     transforms=omitDesignDocs
     transforms.omitDesignDocs.type=org.apache.kafka.connect.transforms.Filter
