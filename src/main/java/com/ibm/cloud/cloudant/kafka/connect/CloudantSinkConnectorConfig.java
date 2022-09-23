@@ -13,6 +13,9 @@
  */
 package com.ibm.cloud.cloudant.kafka.connect;
 
+import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
+import com.ibm.cloud.cloudant.kafka.common.MessageKey;
+import com.ibm.cloud.cloudant.kafka.common.utils.ResourceBundleUtil;
 import org.apache.kafka.common.config.ConfigDef;
 
 import java.util.Map;
@@ -22,7 +25,18 @@ public class CloudantSinkConnectorConfig extends CloudantConnectorConfig {
     public static final ConfigDef CONFIG_DEF = baseConfigDef();
 
     public static ConfigDef baseConfigDef() {
-        return new ConfigDef(CloudantConnectorConfig.CONFIG_DEF);
+        return new ConfigDef(CloudantConnectorConfig.CONFIG_DEF)
+                // batch size
+                .define(InterfaceConst.BATCH_SIZE,
+                        ConfigDef.Type.INT,
+                        InterfaceConst.DEFAULT_BATCH_SIZE_SINK,
+                        ConfigDef.Range.between(InterfaceConst.BATCH_SIZE_MIN_SINK, InterfaceConst.BATCH_SIZE_MAX_SINK),
+                        ConfigDef.Importance.MEDIUM,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_BATCH_SIZE_SINK_DOC),
+                        DATABASE_GROUP,
+                        1,
+                        ConfigDef.Width.SHORT,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_BATCH_SIZE_DISP));
     }
 
     protected CloudantSinkConnectorConfig(ConfigDef subclassConfigDef, Map<String, String> originals) {

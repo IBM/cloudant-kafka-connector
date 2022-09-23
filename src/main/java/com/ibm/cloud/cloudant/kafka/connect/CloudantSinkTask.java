@@ -78,10 +78,8 @@ public class CloudantSinkTask extends SinkTask {
     public void start(Map<String, String> props) {
         config = new CloudantSinkTaskConfig(props);
         taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
-
         topics = config.getList(InterfaceConst.TOPIC);
-
-        batchSize = config.getInt(InterfaceConst.BATCH_SIZE) == null ? InterfaceConst.DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
+        batchSize = config.getInt(InterfaceConst.BATCH_SIZE);
     }
 
     @Override

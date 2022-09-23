@@ -38,7 +38,18 @@ public class CloudantSourceConnectorConfig extends CloudantConnectorConfig {
                         DATABASE_GROUP,
                         1,
                         Width.LONG,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC));
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DISP))
+                // batch size
+                .define(InterfaceConst.BATCH_SIZE,
+                        Type.INT,
+                        InterfaceConst.DEFAULT_BATCH_SIZE_SOURCE,
+                        ConfigDef.Range.between(InterfaceConst.BATCH_SIZE_MIN_SOURCE, InterfaceConst.BATCH_SIZE_MAX_SOURCE),
+                        Importance.MEDIUM,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_BATCH_SIZE_SOURCE_DOC),
+                        DATABASE_GROUP,
+                        1,
+                        Width.SHORT,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_BATCH_SIZE_DISP));
     }
 
     public CloudantSourceConnectorConfig(Map<String, String> originals) {

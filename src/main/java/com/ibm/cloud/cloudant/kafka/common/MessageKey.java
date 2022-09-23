@@ -35,6 +35,8 @@ public class MessageKey {
     public static final String CLOUDANT_CONNECTION_SCOPE_DOC = "CloudantConnectScopeDoc";
     public static final String CLOUDANT_CONNECTION_CLIENT_ID_DOC = "CloudantConnectClientIdDoc";
     public static final String CLOUDANT_CONNECTION_CLIENT_SECRET_DOC = "CloudantConnectClientSecretDoc";
+    public static final String CLOUDANT_BATCH_SIZE_SOURCE_DOC = "CloudantBatchSizeSourceDoc";
+    public static final String CLOUDANT_BATCH_SIZE_SINK_DOC = "CloudantBatchSizeSinkDoc";
 
     public static final String CLOUDANT_CONNECTION_URL_DISP = "CloudantConnectUrlDisp";
     public static final String CLOUDANT_CONNECTION_DB_DISP = "CloudantConnectDbDisp";
@@ -51,9 +53,9 @@ public class MessageKey {
     public static final String CLOUDANT_CONNECTION_SCOPE_DISP = "CloudantConnectScopeDisp";
     public static final String CLOUDANT_CONNECTION_CLIENT_ID_DISP = "CloudantConnectClientIdDisp";
     public static final String CLOUDANT_CONNECTION_CLIENT_SECRET_DISP = "CloudantConnectClientSecretDisp";
-
-
     public static final String CLOUDANT_LAST_SEQ_NUM_DOC = "CloudantLastSeqNumDoc";
+    public static final String CLOUDANT_LAST_SEQ_NUM_DISP = "CloudantLastSeqNumDisp";
+    public static final String CLOUDANT_BATCH_SIZE_DISP = "CloudantBatchSizeDisp";
 
     public static final String KAFKA_TOPIC_LIST_DOC = "KafkaTopicListDoc";
     public static final String KAFKA_TOPIC_LIST_DISP = "KafkaTopicListDisp";
@@ -71,5 +73,4 @@ public class MessageKey {
 
     public static final String CLOUDANT_KEY_NO_ID =	"CloudantKeyNoId";
 
-    public static final String GUID_SCHEMA = "GuidSchema";
 }
