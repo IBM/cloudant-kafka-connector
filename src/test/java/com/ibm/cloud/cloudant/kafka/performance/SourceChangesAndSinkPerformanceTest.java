@@ -17,12 +17,12 @@ import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.ibm.cloud.cloudant.kafka.SourceChangesConnector;
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.connect.CachedClientManager;
-import com.ibm.cloud.cloudant.kafka.connect.CloudantSinkConnector;
-import com.ibm.cloud.cloudant.kafka.connect.CloudantSinkTask;
-import com.ibm.cloud.cloudant.kafka.connect.CloudantSourceConnector;
-import com.ibm.cloud.cloudant.kafka.connect.CloudantSourceTask;
+import com.ibm.cloud.cloudant.kafka.SinkConnector;
+import com.ibm.cloud.cloudant.kafka.connect.SinkTask;
+import com.ibm.cloud.cloudant.kafka.connect.SourceChangesTask;
 import com.ibm.cloud.cloudant.kafka.connect.utils.CloudantDbUtils;
 import com.ibm.cloud.cloudant.kafka.connect.utils.ConnectorUtils;
 import com.ibm.cloud.cloudant.v1.Cloudant;
@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
+public class SourceChangesAndSinkPerformanceTest extends AbstractBenchmark {
     private static Cloudant targetService;
     private static JsonObject testResults1 = new JsonObject();
     private static JsonObject testResults2 = new JsonObject();
@@ -51,8 +51,8 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
     private Map<String, String> sourceProperties;
     private Map<String, String> targetProperties;
 
-    private CloudantSinkTask sinkTask;
-    private CloudantSourceTask sourceTask;
+    private SinkTask sinkTask;
+    private SourceChangesTask sourceChangesTask;
 
     private List<SourceRecord> sourceRecords;
     private List<SinkRecord> sinkRecords;
@@ -72,12 +72,12 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
                 .PERFORMANCE_URL) + "_target");
 
         //Create SinkConnector
-        CloudantSinkConnector sinkConnector = new CloudantSinkConnector();
+        SinkConnector sinkConnector = new SinkConnector();
         ConnectorContext context = PowerMock.createMock(ConnectorContext.class);
         sinkConnector.initialize(context);
 
         //Create SourceConnector
-        CloudantSourceConnector sourceConnector = new CloudantSourceConnector();
+        SourceChangesConnector sourceConnector = new SourceChangesConnector();
         context = PowerMock.createMock(ConnectorContext.class);
         sourceConnector.initialize(context);
 
@@ -85,8 +85,8 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
         targetService = CachedClientManager.getInstance(targetProperties);
 
         //Create Sink Connector
-        sourceTask = new CloudantSourceTask();
-        sinkTask = new CloudantSinkTask();
+        sourceChangesTask = new SourceChangesTask();
+        sinkTask = new SinkTask();
     }
 
     @BenchmarkOptions(benchmarkRounds = 3, warmupRounds = 0)
@@ -138,14 +138,14 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
         _runningSinkThread = new AtomicBoolean(true);
 
         // 2. Start source and sink task
-        sourceTask.start(sourceProperties);
+        sourceChangesTask.start(sourceProperties);
         sinkTask.start(targetProperties);
 
         // 3. Thread for source tasks
         Thread threadSourceTask = new Thread(() -> {
             try {
                 do {
-                    sourceRecords = sourceTask.poll();
+                    sourceRecords = sourceChangesTask.poll();
                     for (SourceRecord record : sourceRecords) {
                         SinkRecord sinkRecord = new SinkRecord(
                                 record.topic(), // topic
@@ -221,7 +221,7 @@ public class CloudantSourceAndSinkPerformanceTest extends AbstractBenchmark {
         sinkRecords.clear();
 
         // 8. Stop source and target task
-        sourceTask.stop();
+        sourceChangesTask.stop();
         sinkTask.stop();
         return endTime - startTime;
     }

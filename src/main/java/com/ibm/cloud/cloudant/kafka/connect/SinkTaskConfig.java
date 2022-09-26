@@ -20,16 +20,15 @@ import org.apache.kafka.common.config.ConfigDef.Type;
 
 import java.util.Map;
 
-public class CloudantSourceTaskConfig extends CloudantSourceConnectorConfig {
+public class SinkTaskConfig extends SinkConnectorConfig {
 
     // Expand this ConfigDef with task specific parameters
     static org.apache.kafka.common.config.ConfigDef config = new ConfigDef(baseConfigDef())
             .define(InterfaceConst.TASK_NUMBER,
                     Type.INT, InterfaceConst.DEFAULT_TASK_NUMBER, Importance.HIGH, InterfaceConst.TASK_NUMBER)
-            .define(InterfaceConst.TASKS_MAX,
-                    Type.INT, InterfaceConst.DEFAULT_TASKS_MAX, Importance.LOW, InterfaceConst.TASKS_MAX);
-
-    public CloudantSourceTaskConfig(Map<String, String> originals) {
+            .define(InterfaceConst.TASKS_MAX, Type.INT, InterfaceConst.DEFAULT_TASKS_MAX,
+                    Importance.LOW, InterfaceConst.TASKS_MAX);
+    public SinkTaskConfig(Map<String, String> originals) {
         super(config, originals);
     }
 

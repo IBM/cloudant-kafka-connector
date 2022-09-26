@@ -30,7 +30,7 @@ import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaAndValue;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Timestamp;
-import com.ibm.cloud.cloudant.kafka.transforms.MapToStruct;
+import com.ibm.cloud.cloudant.kafka.connect.transforms.MapToStruct;
 import com.ibm.cloud.cloudant.v1.model.Attachment;
 import com.ibm.cloud.cloudant.v1.model.Document;
 import com.ibm.cloud.cloudant.v1.model.DocumentRevisionStatus;

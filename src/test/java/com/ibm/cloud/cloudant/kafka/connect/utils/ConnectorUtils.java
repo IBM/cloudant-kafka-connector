@@ -15,10 +15,10 @@ package com.ibm.cloud.cloudant.kafka.connect.utils;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.ibm.cloud.cloudant.kafka.SourceChangesConnector;
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
-import com.ibm.cloud.cloudant.kafka.connect.CloudantConnectorConfig;
-import com.ibm.cloud.cloudant.kafka.connect.CloudantSourceConnector;
-import com.ibm.cloud.cloudant.kafka.connect.CloudantSourceTask;
+import com.ibm.cloud.cloudant.kafka.connect.ConnectorConfig;
+import com.ibm.cloud.cloudant.kafka.connect.SourceChangesTask;
 import org.apache.kafka.connect.connector.ConnectorContext;
 import org.apache.kafka.connect.source.SourceTaskContext;
 import org.easymock.EasyMock;
@@ -33,9 +33,9 @@ public class ConnectorUtils {
 
     public static final String PERFORMANCE_URL = "performance.url";
 
-    public static CloudantSourceTask createCloudantSourceConnector(Map<String, String> properties) {
-        CloudantSourceConnector connector = new CloudantSourceConnector();
-        CloudantSourceTask task = new CloudantSourceTask();
+    public static SourceChangesTask createCloudantSourceConnector(Map<String, String> properties) {
+        SourceChangesConnector connector = new SourceChangesConnector();
+        SourceChangesTask task = new SourceChangesTask();
 
         ConnectorContext context = EasyMock.mock(ConnectorContext.class);
         SourceTaskContext taskContext = EasyMock.mock(SourceTaskContext.class);
@@ -116,7 +116,7 @@ public class ConnectorUtils {
         connectorProperties.put("name", "cloudant-connector-test");
 
         Collection<String> properties = new ArrayList<>();
-        properties.addAll(CloudantConnectorConfig.CONFIG_DEF.configKeys().keySet());
+        properties.addAll(ConnectorConfig.CONFIG_DEF.configKeys().keySet());
         properties.addAll(connectorProperties.keySet());
 
         // use provided values from System.getProperties (can also override defaults above)

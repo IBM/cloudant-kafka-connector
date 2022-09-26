@@ -20,12 +20,12 @@ import org.apache.kafka.common.config.ConfigDef;
 
 import java.util.Map;
 
-public class CloudantSinkConnectorConfig extends CloudantConnectorConfig {
+public class SinkConnectorConfig extends ConnectorConfig {
 
     public static final ConfigDef CONFIG_DEF = baseConfigDef();
 
     public static ConfigDef baseConfigDef() {
-        return new ConfigDef(CloudantConnectorConfig.CONFIG_DEF)
+        return new ConfigDef(ConnectorConfig.CONFIG_DEF)
                 // batch size
                 .define(InterfaceConst.BATCH_SIZE,
                         ConfigDef.Type.INT,
@@ -39,7 +39,7 @@ public class CloudantSinkConnectorConfig extends CloudantConnectorConfig {
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_BATCH_SIZE_DISP));
     }
 
-    protected CloudantSinkConnectorConfig(ConfigDef subclassConfigDef, Map<String, String> originals) {
+    protected SinkConnectorConfig(ConfigDef subclassConfigDef, Map<String, String> originals) {
         super(subclassConfigDef, originals);
     }
 

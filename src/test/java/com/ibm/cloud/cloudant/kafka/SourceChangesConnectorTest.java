@@ -11,7 +11,7 @@
  * either express or implied. See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.ibm.cloud.cloudant.kafka.connect;
+package com.ibm.cloud.cloudant.kafka;
 
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.connect.utils.ConnectorUtils;
@@ -28,12 +28,12 @@ import java.util.Map;
 /**
  * @author holger
  */
-public class CloudantSourceConnectorTest extends TestCase {
+public class SourceChangesConnectorTest extends TestCase {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private CloudantSourceConnector connector;
+    private SourceChangesConnector connector;
     private Map<String, String> sourceProperties;
 
 
@@ -45,13 +45,13 @@ public class CloudantSourceConnectorTest extends TestCase {
 
         sourceProperties = ConnectorUtils.getTestProperties();
 
-        connector = new CloudantSourceConnector();
+        connector = new SourceChangesConnector();
         ConnectorContext context = PowerMock.createMock(ConnectorContext.class);
         connector.initialize(context);
     }
 
     /**
-     * Test method for {@link com.ibm.cloud.cloudant.kafka.connect.CloudantSourceConnector#stop()}.
+     * Test method for {@link SourceChangesConnector#stop()}.
      */
     public void testStop() {
     }
@@ -59,7 +59,7 @@ public class CloudantSourceConnectorTest extends TestCase {
 
     /**
      * Test method for
-     * {@link com.ibm.cloud.cloudant.kafka.connect.CloudantSourceConnector#start(java.util.Map)}.
+     * {@link SourceChangesConnector#start(java.util.Map)}.
      */
     public void testStartMapOfStringString() {
         PowerMock.replayAll();
@@ -69,7 +69,7 @@ public class CloudantSourceConnectorTest extends TestCase {
 
     /**
      * Test method for
-     * {@link com.ibm.cloud.cloudant.kafka.connect.CloudantSourceConnector#taskConfigs(int)}.
+     * {@link SourceChangesConnector#taskConfigs(int)}.
      */
     public void testTaskConfigs() {
         PowerMock.replayAll();

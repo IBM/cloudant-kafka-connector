@@ -30,12 +30,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 // custom validations, for complex validation rules across multiple fields
-public class CloudantConfigValidator {
+public class ConfigValidator {
 
     private Map<String, ConfigValue> values;
     private List<ConfigValue> validations;
 
-    public CloudantConfigValidator(Map<String, String> props, ConfigDef config) {
+    public ConfigValidator(Map<String, String> props, ConfigDef config) {
 
         validations = config.validate(props);
         values = validations.stream().collect(Collectors.toMap(ConfigValue::name, Function.identity()));

@@ -11,7 +11,7 @@
  * either express or implied. See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.ibm.cloud.cloudant.kafka.transforms.predicates;
+package com.ibm.cloud.cloudant.kafka.connect.transforms.predicates;
 
 import java.util.Map;
 import org.apache.kafka.common.config.ConfigDef;

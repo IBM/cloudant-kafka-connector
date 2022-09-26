@@ -29,10 +29,10 @@ import java.util.Map;
 /**
  * @author holger
  */
-public class CloudantSourceAndSinkTest extends TestCase {
+public class SourceChangesAndCloudantSinkTest extends TestCase {
 
-    private CloudantSourceTaskTest sourceTask;
-    private CloudantSinkTaskTest sinkTask;
+    private SourceChangesTaskTest sourceTask;
+    private SinkTaskTest sinkTask;
 
     private Cloudant sourceService;
     private Cloudant targetService;
@@ -46,8 +46,8 @@ public class CloudantSourceAndSinkTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        sourceTask = new CloudantSourceTaskTest();
-        sinkTask = new CloudantSinkTaskTest();
+        sourceTask = new SourceChangesTaskTest();
+        sinkTask = new SinkTaskTest();
 
         sourceTask.setUp();
         sinkTask.setUp();

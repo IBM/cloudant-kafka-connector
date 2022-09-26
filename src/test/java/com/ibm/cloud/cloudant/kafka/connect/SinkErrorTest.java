@@ -41,7 +41,7 @@ import static org.easymock.EasyMock.mock;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
-public class CloudantSinkErrorTest {
+public class SinkErrorTest {
 
     private static final String connectionName = "_mock";
 
@@ -81,7 +81,7 @@ public class CloudantSinkErrorTest {
         // force the task to use our mock client
         ClientManagerUtils.addClientToCache(connectionName, mockCloudant);
         // setup task with some minimal config
-        CloudantSinkTask cloudantSinkTask = new CloudantSinkTask();
+        SinkTask sinkTask = new SinkTask();
 
         Map<String, String> configMap = new HashMap<>();
         configMap.put("name", connectionName);
@@ -100,11 +100,11 @@ public class CloudantSinkErrorTest {
         //
         // when
         //
-        cloudantSinkTask.initialize(mockContext);
-        cloudantSinkTask.start(configMap);
-        cloudantSinkTask.put(Collections.singleton(sr1));
-        cloudantSinkTask.put(Collections.singleton(sr2));
-        cloudantSinkTask.flush(new HashMap<>());
+        sinkTask.initialize(mockContext);
+        sinkTask.start(configMap);
+        sinkTask.put(Collections.singleton(sr1));
+        sinkTask.put(Collections.singleton(sr2));
+        sinkTask.flush(new HashMap<>());
 
         //
         // then
@@ -136,7 +136,7 @@ public class CloudantSinkErrorTest {
         // force the task to use our mock client
         ClientManagerUtils.addClientToCache(connectionName, mockCloudant);
         // setup task with some minimal config
-        CloudantSinkTask cloudantSinkTask = new CloudantSinkTask();
+        SinkTask sinkTask = new SinkTask();
 
         Map<String, String> configMap = new HashMap<>();
         configMap.put("name", connectionName);
@@ -153,15 +153,15 @@ public class CloudantSinkErrorTest {
         //
         // when
         //
-        cloudantSinkTask.initialize(mockContext);
-        cloudantSinkTask.start(configMap);
-        cloudantSinkTask.put(Collections.singleton(sr));
+        sinkTask.initialize(mockContext);
+        sinkTask.start(configMap);
+        sinkTask.put(Collections.singleton(sr));
 
         //
         // then
         //
         try {
-            cloudantSinkTask.flush(new HashMap<>());
+            sinkTask.flush(new HashMap<>());
             Assert.fail("ConnectException not thrown");
         } catch (ConnectException connectException) {
             Assert.assertEquals("Exception thrown when trying to write documents", connectException.getMessage());

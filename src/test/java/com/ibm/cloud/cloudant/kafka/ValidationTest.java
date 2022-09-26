@@ -14,8 +14,8 @@
 
 package com.ibm.cloud.cloudant.kafka;
 
-import com.ibm.cloud.cloudant.kafka.connect.CloudantConfigValidator;
-import com.ibm.cloud.cloudant.kafka.connect.CloudantSinkConnectorConfig;
+import com.ibm.cloud.cloudant.kafka.connect.SinkConnectorConfig;
+import com.ibm.cloud.cloudant.kafka.connect.ConfigValidator;
 import org.apache.kafka.common.config.Config;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigValue;
@@ -40,7 +40,7 @@ public class ValidationTest {
     // perform all tests against the sink config definition - the source adds a
     // few extra options but they are all booleans so don't have any fancy
     // validation
-    private final static ConfigDef CONFIG_DEF = CloudantSinkConnectorConfig.CONFIG_DEF;
+    private final static ConfigDef CONFIG_DEF = SinkConnectorConfig.CONFIG_DEF;
 
     @Test
     public void validatesBasicAuth() {
@@ -51,7 +51,7 @@ public class ValidationTest {
         map.put(URL, "https://somewhere");
         map.put(DB, "animaldb");
         map.put(TOPIC, "foo");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -68,7 +68,7 @@ public class ValidationTest {
         map.put(URL, "https://somewhere");
         map.put(DB, "animaldb");
         map.put(TOPIC, "foo");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -82,7 +82,7 @@ public class ValidationTest {
         map.put(AUTH_TYPE, "basic");
         map.put(USERNAME, "test");
         map.put(URL, "https://somewhere");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -98,7 +98,7 @@ public class ValidationTest {
         map.put(USERNAME, "test");
         map.put(PASSWORD, "");
         map.put(URL, "https://somewhere");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -113,7 +113,7 @@ public class ValidationTest {
         map.put(AUTH_TYPE, "basic");
         map.put(PASSWORD, "test");
         map.put(URL, "https://somewhere");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -129,7 +129,7 @@ public class ValidationTest {
         map.put(USERNAME, "");
         map.put(PASSWORD, "test");
         map.put(URL, "https://somewhere");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -145,7 +145,7 @@ public class ValidationTest {
         map.put(USERNAME, "test");
         map.put(PASSWORD, "test");
         map.put(URL, "https://somewhere");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -161,7 +161,7 @@ public class ValidationTest {
         map.put(USERNAME, "test");
         map.put(PASSWORD, "test");
         map.put(URL, "not-a-url");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -178,7 +178,7 @@ public class ValidationTest {
         map.put(URL, "https://somewhere");
         map.put(DB, "animaldb");
         map.put(TOPIC, "foo");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -193,7 +193,7 @@ public class ValidationTest {
         map.put(URL, "https://somewhere");
         map.put(DB, "animaldb");
         map.put(TOPIC, "foo");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -211,7 +211,7 @@ public class ValidationTest {
         map.put(URL, "https://somewhere");
         map.put(DB, "animaldb");
         map.put(TOPIC, "foo");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -226,7 +226,7 @@ public class ValidationTest {
         map.put(URL, "https://somewhere");
         map.put(DB, "animaldb");
         map.put(TOPIC, "foo");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -243,7 +243,7 @@ public class ValidationTest {
         map.put(URL, "https://somewhere");
         map.put(DB, "animaldb");
         map.put(TOPIC, "foo");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -258,7 +258,7 @@ public class ValidationTest {
         map.put(URL, "https://somewhere");
         map.put(DB, "animaldb");
         map.put(TOPIC, "foo");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -275,7 +275,7 @@ public class ValidationTest {
         map.put(URL, "https://somewhere");
         map.put(DB, "animaldb");
         map.put(TOPIC, "foo");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -290,7 +290,7 @@ public class ValidationTest {
         map.put(URL, "https://somewhere");
         map.put(DB, "animaldb");
         map.put(TOPIC, "foo");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -307,7 +307,7 @@ public class ValidationTest {
         map.put(URL, "https://somewhere");
         map.put(DB, "animaldb");
         map.put(TOPIC, "foo");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 
@@ -322,7 +322,7 @@ public class ValidationTest {
         map.put(URL, "https://somewhere");
         map.put(DB, "animaldb");
         map.put(TOPIC, "foo");
-        CloudantConfigValidator validator = new CloudantConfigValidator(
+        ConfigValidator validator = new ConfigValidator(
                 map,
                 CONFIG_DEF);
 

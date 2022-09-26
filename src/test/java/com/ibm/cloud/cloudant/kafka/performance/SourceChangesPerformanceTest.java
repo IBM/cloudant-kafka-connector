@@ -17,10 +17,10 @@ import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.ibm.cloud.cloudant.kafka.SourceChangesConnector;
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.connect.CachedClientManager;
-import com.ibm.cloud.cloudant.kafka.connect.CloudantSourceConnector;
-import com.ibm.cloud.cloudant.kafka.connect.CloudantSourceTask;
+import com.ibm.cloud.cloudant.kafka.connect.SourceChangesTask;
 import com.ibm.cloud.cloudant.kafka.connect.utils.CloudantDbUtils;
 import com.ibm.cloud.cloudant.kafka.connect.utils.ConnectorUtils;
 import com.ibm.cloud.cloudant.v1.Cloudant;
@@ -35,7 +35,7 @@ import org.powermock.api.easymock.PowerMock;
 import java.util.List;
 import java.util.Map;
 
-public class CloudantSourcePerformanceTest extends AbstractBenchmark {
+public class SourceChangesPerformanceTest extends AbstractBenchmark {
     private static Cloudant sourceService;
     private static JsonObject testResults1 = new JsonObject();
     private static JsonObject testResults2 = new JsonObject();
@@ -43,7 +43,7 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 
     private Map<String, String> sourceProperties;
 
-    private CloudantSourceConnector sourceConnector;
+    private SourceChangesConnector sourceConnector;
 
     @Before
     public void setUp() {
@@ -56,7 +56,7 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
         // Get the source database handle
         sourceService = CachedClientManager.getInstance(sourceProperties);
 
-        sourceConnector = new CloudantSourceConnector();
+        sourceConnector = new SourceChangesConnector();
         ConnectorContext context = PowerMock.createMock(ConnectorContext.class);
         sourceConnector.initialize(context);
     }
@@ -117,9 +117,9 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
     private long runTest() throws Exception {
         sourceConnector.start(sourceProperties);
 
-        // 1. Create Connector and Trigger sourceTask to get a batch of records
-        CloudantSourceTask sourceTask = ConnectorUtils.createCloudantSourceConnector(sourceProperties);
-        sourceTask.start(sourceProperties);
+        // 1. Create Connector and Trigger sourceChangesTask to get a batch of records
+        SourceChangesTask sourceChangesTask = ConnectorUtils.createCloudantSourceConnector(sourceProperties);
+        sourceChangesTask.start(sourceProperties);
         List<SourceRecord> records;
 
         // 2. Measure SourceRecords
@@ -127,11 +127,11 @@ public class CloudantSourcePerformanceTest extends AbstractBenchmark {
 
         do {
             // 2a. Get a batch of source records
-            records = sourceTask.poll();
+            records = sourceChangesTask.poll();
         } while (records.size() > 0);
 
-        //3. Stop sourceTask
-        sourceTask.stop();
+        //3. Stop sourceChangesTask
+        sourceChangesTask.stop();
 
         long endTime = System.currentTimeMillis();
         return endTime - startTime;

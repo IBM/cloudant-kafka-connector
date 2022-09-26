@@ -35,9 +35,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-public class CloudantSourceTaskTest extends TestCase {
+public class SourceChangesTaskTest extends TestCase {
 
-    private CloudantSourceTask task;
+    private SourceChangesTask task;
 
     private Map<String, String> sourceProperties;
 
@@ -132,7 +132,7 @@ public class CloudantSourceTaskTest extends TestCase {
             JavaCloudantUtil.batchWrite(sourceProps2, data2);
 
             // Create second connector
-            CloudantSourceTask task2 = ConnectorUtils.createCloudantSourceConnector(sourceProps2);
+            SourceChangesTask task2 = ConnectorUtils.createCloudantSourceConnector(sourceProps2);
 
             Future<List<SourceRecord>> fr1 = e.submit(new TaskCallable(task, sourceProperties));
             Future<List<SourceRecord>> fr2 = e.submit(new TaskCallable(task2, sourceProps2));
@@ -153,10 +153,10 @@ public class CloudantSourceTaskTest extends TestCase {
 
     private static final class TaskCallable implements Callable<List<SourceRecord>> {
 
-        final CloudantSourceTask t;
+        final SourceChangesTask t;
         final Map<String, String> config;
 
-        TaskCallable(CloudantSourceTask t, Map<String, String> config) {
+        TaskCallable(SourceChangesTask t, Map<String, String> config) {
             this.t = t;
             this.config = config;
         }
@@ -178,7 +178,7 @@ public class CloudantSourceTaskTest extends TestCase {
     /**
      * @return the task
      */
-    public CloudantSourceTask getTask() {
+    public SourceChangesTask getTask() {
         return task;
     }
 

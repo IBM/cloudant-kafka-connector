@@ -226,18 +226,18 @@ For use with `iam`, `container`, or `vpc` authentication.
 
 In addition to those properties related to authentication, the Cloudant source connector supports the following properties:
 
-Parameter | Value | Required | Default value | Description
----:|:---|:---|:---|:---
-name|cloudant-source|YES|None|A unique name to identify the connector with.
-connector.class|com.ibm.cloud.cloudant.kafka.connect.CloudantSourceConnector|YES|None|The connector class name.
-topics|\<topic1\>,\<topic2\>,..|YES|None|A list of topics you want messages to be written to.
-cloudant.url|https://\<uuid\>.cloudantnosqldb.appdomain.cloud|YES|None|The Cloudant server to read documents from.
-cloudant.db|\<your-db\>|YES|None|The Cloudant database to read documents from.
-cloudant.since|1-g1AAAAETeJzLYWBgYMlgTmGQT0lKzi9..|NO|0|The first change sequence to process from the Cloudant database above. 0 will apply all available document changes.
-batch.size|400|NO|1000|The batch size used to bulk read from the Cloudant database.
-cloudant.omit.design.docs|false|NO|false| Set to true to omit design documents from the messages produced.
-cloudant.value.schema.struct|false|NO|false| _EXPERIMENTAL_ Set to true to generate a `org.apache.kafka.connect.data.Schema.Type.STRUCT` schema and send the Cloudant document payload as a `org.apache.kafka.connect.data.Struct` using the schema instead of the default of a string of the JSON document content when using the Cloudant source connector.
-cloudant.value.schema.struct.flatten|false|NO|false| _EXPERIMENTAL_ Set to true to flatten nested arrays and objects from the Cloudant document during struct generation. Only used when cloudant.value.schema.struct is true and allows processing of JSON arrays with mixed element types when using that option.
+Parameter | Value                                                                  | Required | Default value | Description
+---:|:-----------------------------------------------------------------------|:---|:---|:---
+name| cloudant-source                                                        |YES|None|A unique name to identify the connector with.
+connector.class| com.ibm.cloud.cloudant.kafka.SourceChangesConnector |YES|None|The connector class name.
+topics| \<topic1\>,\<topic2\>,..                                               |YES|None|A list of topics you want messages to be written to.
+cloudant.url| https://\<uuid\>.cloudantnosqldb.appdomain.cloud                       |YES|None|The Cloudant server to read documents from.
+cloudant.db| \<your-db\>                                                            |YES|None|The Cloudant database to read documents from.
+cloudant.since| 1-g1AAAAETeJzLYWBgYMlgTmGQT0lKzi9..                                    |NO|0|The first change sequence to process from the Cloudant database above. 0 will apply all available document changes.
+batch.size| 400                                                                    |NO|1000|The batch size used to bulk read from the Cloudant database.
+cloudant.omit.design.docs| false                                                                  |NO|false| Set to true to omit design documents from the messages produced.
+cloudant.value.schema.struct| false                                                                  |NO|false| _EXPERIMENTAL_ Set to true to generate a `org.apache.kafka.connect.data.Schema.Type.STRUCT` schema and send the Cloudant document payload as a `org.apache.kafka.connect.data.Struct` using the schema instead of the default of a string of the JSON document content when using the Cloudant source connector.
+cloudant.value.schema.struct.flatten| false                                                                  |NO|false| _EXPERIMENTAL_ Set to true to flatten nested arrays and objects from the Cloudant document during struct generation. Only used when cloudant.value.schema.struct is true and allows processing of JSON arrays with mixed element types when using that option.
 
 #### Example
 
@@ -245,7 +245,7 @@ To read from a Cloudant database as source and write documents to a Kafka topic,
 
 ```
 name=cloudant-source
-connector.class=com.ibm.cloud.cloudant.kafka.connect.CloudantSourceConnector
+connector.class=com.ibm.cloud.cloudant.kafka.SourceChangesConnector
 topics=mytopic
 cloudant.url=https://some-uuid.cloudantnosqldb.appdomain.cloud
 cloudant.db=my-db
@@ -259,7 +259,7 @@ In addition to those properties related to authentication, the Cloudant sink con
 Parameter | Value | Required | Default value | Description
 ---:|:---|:---|:---|:---
 name|cloudant-sink|YES|None|A unique name to identify the connector with.
-connector.class|com.ibm.cloud.cloudant.kafka.connect.CloudantSinkConnector|YES|None|The connector class name.
+connector.class|com.ibm.cloud.cloudant.kafka.SinkConnector|YES|None|The connector class name.
 topics|\<topic1\>,\<topic2\>,..|YES|None|The list of topics you want to consume messages from.
 cloudant.url|https://\<your-account\>.cloudant.com|YES|None|The Cloudant server to write documents to.
 cloudant.db|\<your-db\>|YES|None|The Cloudant database to write documents to.
@@ -273,7 +273,7 @@ To consume messages from a Kafka topic and save as documents into a Cloudant dat
 
 ```
 name=cloudant-sink
-connector.class=com.ibm.cloud.cloudant.kafka.connect.CloudantSinkConnector
+connector.class=com.ibm.cloud.cloudant.kafka.SinkConnector
 topics=mytopic
 cloudant.url=https://some-uuid.cloudantnosqldb.appdomain.cloud
 cloudant.db=my-db

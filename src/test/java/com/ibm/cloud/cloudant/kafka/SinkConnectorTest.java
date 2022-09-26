@@ -11,7 +11,7 @@
  * either express or implied. See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.ibm.cloud.cloudant.kafka.connect;
+package com.ibm.cloud.cloudant.kafka;
 
 
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
@@ -27,9 +27,9 @@ import java.util.Map;
 /**
  * @author holger
  */
-public class CloudantSinkConnectorTest extends TestCase {
+public class SinkConnectorTest extends TestCase {
 
-    private CloudantSinkConnector connector;
+    private SinkConnector connector;
     private Map<String, String> targetProperties;
 
     protected void setUp() throws Exception {
@@ -37,7 +37,7 @@ public class CloudantSinkConnectorTest extends TestCase {
 
         targetProperties = ConnectorUtils.getTestProperties();
 
-        connector = new CloudantSinkConnector();
+        connector = new SinkConnector();
         ConnectorContext context = PowerMock.createMock(ConnectorContext.class);
         connector.initialize(context);
     }

@@ -23,12 +23,12 @@ import org.apache.kafka.common.config.ConfigDef.Width;
 
 import java.util.Map;
 
-public class CloudantSourceConnectorConfig extends CloudantConnectorConfig {
+public class SourceChangesConnectorConfig extends ConnectorConfig {
 
     public static final ConfigDef CONFIG_DEF = baseConfigDef();
 
     public static ConfigDef baseConfigDef() {
-        return new ConfigDef(CloudantConnectorConfig.CONFIG_DEF)
+        return new ConfigDef(ConnectorConfig.CONFIG_DEF)
                 // Cloudant last change sequence
                 .define(InterfaceConst.LAST_CHANGE_SEQ,
                         Type.STRING,
@@ -52,11 +52,11 @@ public class CloudantSourceConnectorConfig extends CloudantConnectorConfig {
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_BATCH_SIZE_DISP));
     }
 
-    public CloudantSourceConnectorConfig(Map<String, String> originals) {
+    public SourceChangesConnectorConfig(Map<String, String> originals) {
         super(CONFIG_DEF, originals, false);
     }
 
-    protected CloudantSourceConnectorConfig(ConfigDef subclassConfigDef, Map<String, String> originals) {
+    protected SourceChangesConnectorConfig(ConfigDef subclassConfigDef, Map<String, String> originals) {
         super(subclassConfigDef, originals);
     }
 
