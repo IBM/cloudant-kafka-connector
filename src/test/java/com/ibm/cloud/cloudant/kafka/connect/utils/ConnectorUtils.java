@@ -58,10 +58,6 @@ public class ConnectorUtils {
                 .BATCH_SIZE));
         System.out.print("; " + InterfaceConst.TASKS_MAX + ": " + testResults.get(InterfaceConst
                 .TASKS_MAX));
-        if (testResults.has(InterfaceConst.REPLICATION)) {
-            System.out.print("; " + InterfaceConst.REPLICATION + ": " + testResults.get
-                    (InterfaceConst.REPLICATION));
-        }
 
         //Show TestResults
         System.out.print("\nTime: " + average(getTestTimes(testResults)) / 1000f + " Seconds");

@@ -99,8 +99,7 @@ public class CloudantSourceTask extends SourceTask {
         db = config.getString(InterfaceConst.DB);
         topics = config.getList(InterfaceConst.TOPIC);
         latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
-        batchSize = config.getInt(InterfaceConst.BATCH_SIZE) == null ? InterfaceConst
-                .DEFAULT_BATCH_SIZE : config.getInt(InterfaceConst.BATCH_SIZE);
+        batchSize = config.getInt(InterfaceConst.BATCH_SIZE);
         this.documentToSourceRecord = new DocumentToSourceRecord(offset(url, db), CloudantSourceTask::offsetValue);
 
         if (latestSequenceNumber == null) {

@@ -39,17 +39,12 @@ public class InterfaceConst {
     public final static String TASK_NUMBER = "task.number";
     public final static String BATCH_SIZE = "batch.size";
 
-    public static final int DEFAULT_BATCH_SIZE = 1000;
+    public static final int DEFAULT_BATCH_SIZE_SOURCE = 1000;
+    public static final int BATCH_SIZE_MIN_SOURCE = 1;
+    public static final int BATCH_SIZE_MAX_SOURCE = 20000;
+    public static final int DEFAULT_BATCH_SIZE_SINK = 1000;
+    public static final int BATCH_SIZE_MIN_SINK = 1;
+    public static final int BATCH_SIZE_MAX_SINK = 20000;
     public static final int DEFAULT_TASKS_MAX = 1;
     public static final int DEFAULT_TASK_NUMBER = 0;
-
-    public final static String REPLICATION = "replication";
-    public final static Boolean DEFAULT_REPLICATION = false;
-
-    // Whether to omit design documents
-    public final static String OMIT_DESIGN_DOCS = "cloudant.omit.design.docs";
-
-    // Whether to use a struct schema for the message values
-    public final static String USE_VALUE_SCHEMA_STRUCT = "cloudant.value.schema.struct";
-    public final static String FLATTEN_VALUE_SCHEMA_STRUCT = "cloudant.value.schema.struct.flatten";
 }

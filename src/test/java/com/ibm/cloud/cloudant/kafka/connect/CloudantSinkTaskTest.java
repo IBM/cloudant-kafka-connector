@@ -86,7 +86,6 @@ public class CloudantSinkTaskTest extends TestCase {
      * {@link com.ibm.cloud.cloudant.kafka.connect.CloudantSinkTask#put(java.util.Collection)}.
      */
     public void testReplicateSinkRecordSchema() {
-        targetProperties.put(InterfaceConst.REPLICATION, "true");
         List<JsonObject> result = testPutCollectionOfSinkRecord();
 
         Gson gson = new Gson();

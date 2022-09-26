@@ -114,7 +114,6 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
         targetProperties.put(InterfaceConst.TOPIC, topics.toString());
         targetProperties.put(InterfaceConst.BATCH_SIZE, Integer.toString(batch_size));
         targetProperties.put(InterfaceConst.TASKS_MAX, Integer.toString(tasks_max));
-        targetProperties.put(InterfaceConst.REPLICATION, replication.toString());
     }
 
     private JsonObject addResults(JsonObject results, long testTime) {
@@ -132,8 +131,6 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
                     .BATCH_SIZE));
             results.addProperty(InterfaceConst.TASKS_MAX, targetProperties.get(InterfaceConst
                     .TASKS_MAX));
-            results.addProperty(InterfaceConst.REPLICATION, targetProperties.get(InterfaceConst
-                    .REPLICATION));
             results.add("testTimes", testTimes);
         } else {
             results.addProperty("testRounds", results.get("testRounds").getAsInt() + 1);
