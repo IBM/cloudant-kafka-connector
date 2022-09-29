@@ -14,13 +14,13 @@
 package com.ibm.cloud.cloudant.kafka.connect;
 
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
+import com.ibm.cloud.cloudant.kafka.SourceChangesConnector;
 import com.ibm.cloud.cloudant.kafka.schema.DocumentToSourceRecord;
 import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.cloudant.v1.model.ChangesResult;
 import com.ibm.cloud.cloudant.v1.model.ChangesResultItem;
 import com.ibm.cloud.cloudant.v1.model.PostChangesOptions;
 import org.apache.kafka.connect.source.SourceRecord;
-import org.apache.kafka.connect.source.SourceTask;
 import org.apache.kafka.connect.storage.OffsetStorageReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,14 +33,14 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CloudantSourceTask extends SourceTask {
+public class SourceChangesTask extends org.apache.kafka.connect.source.SourceTask {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CloudantSourceTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SourceChangesTask.class);
     private static final String DEFAULT_CLOUDANT_LAST_SEQ = "0";
 
     private static final String OFFSET_KEY = "cloudant.url.and.db";
 
-    CloudantSourceTaskConfig config;
+    SourceChangesTaskConfig config;
     private String url = null;
     private String db = null;
     private List<String> topics = null;
@@ -94,13 +94,13 @@ public class CloudantSourceTask extends SourceTask {
 
     @Override
     public void start(Map<String, String> props) {
-        this.config = new CloudantSourceTaskConfig(props);
+        this.config = new SourceChangesTaskConfig(props);
         url = config.getString(InterfaceConst.URL);
         db = config.getString(InterfaceConst.DB);
         topics = config.getList(InterfaceConst.TOPIC);
         latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
         batchSize = config.getInt(InterfaceConst.BATCH_SIZE);
-        this.documentToSourceRecord = new DocumentToSourceRecord(offset(url, db), CloudantSourceTask::offsetValue);
+        this.documentToSourceRecord = new DocumentToSourceRecord(offset(url, db), SourceChangesTask::offsetValue);
 
         if (latestSequenceNumber == null) {
             latestSequenceNumber = DEFAULT_CLOUDANT_LAST_SEQ;
@@ -133,7 +133,7 @@ public class CloudantSourceTask extends SourceTask {
     }
 
     public String version() {
-        return new CloudantSourceConnector().version();
+        return new SourceChangesConnector().version();
     }
 
 }

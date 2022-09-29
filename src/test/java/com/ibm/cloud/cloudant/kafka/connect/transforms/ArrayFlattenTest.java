@@ -11,7 +11,7 @@
  * either express or implied. See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package com.ibm.cloud.cloudant.kafka.transforms;
+package com.ibm.cloud.cloudant.kafka.connect.transforms;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.kafka.connect.source.SourceRecord;
 import org.junit.Test;
 

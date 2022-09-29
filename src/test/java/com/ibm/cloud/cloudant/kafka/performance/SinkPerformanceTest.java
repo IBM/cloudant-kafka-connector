@@ -20,7 +20,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.connect.CachedClientManager;
-import com.ibm.cloud.cloudant.kafka.connect.CloudantSinkTask;
+import com.ibm.cloud.cloudant.kafka.connect.SinkTask;
 import com.ibm.cloud.cloudant.kafka.connect.utils.CloudantDbUtils;
 import com.ibm.cloud.cloudant.kafka.connect.utils.ConnectorUtils;
 import com.ibm.cloud.cloudant.v1.Cloudant;
@@ -39,14 +39,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CloudantSinkPerformanceTest extends AbstractBenchmark {
+public class SinkPerformanceTest extends AbstractBenchmark {
     private static Cloudant targetService;
     private static JsonObject testResults1 = new JsonObject();
     private static JsonObject testResults2 = new JsonObject();
     private static JsonObject testResults3 = new JsonObject();
 
     private Map<String, String> targetProperties;
-    private CloudantSinkTask sinkTask;
+    private SinkTask sinkTask;
     private List<SinkRecord> sinkRecords;
 
     @Before
@@ -62,7 +62,7 @@ public class CloudantSinkPerformanceTest extends AbstractBenchmark {
         targetService = CachedClientManager.getInstance(targetProperties);
 
         //Create Connector
-        sinkTask = new CloudantSinkTask();
+        sinkTask = new SinkTask();
 
         //Create Kafka SinkRecord
         sinkRecords = new ArrayList<>();

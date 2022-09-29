@@ -15,13 +15,13 @@ package com.ibm.cloud.cloudant.kafka.connect;
 
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.common.utils.JavaCloudantUtil;
+import com.ibm.cloud.cloudant.kafka.SinkConnector;
 import com.ibm.cloud.cloudant.kafka.schema.ConnectRecordMapper;
 import com.ibm.cloud.cloudant.v1.model.DocumentResult;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.ErrantRecordReporter;
 import org.apache.kafka.connect.sink.SinkRecord;
-import org.apache.kafka.connect.sink.SinkTask;
 import org.apache.kafka.connect.sink.SinkTaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,11 +32,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class CloudantSinkTask extends SinkTask {
+public class SinkTask extends org.apache.kafka.connect.sink.SinkTask {
 
-    private static Logger LOG = LoggerFactory.getLogger(CloudantSinkTask.class);
+    private static Logger LOG = LoggerFactory.getLogger(SinkTask.class);
 
-    private CloudantSinkTaskConfig config;
+    private SinkTaskConfig config;
 
     List<String> topics = null;
 
@@ -53,7 +53,7 @@ public class CloudantSinkTask extends SinkTask {
 
     @Override
     public String version() {
-        return new CloudantSinkConnector().version();
+        return new SinkConnector().version();
     }
 
     @Override
@@ -76,7 +76,7 @@ public class CloudantSinkTask extends SinkTask {
      */
     @Override
     public void start(Map<String, String> props) {
-        config = new CloudantSinkTaskConfig(props);
+        config = new SinkTaskConfig(props);
         taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
         topics = config.getList(InterfaceConst.TOPIC);
         batchSize = config.getInt(InterfaceConst.BATCH_SIZE);

@@ -69,7 +69,7 @@ public class TombstoneTest {
         // force the task to use our mock client
         ClientManagerUtils.addClientToCache(connectionName, mockCloudant);
         // setup task with some minimal config
-        CloudantSourceTask cloudantSourceTask = new CloudantSourceTask();
+        SourceChangesTask sourceChangesTask = new SourceChangesTask();
         Map<String, String> configMap = new HashMap<>();
         configMap.put("name", connectionName);
         configMap.put("cloudant.since", "1000");
@@ -85,8 +85,8 @@ public class TombstoneTest {
         replay(mockChangesResult);
         replay(mockChange);
         replay(mockChangesResultItem);
-        cloudantSourceTask.start(configMap);
-        List<SourceRecord> records = cloudantSourceTask.poll();
+        sourceChangesTask.start(configMap);
+        List<SourceRecord> records = sourceChangesTask.poll();
 
         //
         // then

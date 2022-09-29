@@ -42,9 +42,9 @@ import java.util.Map;
 /**
  * @author holger
  */
-public class CloudantSinkTaskTest extends TestCase {
+public class SinkTaskTest extends TestCase {
 
-    private CloudantSinkTask task;
+    private SinkTask task;
     private Map<String, String> targetProperties;
 
     private Map<String, Object> doc1, doc2, doc3;
@@ -58,7 +58,7 @@ public class CloudantSinkTaskTest extends TestCase {
 
         targetProperties = ConnectorUtils.getTestProperties();
 
-        task = new CloudantSinkTask();
+        task = new SinkTask();
 
         //Test objects
 
@@ -83,7 +83,7 @@ public class CloudantSinkTaskTest extends TestCase {
 
     /**
      * Test method for
-     * {@link com.ibm.cloud.cloudant.kafka.connect.CloudantSinkTask#put(java.util.Collection)}.
+     * {@link SinkTask#put(java.util.Collection)}.
      */
     public void testReplicateSinkRecordSchema() {
         List<JsonObject> result = testPutCollectionOfSinkRecord();
@@ -163,7 +163,7 @@ public class CloudantSinkTaskTest extends TestCase {
     /**
      * @return the task
      */
-    public CloudantSinkTask getTask() {
+    public SinkTask getTask() {
         return task;
     }
 

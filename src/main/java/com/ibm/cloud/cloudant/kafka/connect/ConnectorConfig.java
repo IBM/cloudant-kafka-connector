@@ -27,7 +27,7 @@ import org.apache.kafka.common.config.ConfigDef.Width;
 
 import java.util.Map;
 
-public class CloudantConnectorConfig extends AbstractConfig {
+public class ConnectorConfig extends AbstractConfig {
 
     protected static final String DATABASE_GROUP = "Database";
     protected static final String AUTH_TYPE_DEFAULT = Authenticator.AUTHTYPE_IAM;
@@ -212,11 +212,11 @@ public class CloudantConnectorConfig extends AbstractConfig {
                         ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DISP));
     }
 
-    public CloudantConnectorConfig(ConfigDef definition, Map<?, ?> originals, boolean doLog) {
+    public ConnectorConfig(ConfigDef definition, Map<?, ?> originals, boolean doLog) {
         super(definition, originals, doLog);
     }
 
-    public CloudantConnectorConfig(ConfigDef definition, Map<?, ?> originals) {
+    public ConnectorConfig(ConfigDef definition, Map<?, ?> originals) {
         super(definition, originals);
     }
 
