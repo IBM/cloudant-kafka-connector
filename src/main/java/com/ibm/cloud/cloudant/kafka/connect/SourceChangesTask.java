@@ -36,16 +36,21 @@ import java.util.stream.Stream;
 public class SourceChangesTask extends org.apache.kafka.connect.source.SourceTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(SourceChangesTask.class);
+
     private static final String DEFAULT_CLOUDANT_LAST_SEQ = "0";
 
     private static final String OFFSET_KEY = "cloudant.url.and.db";
 
-    SourceChangesTaskConfig config;
+    private SourceChangesConnectorConfig config;
+
     private String url = null;
+
     private String db = null;
+
     private List<String> topics = null;
 
     private String latestSequenceNumber = null;
+
     private int batchSize = 0;
 
     private BiFunction<String, ChangesResultItem, SourceRecord> documentToSourceRecord;
@@ -94,7 +99,7 @@ public class SourceChangesTask extends org.apache.kafka.connect.source.SourceTas
 
     @Override
     public void start(Map<String, String> props) {
-        this.config = new SourceChangesTaskConfig(props);
+        this.config = new SourceChangesConnectorConfig(SourceChangesConnectorConfig.CONFIG_DEF, props);
         url = config.getString(InterfaceConst.URL);
         db = config.getString(InterfaceConst.DB);
         topics = config.getList(InterfaceConst.TOPIC);

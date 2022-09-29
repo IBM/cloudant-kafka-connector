@@ -26,9 +26,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class SinkConnector extends org.apache.kafka.connect.sink.SinkConnector {
 
@@ -40,7 +42,6 @@ public class SinkConnector extends org.apache.kafka.connect.sink.SinkConnector {
     public ConfigDef config() {
         return SinkConnectorConfig.CONFIG_DEF;
     }
-
 
     @Override
     public String version() {
@@ -59,16 +60,7 @@ public class SinkConnector extends org.apache.kafka.connect.sink.SinkConnector {
 
     @Override
     public List<Map<String, String>> taskConfigs(int maxTasks) {
-        List<Map<String, String>> taskConfigs = new ArrayList<>(maxTasks);
-
-        for (int i = 0; i < maxTasks; i++) {
-            Map<String, String> taskProps = new HashMap<>(configProperties);
-            // add task specific properties here (if any)
-            taskProps.put(InterfaceConst.TASK_NUMBER, String.valueOf(i));
-
-            taskConfigs.add(taskProps);
-        }
-        return taskConfigs;
+        return Collections.nCopies(maxTasks, new HashMap<>(configProperties));
     }
 
     @Override
