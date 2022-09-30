@@ -36,13 +36,9 @@ public class SinkTask extends org.apache.kafka.connect.sink.SinkTask {
 
     private static Logger LOG = LoggerFactory.getLogger(SinkTask.class);
 
-    private SinkTaskConfig config;
-
-    List<String> topics = null;
+    private SinkConnectorConfig config;
 
     public static int batchSize = 0;
-    private int taskNumber;
-
 
     private static ConnectRecordMapper<SinkRecord> mapper = new ConnectRecordMapper<>();
 
@@ -67,6 +63,7 @@ public class SinkTask extends org.apache.kafka.connect.sink.SinkTask {
 
     @Override
     public void stop() {
+        // nothing to do
     }
 
     /**
@@ -76,9 +73,7 @@ public class SinkTask extends org.apache.kafka.connect.sink.SinkTask {
      */
     @Override
     public void start(Map<String, String> props) {
-        config = new SinkTaskConfig(props);
-        taskNumber = config.getInt(InterfaceConst.TASK_NUMBER);
-        topics = config.getList(InterfaceConst.TOPIC);
+        config = new SinkConnectorConfig(SinkConnectorConfig.CONFIG_DEF, props);
         batchSize = config.getInt(InterfaceConst.BATCH_SIZE);
     }
 
@@ -86,7 +81,6 @@ public class SinkTask extends org.apache.kafka.connect.sink.SinkTask {
     public void flush(Map<TopicPartition, org.apache.kafka.clients.consumer.OffsetAndMetadata> offsets) {
 
         List<Map<String, Object>> jsonArray = new ArrayList<>();
-
         if (accumulatedSinkRecords != null && !accumulatedSinkRecords.isEmpty()) {
             LOG.info(String.format("flush called with %d documents to %s", accumulatedSinkRecords.size(), config.getString(InterfaceConst.URL)));
             // Note: _rev is preserved
@@ -133,18 +127,6 @@ public class SinkTask extends org.apache.kafka.connect.sink.SinkTask {
                 throw new ConnectException("Exception thrown when trying to write documents", re);
             }
         }
-    }
-
-    @Override
-    public void open(Collection<TopicPartition> partitions) {
-        LOG.info("Committed ");
-        TopicPartition partition = new TopicPartition(topics.get(taskNumber), taskNumber);
-        partitions.add(partition);
-    }
-
-    @Override
-    public void close(Collection<TopicPartition> partitions) {
-        LOG.info("Committed ");
     }
 
     @Override

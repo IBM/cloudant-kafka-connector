@@ -22,6 +22,7 @@ import org.apache.kafka.connect.header.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -33,6 +34,9 @@ public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function
     private static Logger LOG = LoggerFactory.getLogger(ConnectRecordMapper.class);
 
     public Map<String, Object> apply(ConnectRecord<R> record) {
+        if (record.value() == null) {
+            return Collections.EMPTY_MAP;
+        }
         // we can convert from a struct or a map - assume a map when a value schema is not provided
         Schema.Type schemaType = record.valueSchema() == null ? Schema.Type.MAP : record.valueSchema().type();
         Map<String, Object> toReturn = new HashMap<>();

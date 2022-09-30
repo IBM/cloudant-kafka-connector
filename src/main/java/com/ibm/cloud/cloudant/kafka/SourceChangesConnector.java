@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,11 +63,7 @@ public class SourceChangesConnector extends SourceConnector {
         if (maxTasks > 1) {
             LOG.warn(String.format("tasks.max requested was %d, but only 1 task supported", maxTasks));
         }
-        List<Map<String, String>> taskConfigs = new ArrayList<>(1);
-        Map<String, String> taskProps = new HashMap<>(configProperties);
-        taskProps.put(InterfaceConst.TASK_NUMBER, String.valueOf(0));
-        taskConfigs.add(taskProps);
-        return taskConfigs;
+        return Collections.nCopies(maxTasks, new HashMap<>(configProperties));
     }
 
     @Override
