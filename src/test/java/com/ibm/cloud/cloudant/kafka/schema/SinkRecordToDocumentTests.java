@@ -13,6 +13,7 @@
  */
 package com.ibm.cloud.cloudant.kafka.schema;
 
+import com.ibm.cloud.cloudant.v1.model.Document;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
@@ -21,18 +22,19 @@ import org.apache.kafka.connect.sink.SinkRecord;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.print.Doc;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.ibm.cloud.cloudant.kafka.schema.ConnectRecordMapper.HEADER_DOC_ID_KEY;
+import static com.ibm.cloud.cloudant.kafka.schema.SinkRecordToDocument.HEADER_DOC_ID_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
-public class ConnectRecordMapperTests {
+public class SinkRecordToDocumentTests {
 
     // for these tests we will operate on SinkRecords, but they could just as easily be SourceRecords - for our purposes they are equivalent
-    ConnectRecordMapper<SinkRecord> mapper = new ConnectRecordMapper<>();
+    SinkRecordToDocument mapper = new SinkRecordToDocument();
 
     @Test
     public void testConvertToMapSchema() {
@@ -42,7 +44,7 @@ public class ConnectRecordMapperTests {
         value.put("hello", "world");
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
         // when...
-        Map<String, Object> converted = mapper.apply(sr);
+        Document converted = mapper.apply(sr);
         // then...
         assertEquals("world", converted.get("hello"));
     }
@@ -55,7 +57,7 @@ public class ConnectRecordMapperTests {
         value.put("hello", "world");
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
         // when...
-        Map<String, Object> converted = mapper.apply(sr);
+        Document converted = mapper.apply(sr);
         // then...
         assertEquals("world", converted.get("hello"));
     }
@@ -70,7 +72,7 @@ public class ConnectRecordMapperTests {
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
         sr.headers().addString(HEADER_DOC_ID_KEY, headerValue);
         // when...
-        Map<String, Object> converted = mapper.apply(sr);
+        Document converted = mapper.apply(sr);
         // then...
         assertEquals("world", converted.get("hello"));
         assertEquals(headerValue, converted.get("_id"));
@@ -89,7 +91,7 @@ public class ConnectRecordMapperTests {
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
         sr.headers().addMap(HEADER_DOC_ID_KEY, headerValue, headerSchema);
         // when...
-        Map<String, Object> converted = mapper.apply(sr);
+        Document converted = mapper.apply(sr);
         // then...
         assertEquals("world", converted.get("hello"));
         assertEquals("foo", converted.get("_id"));
@@ -144,7 +146,7 @@ public class ConnectRecordMapperTests {
 
         // do conversion
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
-        Map<String, Object> converted = mapper.apply(sr);
+        Document converted = mapper.apply(sr);
 
         // then...
         assertEquals("foo1", converted.get("_id"));
@@ -184,7 +186,7 @@ public class ConnectRecordMapperTests {
         // do conversion
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
         sr.headers().addString(HEADER_DOC_ID_KEY, headerValue);
-        Map<String, Object> converted = mapper.apply(sr);
+        Document converted = mapper.apply(sr);
 
         // then...
         assertEquals(headerValue, converted.get("_id"));
@@ -212,7 +214,7 @@ public class ConnectRecordMapperTests {
         // do conversion
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
         sr.headers().addString(HEADER_DOC_ID_KEY, headerValue);
-        Map<String, Object> converted = mapper.apply(sr);
+        Document converted = mapper.apply(sr);
 
         // then...
         assertEquals(headerValue, converted.get("_id"));
@@ -240,7 +242,7 @@ public class ConnectRecordMapperTests {
         // do conversion
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
         sr.headers().addInt(HEADER_DOC_ID_KEY, headerValue);
-        Map<String, Object> converted = mapper.apply(sr);
+        Document converted = mapper.apply(sr);
 
         // then...
         assertNull(converted.get("_id"));
@@ -253,7 +255,7 @@ public class ConnectRecordMapperTests {
         String value = "hello";
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
         try {
-            Map<String, Object> converted = mapper.apply(sr);
+            Document converted = mapper.apply(sr);
             Assert.fail("should throw IllegalArgumentException");
         } catch (IllegalArgumentException iae) {
         }

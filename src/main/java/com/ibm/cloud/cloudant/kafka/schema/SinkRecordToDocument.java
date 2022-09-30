@@ -13,12 +13,14 @@
  */
 package com.ibm.cloud.cloudant.kafka.schema;
 
+import com.ibm.cloud.cloudant.v1.model.Document;
 import org.apache.kafka.connect.connector.ConnectRecord;
 import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Schema.Type;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.header.Header;
+import org.apache.kafka.connect.sink.SinkRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,16 +28,23 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
-public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function<ConnectRecord<R>, Map<String, Object>> {
+public class SinkRecordToDocument implements Function<SinkRecord, Document> {
 
     static final String HEADER_DOC_ID_KEY = "cloudant_doc_id";
 
-    private static Logger LOG = LoggerFactory.getLogger(ConnectRecordMapper.class);
+    private static Logger LOG = LoggerFactory.getLogger(SinkRecordToDocument.class);
 
-    public Map<String, Object> apply(ConnectRecord<R> record) {
+    public Document apply(SinkRecord record) {
+        Document document = new Document();
+        document.setProperties(toMap(record));
+        return document;
+    }
+
+    private Map<String, Object> toMap(SinkRecord record) {
         if (record.value() == null) {
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         }
         // we can convert from a struct or a map - assume a map when a value schema is not provided
         Schema.Type schemaType = record.valueSchema() == null ? Schema.Type.MAP : record.valueSchema().type();
@@ -128,7 +137,7 @@ public class ConnectRecordMapper<R extends ConnectRecord<R>> implements Function
 
     }
 
-    private String getHeaderForDocId(ConnectRecord<R> record) {
+    private String getHeaderForDocId(SinkRecord record) {
         Header value = record.headers().lastWithName(HEADER_DOC_ID_KEY);
         if (value != null && value.value() instanceof String) {
             return value.value().toString();
