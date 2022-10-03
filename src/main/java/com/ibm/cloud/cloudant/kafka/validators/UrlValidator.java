@@ -26,6 +26,10 @@ public class UrlValidator implements Validator {
 
     @Override
     public void ensureValid(String name, Object value) {
+        // can be null if it's optional
+        if (value == null) {
+            return;
+        }
         if (value instanceof URL) {
             return;
         }
@@ -39,5 +43,10 @@ public class UrlValidator implements Validator {
             return;
         }
         throw new ConfigException(name, value, String.format(ResourceBundleUtil.get(MessageKey.VALIDATION_NOT_A_URL), value));
+    }
+
+    @Override
+    public String toString() {
+        return "<any URL>";
     }
 }

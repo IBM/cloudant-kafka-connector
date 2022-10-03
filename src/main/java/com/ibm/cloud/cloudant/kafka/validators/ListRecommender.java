@@ -23,6 +23,8 @@ import org.apache.kafka.common.config.ConfigException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 // Recommend and Validate that value must be one from a given list
 // NB matching is case insensitive for Strings
@@ -65,5 +67,10 @@ public class ListRecommender implements Recommender, Validator {
             throw new ConfigException(key, value, String.format(ResourceBundleUtil.get(MessageKey.VALIDATION_MUST_BE_ONE_OF), this.validValues));
         }
 
+    }
+
+    @Override
+    public String toString() {
+        return validValues.stream().map(Objects::toString).collect(Collectors.joining(", ", "[", "]"));
     }
 }

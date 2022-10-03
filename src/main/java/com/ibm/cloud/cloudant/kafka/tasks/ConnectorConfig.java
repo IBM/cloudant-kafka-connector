@@ -32,6 +32,7 @@ import java.util.Map;
 public class ConnectorConfig extends AbstractConfig {
 
     protected static final String DATABASE_GROUP = "Database";
+    protected static final String AUTHENTICATION_GROUP = "Authentication";
     protected static final String AUTH_TYPE_DEFAULT = Authenticator.AUTHTYPE_IAM;
     protected static final ListRecommender VALID_AUTHS = new ListRecommender(
             Authenticator.AUTHTYPE_IAM,
@@ -49,6 +50,8 @@ public class ConnectorConfig extends AbstractConfig {
 
     public static ConfigDef baseConfigDef() {
 
+        int order = 0;
+
         return new ConfigDef()
 
                 // Cloudant URL
@@ -59,7 +62,7 @@ public class ConnectorConfig extends AbstractConfig {
                         Importance.HIGH,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_URL_DOC),
                         DATABASE_GROUP,
-                        1,
+                        order++,
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_URL_DISP))
                 // Cloudant DB
@@ -68,17 +71,48 @@ public class ConnectorConfig extends AbstractConfig {
                         Importance.HIGH,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_DB_DOC),
                         DATABASE_GROUP,
-                        1,
+                        order++,
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_DB_DISP))
+                // Kafka topic
+                .define(InterfaceConst.TOPIC,
+                        Type.LIST,
+                        Importance.HIGH,
+                        ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DOC),
+                        DATABASE_GROUP,
+                        order++,
+                        Width.LONG,
+                        ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DISP))
+                // Cloudant auth type
+                .define(InterfaceConst.AUTH_TYPE,
+                        Type.STRING,
+                        AUTH_TYPE_DEFAULT,
+                        VALID_AUTHS,
+                        Importance.HIGH,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_AUTH_TYPE_DOC),
+                        AUTHENTICATION_GROUP,
+                        order++,
+                        Width.MEDIUM,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_AUTH_TYPE_DISP),
+                        VALID_AUTHS)
+                // Cloudant API key
+                .define(InterfaceConst.APIKEY,
+                        Type.PASSWORD,
+                        NULL_DEFAULT,
+                        Importance.HIGH,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_APIKEY_DOC),
+                        AUTHENTICATION_GROUP,
+                        order++,
+                        Width.LONG,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_APIKEY_DISP))
                 // Cloudant Username
                 .define(InterfaceConst.USERNAME,
                         Type.STRING,
                         NULL_DEFAULT,
                         Importance.HIGH,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_USR_DOC),
-                        DATABASE_GROUP,
-                        1,
+                        AUTHENTICATION_GROUP,
+                        order++,
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_USR_DISP))
                 // Cloudant Password
@@ -87,131 +121,101 @@ public class ConnectorConfig extends AbstractConfig {
                         NULL_DEFAULT,
                         Importance.HIGH,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_PWD_DOC),
-                        DATABASE_GROUP,
-                        1,
+                        AUTHENTICATION_GROUP,
+                        order++,
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_PWD_DISP))
-                // Cloudant API key
-                .define(InterfaceConst.APIKEY,
-                        Type.PASSWORD,
-                        NULL_DEFAULT,
-                        Importance.HIGH,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_APIKEY_DOC),
-                        DATABASE_GROUP,
-                        1,
-                        Width.LONG,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_APIKEY_DISP))
                 // Cloudant bearer token
                 .define(InterfaceConst.BEARER_TOKEN,
                         Type.STRING,
                         NULL_DEFAULT,
-                        Importance.HIGH,
+                        Importance.LOW,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_BEARER_TOKEN_DOC),
-                        DATABASE_GROUP,
-                        1,
+                        AUTHENTICATION_GROUP,
+                        order++,
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_BEARER_TOKEN_DISP))
                 // Cloudant IAM profile id
                 .define(InterfaceConst.IAM_PROFILE_ID,
                         Type.STRING,
                         NULL_DEFAULT,
-                        Importance.HIGH,
+                        Importance.LOW,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_IAM_PROFILE_ID_DOC),
-                        DATABASE_GROUP,
-                        1,
+                        AUTHENTICATION_GROUP,
+                        order++,
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_IAM_PROFILE_ID_DISP))
                 // Cloudant IAM profile name
                 .define(InterfaceConst.IAM_PROFILE_NAME,
                         Type.STRING,
                         NULL_DEFAULT,
-                        Importance.HIGH,
+                        Importance.LOW,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_IAM_PROFILE_NAME_DOC),
-                        DATABASE_GROUP,
-                        1,
+                        AUTHENTICATION_GROUP,
+                        order++,
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_IAM_PROFILE_NAME_DISP))
                 // Cloudant CR token filename
                 .define(InterfaceConst.CR_TOKEN_FILENAME,
                         Type.STRING,
                         NULL_DEFAULT,
-                        Importance.HIGH,
+                        Importance.LOW,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_CR_TOKEN_FILENAME_DOC),
-                        DATABASE_GROUP,
-                        1,
+                        AUTHENTICATION_GROUP,
+                        order++,
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_CR_TOKEN_FILENAME_DISP))
                 // Cloudant IAM profile CRN
                 .define(InterfaceConst.IAM_PROFILE_CRN,
                         Type.STRING,
                         NULL_DEFAULT,
-                        Importance.HIGH,
+                        Importance.LOW,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_IAM_PROFILE_CRN_DOC),
-                        DATABASE_GROUP,
-                        1,
+                        AUTHENTICATION_GROUP,
+                        order++,
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_IAM_PROFILE_CRN_DISP))
                 // Cloudant auth url
                 .define(InterfaceConst.AUTH_URL,
                         Type.STRING,
                         NULL_DEFAULT,
-                        Importance.HIGH,
+                        new UrlValidator(),
+                        Importance.LOW,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_AUTH_URL_DOC),
-                        DATABASE_GROUP,
-                        1,
+                        AUTHENTICATION_GROUP,
+                        order++,
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_AUTH_URL_DISP))
                 // Cloudant scope
                 .define(InterfaceConst.SCOPE,
                         Type.STRING,
                         NULL_DEFAULT,
-                        Importance.HIGH,
+                        Importance.LOW,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_SCOPE_DOC),
-                        DATABASE_GROUP,
-                        1,
+                        AUTHENTICATION_GROUP,
+                        order++,
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_SCOPE_DISP))
                 // Cloudant client id
                 .define(InterfaceConst.CLIENT_ID,
                         Type.STRING,
                         NULL_DEFAULT,
-                        Importance.HIGH,
+                        Importance.LOW,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_CLIENT_ID_DOC),
-                        DATABASE_GROUP,
-                        1,
+                        AUTHENTICATION_GROUP,
+                        order++,
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_CLIENT_ID_DISP))
                 // Cloudant client secret
                 .define(InterfaceConst.CLIENT_SECRET,
                         Type.STRING,
                         NULL_DEFAULT,
-                        Importance.HIGH,
+                        Importance.LOW,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_CLIENT_SECRET_DOC),
-                        DATABASE_GROUP,
-                        1,
+                        AUTHENTICATION_GROUP,
+                        order++,
                         Width.LONG,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_CLIENT_SECRET_DISP))
-                // Cloudant auth type
-                .define(InterfaceConst.AUTH_TYPE,
-                        Type.STRING,
-                        AUTH_TYPE_DEFAULT,
-                        VALID_AUTHS,
-                        Importance.HIGH,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_AUTH_TYPE_DOC),
-                        DATABASE_GROUP,
-                        1,
-                        Width.LONG,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_AUTH_TYPE_DISP),
-                        VALID_AUTHS)
-                // Kafka topic
-                .define(InterfaceConst.TOPIC,
-                        Type.LIST,
-                        Importance.HIGH,
-                        ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DOC),
-                        DATABASE_GROUP,
-                        1,
-                        Width.LONG,
-                        ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DISP));
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_CLIENT_SECRET_DISP));
     }
 
     public ConnectorConfig(ConfigDef definition, Map<?, ?> originals, boolean doLog) {
