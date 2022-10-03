@@ -14,7 +14,7 @@
 
 package com.ibm.cloud.cloudant.internal;
 
-import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
+import com.ibm.cloud.cloudant.kafka.utils.InterfaceConst;
 import com.ibm.cloud.cloudant.v1.Cloudant;
 import com.ibm.cloud.sdk.core.security.Authenticator;
 

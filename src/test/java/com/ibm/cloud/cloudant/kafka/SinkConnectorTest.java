@@ -14,8 +14,8 @@
 package com.ibm.cloud.cloudant.kafka;
 
 
-import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
-import com.ibm.cloud.cloudant.kafka.connect.utils.ConnectorUtils;
+import com.ibm.cloud.cloudant.kafka.utils.InterfaceConst;
+import com.ibm.cloud.cloudant.kafka.utils.ConnectorUtils;
 import junit.framework.TestCase;
 import org.apache.kafka.connect.connector.ConnectorContext;
 import org.junit.Assert;

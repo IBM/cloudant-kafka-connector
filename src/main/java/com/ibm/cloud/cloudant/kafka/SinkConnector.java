@@ -13,24 +13,21 @@
  */
 package com.ibm.cloud.cloudant.kafka;
 
-import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
-import com.ibm.cloud.cloudant.kafka.common.utils.JavaCloudantUtil;
-import com.ibm.cloud.cloudant.kafka.connect.CachedClientManager;
-import com.ibm.cloud.cloudant.kafka.connect.SinkConnectorConfig;
-import com.ibm.cloud.cloudant.kafka.connect.ConfigValidator;
-import com.ibm.cloud.cloudant.kafka.connect.SinkTask;
+import com.ibm.cloud.cloudant.kafka.utils.JavaCloudantUtil;
+import com.ibm.cloud.cloudant.kafka.caching.CachedClientManager;
+import com.ibm.cloud.cloudant.kafka.tasks.SinkConnectorConfig;
+import com.ibm.cloud.cloudant.kafka.validators.ConfigValidator;
+import com.ibm.cloud.cloudant.kafka.tasks.SinkTask;
 import org.apache.kafka.common.config.Config;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 public class SinkConnector extends org.apache.kafka.connect.sink.SinkConnector {
 
