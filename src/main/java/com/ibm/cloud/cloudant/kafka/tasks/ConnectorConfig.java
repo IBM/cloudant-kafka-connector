@@ -33,6 +33,7 @@ public class ConnectorConfig extends AbstractConfig {
 
     protected static final String DATABASE_GROUP = "Database";
     protected static final String AUTHENTICATION_GROUP = "Authentication";
+    protected static final String KAFKA_GROUP = "Kafka";
     protected static final String AUTH_TYPE_DEFAULT = Authenticator.AUTHTYPE_IAM;
     protected static final ListRecommender VALID_AUTHS = new ListRecommender(
             Authenticator.AUTHTYPE_IAM,
@@ -79,7 +80,7 @@ public class ConnectorConfig extends AbstractConfig {
                         Type.LIST,
                         Importance.HIGH,
                         ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DOC),
-                        DATABASE_GROUP,
+                        KAFKA_GROUP,
                         order++,
                         Width.LONG,
                         ResourceBundleUtil.get(MessageKey.KAFKA_TOPIC_LIST_DISP))
@@ -109,7 +110,7 @@ public class ConnectorConfig extends AbstractConfig {
                 .define(InterfaceConst.USERNAME,
                         Type.STRING,
                         NULL_DEFAULT,
-                        Importance.HIGH,
+                        Importance.LOW,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_USR_DOC),
                         AUTHENTICATION_GROUP,
                         order++,
@@ -119,7 +120,7 @@ public class ConnectorConfig extends AbstractConfig {
                 .define(InterfaceConst.PASSWORD,
                         Type.PASSWORD,
                         NULL_DEFAULT,
-                        Importance.HIGH,
+                        Importance.LOW,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_CONNECTION_PWD_DOC),
                         AUTHENTICATION_GROUP,
                         order++,

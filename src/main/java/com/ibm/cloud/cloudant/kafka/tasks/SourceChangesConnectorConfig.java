@@ -28,17 +28,10 @@ public class SourceChangesConnectorConfig extends ConnectorConfig {
     public static final ConfigDef CONFIG_DEF = baseConfigDef();
 
     public static ConfigDef baseConfigDef() {
+
+        int order = 100; // pick a high number so these will come after those from base config def
+
         return new ConfigDef(ConnectorConfig.CONFIG_DEF)
-                // Cloudant last change sequence
-                .define(InterfaceConst.LAST_CHANGE_SEQ,
-                        Type.STRING,
-                        LAST_SEQ_NUM_DEFAULT,
-                        Importance.LOW,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC),
-                        DATABASE_GROUP,
-                        1,
-                        Width.LONG,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DISP))
                 // batch size
                 .define(InterfaceConst.BATCH_SIZE,
                         Type.INT,
@@ -46,10 +39,20 @@ public class SourceChangesConnectorConfig extends ConnectorConfig {
                         ConfigDef.Range.between(InterfaceConst.BATCH_SIZE_MIN_SOURCE, InterfaceConst.BATCH_SIZE_MAX_SOURCE),
                         Importance.MEDIUM,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_BATCH_SIZE_SOURCE_DOC),
-                        DATABASE_GROUP,
-                        1,
+                        KAFKA_GROUP,
+                        order++,
                         Width.SHORT,
-                        ResourceBundleUtil.get(MessageKey.CLOUDANT_BATCH_SIZE_DISP));
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_BATCH_SIZE_DISP))
+                // Cloudant last change sequence
+                .define(InterfaceConst.LAST_CHANGE_SEQ,
+                        Type.STRING,
+                        LAST_SEQ_NUM_DEFAULT,
+                        Importance.LOW,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DOC),
+                        DATABASE_GROUP,
+                        order++,
+                        Width.LONG,
+                        ResourceBundleUtil.get(MessageKey.CLOUDANT_LAST_SEQ_NUM_DISP));
     }
 
     public SourceChangesConnectorConfig(Map<String, String> originals) {
