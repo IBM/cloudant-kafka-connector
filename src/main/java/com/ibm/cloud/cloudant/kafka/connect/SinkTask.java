@@ -16,7 +16,8 @@ package com.ibm.cloud.cloudant.kafka.connect;
 import com.ibm.cloud.cloudant.kafka.common.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.common.utils.JavaCloudantUtil;
 import com.ibm.cloud.cloudant.kafka.SinkConnector;
-import com.ibm.cloud.cloudant.kafka.schema.ConnectRecordMapper;
+import com.ibm.cloud.cloudant.kafka.schema.SinkRecordToDocument;
+import com.ibm.cloud.cloudant.v1.model.Document;
 import com.ibm.cloud.cloudant.v1.model.DocumentResult;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.connect.errors.ConnectException;
@@ -40,7 +41,7 @@ public class SinkTask extends org.apache.kafka.connect.sink.SinkTask {
 
     public static int batchSize = 0;
 
-    private static ConnectRecordMapper<SinkRecord> mapper = new ConnectRecordMapper<>();
+    private static SinkRecordToDocument mapper = new SinkRecordToDocument();
 
     private ErrantRecordReporter reporter;
 
@@ -80,23 +81,23 @@ public class SinkTask extends org.apache.kafka.connect.sink.SinkTask {
     @Override
     public void flush(Map<TopicPartition, org.apache.kafka.clients.consumer.OffsetAndMetadata> offsets) {
 
-        List<Map<String, Object>> jsonArray = new ArrayList<>();
+        List<Document> documentList = new ArrayList<>();
         if (accumulatedSinkRecords != null && !accumulatedSinkRecords.isEmpty()) {
             LOG.info(String.format("flush called with %d documents to %s", accumulatedSinkRecords.size(), config.getString(InterfaceConst.URL)));
             // Note: _rev is preserved
             accumulatedSinkRecords.stream()
                     .map(mapper) // Convert ConnectRecord to Map
-                    .sequential() // Avoid concurrent access to jsonArray
-                    .forEach(jsonArray::add);
+                    .sequential() // Avoid concurrent access to documentList
+                    .forEach(documentList::add);
             try {
                 // break down accumulated records into batches to send to cloudant
                 // NB a failure in _any_ batch will currently cause all accumulated records to be marked as uncommitted
-                int nBatches = jsonArray.size() / batchSize + (jsonArray.size() % batchSize == 0 ? 0 : 1);
+                int nBatches = documentList.size() / batchSize + (documentList.size() % batchSize == 0 ? 0 : 1);
                 LOG.info(String.format("flush called with %d batches to %s", nBatches, config.getString(InterfaceConst.URL)));
                 for (int b = 0; b < nBatches; b++) {
-                    List<Map<String, Object>> jsonSubArray = jsonArray.subList(b * batchSize, Math.min(jsonArray.size(), (b + 1) * batchSize));
-                    LOG.info(String.format("Calling batchWrite with %d documents to %s", jsonSubArray.size(), config.getString(InterfaceConst.URL)));
-                    List<DocumentResult> writeResults = JavaCloudantUtil.batchWrite(config.originalsStrings(), jsonSubArray);
+                    List<Document> documentSublist = documentList.subList(b * batchSize, Math.min(documentList.size(), (b + 1) * batchSize));
+                    LOG.info(String.format("Calling batchWrite with %d documents to %s", documentSublist.size(), config.getString(InterfaceConst.URL)));
+                    List<DocumentResult> writeResults = JavaCloudantUtil.batchWrite(config.originalsStrings(), documentSublist);
                     boolean someFailed = writeResults.stream().anyMatch(doc -> doc.isOk() == null || !doc.isOk());
                     if (reporter != null && someFailed) {
                         // logging not needed - user can enable `errors.log.enable` if required

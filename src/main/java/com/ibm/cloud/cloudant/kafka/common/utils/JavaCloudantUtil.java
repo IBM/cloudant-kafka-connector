@@ -56,11 +56,9 @@ public class JavaCloudantUtil {
         );
     }
 
-	public static List<DocumentResult> batchWrite(Map<String, String> props, List<Map<String, Object>> data)
+	public static List<DocumentResult> batchWrite(Map<String, String> props, List<Document> listOfDocs)
 		throws RuntimeException {
 		Cloudant service = CachedClientManager.getInstance(props);
-
-		List<Document> listOfDocs = data.stream().map(d -> {Document doc = new Document(); doc.setProperties(d); return doc; }).collect(Collectors.toList());
 
 		// attempt to create database
 		createTargetDb(service, props.get(InterfaceConst.DB));
