@@ -14,12 +14,15 @@
 package com.ibm.cloud.cloudant.kafka.tasks;
 
 import java.io.Reader;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.ibm.cloud.cloudant.kafka.utils.CloudantConst;
 import com.ibm.cloud.cloudant.kafka.utils.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.utils.JavaCloudantUtil;
+import com.ibm.cloud.cloudant.v1.model.Document;
 import com.ibm.cloud.cloudant.kafka.utils.CloudantDbUtils;
 import com.ibm.cloud.cloudant.kafka.utils.ConnectorUtils;
 import junit.framework.TestCase;
@@ -37,11 +40,13 @@ import java.util.concurrent.TimeUnit;
 
 public class SourceChangesTaskTest extends TestCase {
 
+    private static final Type documentListTypeToken = new TypeToken<List<Document>>() {}.getType();
+
     private SourceChangesTask task;
 
     private Map<String, String> sourceProperties;
 
-    private List data = null;
+    private List<Document> data = null;
 
     private Gson gson = new Gson();
 
@@ -55,7 +60,7 @@ public class SourceChangesTaskTest extends TestCase {
          * 1. Create a database and load data
          */
         try (Reader reader = new FileReader("src/test/resources/data.json")) {
-            data = gson.fromJson(reader, List.class);
+            data = gson.fromJson(reader, documentListTypeToken);
         }
 
         // Load data into the source database (create if it does not exist)
@@ -67,6 +72,7 @@ public class SourceChangesTaskTest extends TestCase {
         task = ConnectorUtils.createCloudantSourceConnector(sourceProperties);
     }
 
+    @SuppressWarnings("unchecked")
     public void testStartMapOfStringString() throws InterruptedException {
         PowerMock.replayAll();
 
@@ -100,7 +106,7 @@ public class SourceChangesTaskTest extends TestCase {
         assertEquals(999, records2.size());
 
         // Load 20 new documents
-        ArrayList data2 = new ArrayList();
+        ArrayList<Document> data2 = new ArrayList<>();
         int new_changes = 20;
         for (int i = 0; i < new_changes; i++) {
             data2.add(data.get(i));
@@ -123,9 +129,9 @@ public class SourceChangesTaskTest extends TestCase {
 
         try {
             // Create a second database with different content to the first
-            List data2;
+            List<Document> data2;
             try (Reader reader = new FileReader("src/test/resources/data2.json")) {
-                data2 = gson.fromJson(reader, List.class);
+                data2 = gson.fromJson(reader, documentListTypeToken);
             }
 
             // Load data into the source database (create if it does not exist)

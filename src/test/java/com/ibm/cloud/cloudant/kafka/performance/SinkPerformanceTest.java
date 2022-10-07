@@ -98,7 +98,6 @@ public class SinkPerformanceTest extends AbstractBenchmark {
     private void init(int numberDocs, int numTopics, int batch_size, int tasks_max, Boolean
             replication) {
         List<String> topics = new ArrayList<String>();
-        JsonParser parser = new JsonParser();
 
         for (int i = 0; i < numTopics; i++) {
             topics.add("topic" + i);
@@ -106,7 +105,7 @@ public class SinkPerformanceTest extends AbstractBenchmark {
 
         for (String topic : topics) {
             for (int i = 0; i < numberDocs; i++) {
-                JsonObject doc = parser.parse("{\"_id\":\"" + i + "\"}").getAsJsonObject();
+                JsonObject doc = JsonParser.parseString("{\"_id\":\"" + i + "\"}").getAsJsonObject();
 
                 sinkRecords.add(new SinkRecord(topic, 0, null, null, Schema.STRING_SCHEMA, doc, i));
             }

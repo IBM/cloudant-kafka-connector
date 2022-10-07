@@ -53,7 +53,7 @@ public class SinkErrorTest {
         //
         // given
         //
-        Map map = new HashMap();
+        Map<String, Object> map = new HashMap<>();
         map.put("_id", "foo");
         SinkRecord sr1 = new SinkRecord("test", 13, null, "0001", null, map, 0);
         SinkRecord sr2 = new SinkRecord("test", 13, null, "0002", null, map, 0);
@@ -120,7 +120,7 @@ public class SinkErrorTest {
         //
         // given
         //
-        Map map = new HashMap();
+        Map<String, Object> map = new HashMap<>();
         map.put("_id", "foo");
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", null, map, 0);
         Exception exception = new RuntimeException("eek!");

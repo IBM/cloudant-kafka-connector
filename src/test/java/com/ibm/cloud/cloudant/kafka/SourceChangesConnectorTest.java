@@ -18,8 +18,6 @@ import com.ibm.cloud.cloudant.kafka.utils.ConnectorUtils;
 import junit.framework.TestCase;
 import org.apache.kafka.connect.connector.ConnectorContext;
 import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
 import org.powermock.api.easymock.PowerMock;
 
 import java.util.List;
@@ -29,9 +27,6 @@ import java.util.Map;
  * @author holger
  */
 public class SourceChangesConnectorTest extends TestCase {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private SourceChangesConnector connector;
     private Map<String, String> sourceProperties;

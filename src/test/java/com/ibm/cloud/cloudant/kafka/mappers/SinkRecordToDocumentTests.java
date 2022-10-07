@@ -97,6 +97,7 @@ public class SinkRecordToDocumentTests {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testConvertComplexStruct() {
         // given...
         Schema s = SchemaBuilder.struct()
@@ -254,7 +255,7 @@ public class SinkRecordToDocumentTests {
         String value = "hello";
         SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
         try {
-            Document converted = mapper.apply(sr);
+            mapper.apply(sr);
             Assert.fail("should throw IllegalArgumentException");
         } catch (IllegalArgumentException iae) {
         }

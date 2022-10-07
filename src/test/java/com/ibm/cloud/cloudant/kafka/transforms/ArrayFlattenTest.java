@@ -36,6 +36,7 @@ public class ArrayFlattenTest {
         return new SourceRecord(Collections.emptyMap(), Collections.emptyMap(), "test", null, null, null, doc);
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> getFlattened(Map<String, Object> doc) {
         SourceRecord flattened = arrayFlattenTransform.apply(wrapInRecord(doc));
         return (Map<String, Object>) flattened.value();
@@ -97,6 +98,7 @@ public class ArrayFlattenTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testArrayNestedInMap() {
         List<Object> testArray = Arrays.asList("foo0", "foo1");
         Map<String, Object> doc = Collections.singletonMap(MAP_KEY, Collections.singletonMap(ARRAY_KEY, testArray));
@@ -143,6 +145,7 @@ public class ArrayFlattenTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testArrayNestedInMapNestedInArray() {
         List<Object> testArray = Arrays.asList("foo0", "foo1");
         Map<String, Object> doc = Collections.singletonMap(MAP_KEY, Collections.singletonList(Collections.singletonMap(ARRAY_KEY, testArray)));

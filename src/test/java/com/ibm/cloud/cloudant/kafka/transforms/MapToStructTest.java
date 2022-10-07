@@ -16,6 +16,7 @@ package com.ibm.cloud.cloudant.kafka.transforms;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import java.io.FileReader;
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -29,12 +30,14 @@ import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.errors.DataException;
 import org.junit.Test;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.ibm.cloud.cloudant.kafka.utils.CloudantConst;
 import com.ibm.cloud.cloudant.kafka.mappers.DocumentHelpers;
 import com.ibm.cloud.cloudant.kafka.mappers.DocumentHelpers.Primitive;
 
 public class MapToStructTest {
 
+    private static final Type mapStringObjectType = new TypeToken<Map<String, Object>>(){}.getType();
     private final MapToStruct transformer = new MapToStruct();
 
     private static void addPrimitivesToSchemaBuilder(SchemaBuilder builder) {
@@ -204,9 +207,10 @@ public class MapToStructTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testTypesDoc() throws Exception {
         try(FileReader reader = new FileReader("./src/test/resources/schema_types.json")) {
-            Map<String, Object> sampleDoc = new Gson().fromJson(reader, Map.class);
+            Map<String, Object> sampleDoc = new Gson().fromJson(reader, mapStringObjectType);
             SchemaAndValue actual = transformMap(sampleDoc);
             // We don't assert the whole schema here, just validate we got one and no exceptions were thrown
             assertNotNull("The schema should not be null", actual.schema());
@@ -225,7 +229,7 @@ public class MapToStructTest {
     @Test
     public void testSampleDoc() throws Exception {
         try(FileReader reader = new FileReader("./src/test/resources/sample_doc_from_data.json")) {
-            Map<String, Object> sampleDoc = new Gson().fromJson(reader, Map.class);
+            Map<String, Object> sampleDoc = new Gson().fromJson(reader, mapStringObjectType);
             SourceRecord sourceRecord = wrapInRecord(sampleDoc);
             // This sample doc has mixed type arrays, we need to flatten first
             try (ArrayFlatten flattener = new ArrayFlatten()) {

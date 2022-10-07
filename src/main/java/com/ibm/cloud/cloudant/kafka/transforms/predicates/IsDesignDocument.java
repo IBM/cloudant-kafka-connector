@@ -41,6 +41,7 @@ public class IsDesignDocument implements Predicate<SourceRecord> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean test(SourceRecord record) {
         Schema schema = record.keySchema();
         Object recordKey = record.key();
@@ -51,7 +52,7 @@ public class IsDesignDocument implements Predicate<SourceRecord> {
             // If it is not a map this will throw
         }
         Map<String, String> key = (Map<String, String>) recordKey;
-        String id = key.get(CLOUDANT_DOC_ID);
+        String id = key != null ? key.get(CLOUDANT_DOC_ID) : null;
         if (id == null) {
             throw new DataException(String.format(ResourceBundleUtil.get(MessageKey.CLOUDANT_KEY_NO_ID), CLOUDANT_DOC_ID));
         } else {

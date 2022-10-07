@@ -20,8 +20,6 @@ import org.apache.kafka.connect.data.Schema.Type;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.header.Header;
 import org.apache.kafka.connect.sink.SinkRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,8 +29,6 @@ import java.util.function.Function;
 public class SinkRecordToDocument implements Function<SinkRecord, Document> {
 
     static final String HEADER_DOC_ID_KEY = "cloudant_doc_id";
-
-    private static Logger LOG = LoggerFactory.getLogger(SinkRecordToDocument.class);
 
     public Document apply(SinkRecord record) {
         Document document = new Document();
@@ -50,7 +46,7 @@ public class SinkRecordToDocument implements Function<SinkRecord, Document> {
         switch (schemaType) {
             case MAP:
                 if (record.value() instanceof Map) {
-                    convertMap((Map) record.value(), toReturn);
+                    convertMap((Map<?,?>) record.value(), toReturn);
                     break;
                 } else {
                     throw new IllegalArgumentException(String.format("Type %s not supported with schema of type Map (or no schema)",
@@ -88,13 +84,13 @@ public class SinkRecordToDocument implements Function<SinkRecord, Document> {
     }
 
     // convert kafka map to map by adding key/values to passed in map, and returning it
-    private Map<String, Object> convertMap(Map inMap, Map<String, Object> outMap) {
+    private Map<String, Object> convertMap(Map<?,?> inMap, Map<String, Object> outMap) {
 
         for (Object k : inMap.keySet()) {
             if (k instanceof String) {
                 Object v = inMap.get(k);
                 if (v instanceof Map) {
-                    outMap.put((String) k, convertMap((Map) v, new HashMap<>()));
+                    outMap.put((String) k, convertMap((Map<?,?>) v, new HashMap<>()));
                 } else if (v instanceof Struct) {
                     outMap.put((String) k, convertStruct((Struct) v, new HashMap<>()));
                 } else {
@@ -126,7 +122,7 @@ public class SinkRecordToDocument implements Function<SinkRecord, Document> {
                 return value;
             // map/struct cases: chain a new map onto this one, as the value, and recursively fill in its contents 
             case MAP:
-                return convertMap((Map) value, new HashMap<>());
+                return convertMap((Map<?,?>) value, new HashMap<>());
             case STRUCT:
                 return convertStruct((Struct) value, new HashMap<>());
             default:
