@@ -1,5 +1,7 @@
 # UNRELEASED
-- [REFACTOR] Source and sink connector moves and renames
+- [FIXED] README to align with the 2.8.0 Kafka version.
+- [BREAKING CHANGE] Refactor package names
+- [BREAKING CHANGE] Source and sink connector moves and renames
 - [BREAKING CHANGE] Source connector flatten, schema generation and omit design documents options have been replaced by message transforms. See README for details.
 - [BREAKING CHANGE] Source connector now emits `java.util.Map` (not `String`) record values by default. See README for details.
 - [BREAKING CHANGE] Source connector now emits tombstone events for deleted documents. See [single message transforms](README.md#single-message-transforms) section in README for details.
@@ -13,7 +15,6 @@
 - [UPGRADED] Upgraded Gradle distribution from 4.5.1 to 7.4
 - [UPGRADED] Upgraded Kafka Connect API to 3.2.1.
 - [UPGRADED] Refactored to use the new `cloudant-java-sdk` library.
-- [FIXED] README to align with the 2.8.0 Kafka version.
 
 # 0.100.2-kafka-1.0.0 (2018-04-13)
 
