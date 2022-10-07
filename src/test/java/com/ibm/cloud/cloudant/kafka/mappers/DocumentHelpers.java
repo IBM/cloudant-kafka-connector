@@ -47,7 +47,7 @@ public class DocumentHelpers {
         BOOLEAN(true),
         BYTES(new byte[]{Byte.MIN_VALUE, Byte.MAX_VALUE}),
         DATE(Date.from(Instant.now()), v -> Timestamp.builder().optional().build()),
-        FLOAT32(Float.MAX_VALUE),
+        FLOAT32(Float.valueOf("4194304.5")), // 2^22 + 0.5 (An exact float since between 2^22 and 2^23 precision limit is 0.5)
         FLOAT64(Double.MIN_VALUE),
         INT16(Short.MAX_VALUE),
         INT32(Integer.MIN_VALUE),
