@@ -58,6 +58,7 @@ public class ArrayFlatten implements Transformation<SourceRecord> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public SourceRecord apply(SourceRecord record) {
         Object value = record.value();
         try {
@@ -104,6 +105,7 @@ public class ArrayFlatten implements Transformation<SourceRecord> {
         return keyAndObjectToEntryStream(entry.getKey(), entry.getValue());
     }
 
+    @SuppressWarnings("unchecked")
     Stream<Map.Entry<String, Object>> keyAndObjectToEntryStream(String key, Object value) {
         if (value != null) {
             Schema.Type schemaType = ConnectSchema.schemaType(value.getClass());

@@ -49,6 +49,7 @@ public class MapToStruct implements Transformation<SourceRecord> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public SourceRecord apply(SourceRecord record) {
         try {
             requireMapOrNull(record.value(), String.format(ResourceBundleUtil.get(MessageKey.CLOUDANT_STRUCT_PURPOSE), this.getClass().getName()));
@@ -115,6 +116,7 @@ public class MapToStruct implements Transformation<SourceRecord> {
         return new SchemaAndValue(SchemaBuilder.array(arraySchema).optional().build(), array.stream().map(SchemaAndValue::value).collect(Collectors.toList()));
     }
 
+    @SuppressWarnings("unchecked")
     static SchemaAndValue objectToSchemaAndValue(Object o) {
         if (o == null) {
             return NULL_SCHEMA_AND_VALUE;

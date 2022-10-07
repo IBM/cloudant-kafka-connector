@@ -90,8 +90,8 @@ public class SourceChangesAndCloudantSinkTest extends TestCase {
             for (SourceRecord record : records) {
 
                 // source task returns maps
-                Map sourceRecordValue = (Map) record.value();
-                Map recordValue = new HashMap(sourceRecordValue);
+                Map<?,?> sourceRecordValue = (Map<?,?>) record.value();
+                Map<?,?> recordValue = new HashMap<>(sourceRecordValue);
                 recordValue.remove("_rev");
 
                 SinkRecord sinkRecord = new SinkRecord(sinkTask.getTargetProperties().get

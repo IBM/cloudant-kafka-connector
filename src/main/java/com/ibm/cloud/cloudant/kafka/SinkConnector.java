@@ -21,8 +21,6 @@ import com.ibm.cloud.cloudant.kafka.tasks.SinkTask;
 import org.apache.kafka.common.config.Config;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.Task;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 public class SinkConnector extends org.apache.kafka.connect.sink.SinkConnector {
-
-    private static Logger LOG = LoggerFactory.getLogger(SinkConnector.class);
 
     private Map<String, String> configProperties;
 

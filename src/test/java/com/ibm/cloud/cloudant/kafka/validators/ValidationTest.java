@@ -15,7 +15,6 @@
 package com.ibm.cloud.cloudant.kafka.validators;
 
 import com.ibm.cloud.cloudant.kafka.tasks.SinkConnectorConfig;
-import com.ibm.cloud.cloudant.kafka.validators.ConfigValidator;
 import org.apache.kafka.common.config.Config;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigValue;

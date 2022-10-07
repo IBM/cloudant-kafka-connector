@@ -24,6 +24,7 @@ import static org.easymock.EasyMock.replay;
 
 public class ServiceCallUtils {
 
+    @SuppressWarnings("unchecked")
     public static <T> ServiceCall<T> makeServiceCallWithResult(T result) {
         Response<T> mockResponse = PowerMock.createMock(Response.class);
         expect(mockResponse.getResult()).andReturn(result).anyTimes();
