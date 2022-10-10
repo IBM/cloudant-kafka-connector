@@ -22,6 +22,7 @@ import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.source.SourceRecord;
 import com.ibm.cloud.cloudant.kafka.utils.CloudantConst;
+import com.ibm.cloud.cloudant.kafka.utils.NumberSafeMap;
 import com.ibm.cloud.cloudant.v1.model.ChangesResultItem;
 import com.ibm.cloud.cloudant.v1.model.Document;
 
@@ -86,7 +87,7 @@ public class DocumentToSourceRecord implements BiFunction<String, ChangesResultI
     Map<String, Object> documentToMap(Document document) {
         Map<String, Object> fixedProperties = getFixedProperties(document);
         Map<String, Object> dynamicProperties = Collections.unmodifiableMap(document.getProperties());
-        Map<String, Object> map = new HashMap<>(fixedProperties.size() + dynamicProperties.size());
+        Map<String, Object> map = new NumberSafeMap(fixedProperties.size() + dynamicProperties.size());
         map.putAll(fixedProperties);
         map.putAll(dynamicProperties);
         return Collections.unmodifiableMap(map);
