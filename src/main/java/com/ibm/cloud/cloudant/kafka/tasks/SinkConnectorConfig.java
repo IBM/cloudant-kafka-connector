@@ -25,6 +25,9 @@ public class SinkConnectorConfig extends ConnectorConfig {
     public static final ConfigDef CONFIG_DEF = baseConfigDef();
 
     public static ConfigDef baseConfigDef() {
+
+        int order = 100; // pick a high number so these will come after those from base config def
+
         return new ConfigDef(ConnectorConfig.CONFIG_DEF)
                 // batch size
                 .define(InterfaceConst.BATCH_SIZE,
@@ -33,8 +36,8 @@ public class SinkConnectorConfig extends ConnectorConfig {
                         ConfigDef.Range.between(InterfaceConst.BATCH_SIZE_MIN_SINK, InterfaceConst.BATCH_SIZE_MAX_SINK),
                         ConfigDef.Importance.MEDIUM,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_BATCH_SIZE_SINK_DOC),
-                        DATABASE_GROUP,
-                        1,
+                        KAFKA_GROUP,
+                        order++,
                         ConfigDef.Width.SHORT,
                         ResourceBundleUtil.get(MessageKey.CLOUDANT_BATCH_SIZE_DISP));
     }
