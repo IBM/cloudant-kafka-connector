@@ -63,13 +63,13 @@ The examples below demonstrate modifying events produced by the Cloudant source 
     transforms.FlattenMaps.type=org.apache.kafka.connect.transforms.Flatten
     ```
 
-1. Flatten arrays in the JSON document using `com.ibm.cloud.cloudant.kafka.connect.transforms.ArrayFlatten`. Note that this transform
+1. Flatten arrays in the JSON document using `com.ibm.cloud.cloudant.kafka.transforms.ArrayFlatten`. Note that this transform
    is only suitable for use with Map event values and will filter events that do not conform. As such if used in conjunction with the
    `MapToStruct` transform, this `ArrayFlatten` operation must precede `MapToStruct` in the SMT pipeline.
    The `delimiter` configuration property may be used to customize the delimiter, which defaults to `.`.
     ```
     transforms=FlattenArrays
-    transforms.FlattenArrays.type=com.ibm.cloud.cloudant.kafka.connect.transforms.ArrayFlatten
+    transforms.FlattenArrays.type=com.ibm.cloud.cloudant.kafka.transforms.ArrayFlatten
     ```
 
 1. Convert schemaless `java.util.Map` values to `org.apache.kafka.connect.data.Struct` with an inferred schema. This transform is designed
@@ -77,11 +77,11 @@ The examples below demonstrate modifying events produced by the Cloudant source 
    should be used.
     ```
     transforms=MapToStruct
-    transforms.MapToStruct.type=com.ibm.cloud.cloudant.kafka.connect.transforms.MapToStruct
+    transforms.MapToStruct.type=com.ibm.cloud.cloudant.kafka.transforms.MapToStruct
     ```
 
 1. Omit design documents from the produced events by using the Kafka built-in `org.apache.kafka.connect.transforms.Filter`
-   in conjunction with the predicate `com.ibm.cloud.cloudant.kafka.connect.transforms.predicates.IsDesignDocument`. Note that this
+   in conjunction with the predicate `com.ibm.cloud.cloudant.kafka.transforms.predicates.IsDesignDocument`. Note that this
    predicate relies on the key format of the Cloudant source connector events so must be applied before any other transformations that
    alter the key format.
     ```
@@ -90,5 +90,5 @@ The examples below demonstrate modifying events produced by the Cloudant source 
     transforms.omitDesignDocs.predicate=isDesignDoc
 
     predicates=isDesignDoc
-    predicates.isDesignDoc.type=com.ibm.cloud.cloudant.kafka.connect.transforms.predicates.IsDesignDocument
+    predicates.isDesignDoc.type=com.ibm.cloud.cloudant.kafka.transforms.predicates.IsDesignDocument
     ```
