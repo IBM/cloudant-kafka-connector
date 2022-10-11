@@ -42,7 +42,7 @@ Connector execution in Kafka is available through scripts in the Kafka install p
 Use the appropriate configuration files for standalone or distributed execution with Cloudant as source, as sink, or both.
 
 For example:
-- standalone execution with Cloudant as source:
+- standalone execution with Cloudant changes feed as source:
 
   ```
   $KAFKA_HOME/bin/connect-standalone.sh \
