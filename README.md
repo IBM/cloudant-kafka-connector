@@ -31,7 +31,7 @@ Experimental
 1. Download the jar from the [releases page](https://github.com/IBM/cloudant-kafka-connector/releases). The jar file contains the plugin and the non-Kafka dependencies needed to run.
 2. Copy the jar to the `libs` directory _or_ the
 [configured `plugin.path`](https://kafka.apache.org/documentation.html#connectconfigs_plugin.path) of your Kafka installation.
-3. Edit the [source](docs/connect-cloudant-source-example.properties) or [sink](docs/connect-cloudant-sink-example.properties) example properties files and save this to the `config` directory of your Kafka installation.
+3. Edit the [source](docs/connect-cloudant-changes-source-example.properties) or [sink](docs/connect-cloudant-sink-example.properties) example properties files and save this to the `config` directory of your Kafka installation.
 4. Start Kafka.
 5. Start the connector (see below).
 
@@ -136,13 +136,13 @@ Example configuration:
 1. The value of the `_id` field in the JSON
 1. If no other non-null or non-empty value is available the document will be created with a new UUID.
 
-### SMTs
+### Single Message Transforms
 
 A number of SMTs (Single Message Transforms) have been provided as part of the library to customize fields or values of events during data flow.
 
 See the [SMT reference](docs/smt-reference.md) for an overview of how to use these and Kafka built-in SMTs for common use cases.
 
-# Logging
+### Logging
 
 INFO level logging is configured by default to the console. To change log levels or settings, work with
 
