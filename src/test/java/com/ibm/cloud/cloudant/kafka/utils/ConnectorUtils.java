@@ -110,7 +110,7 @@ public class ConnectorUtils {
         connectorProperties.put(InterfaceConst.DB, "kafka-test-db-" + UUID.randomUUID());
         connectorProperties.put(InterfaceConst.TOPIC, "test-topic");
         connectorProperties.put(InterfaceConst.TASKS_MAX, "1");
-        connectorProperties.put(InterfaceConst.BATCH_SIZE, "10000");
+        connectorProperties.put(InterfaceConst.BATCH_SIZE, "2000");
         // cached connection manager needs this - in real life this would be the name set in the connector properties file
         connectorProperties.put("name", "cloudant-connector-test");
 
