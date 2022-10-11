@@ -23,7 +23,7 @@ Size of batches to send to Cloudant _bulk_docs endpoint
 
 * Type: `int`
 * Default: `1000`
-* Valid Values: `[1,...,20000]`
+* Valid Values: `[1,...,2000]`
 
 # Authentication
 

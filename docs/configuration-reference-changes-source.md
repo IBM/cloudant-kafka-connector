@@ -29,7 +29,7 @@ Size of batches to retrieve from Cloudant _changes endpoint
 
 * Type: `int`
 * Default: `1000`
-* Valid Values: `[1,...,20000]`
+* Valid Values: `[1,...,10000]`
 
 # Authentication
 
