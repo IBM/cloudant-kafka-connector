@@ -23,12 +23,12 @@ The examples below demonstrate modifying fields for events flowing from the Kafk
     - In either case, you can use the `RecordIsTombstone` predicate with a filter to remove these tombstone events as shown in this example:
 
     ```
-    transforms=dropNullRecords
-    transforms.dropNullRecords.type=org.apache.kafka.connect.transforms.Filter
-    transforms.dropNullRecords.predicate=isNullRecord
+    transforms=dropNullEvents
+    transforms.dropNullEvents.type=org.apache.kafka.connect.transforms.Filter
+    transforms.dropNullEvents.predicate=isNullEvent
 
-    predicates=isNullRecord
-    predicates.isNullRecord.type=org.apache.kafka.connect.transforms.predicates.RecordIsTombstone
+    predicates=isNullEvent
+    predicates.isNullEvent.type=org.apache.kafka.connect.transforms.predicates.RecordIsTombstone
     ```
 
 1. If you want to use the event key or another custom value as the document ID then use the `cloudant_doc_id` custom header.
@@ -55,7 +55,7 @@ The examples below demonstrate modifying fields for events flowing from the Kafk
 **Note**: For any of the SMTs above, if the field does not exist it will leave the event unmodified and continue processing the next event.
 
 ## Source
-The examples below demonstrate modifying records produced by the Cloudant source connector.
+The examples below demonstrate modifying events produced by the Cloudant source connector.
 
 1. Flatten maps in the JSON document using the Kafka built-in `org.apache.kafka.connect.transforms.ReplaceField$Value`
     ```
@@ -64,7 +64,7 @@ The examples below demonstrate modifying records produced by the Cloudant source
     ```
 
 1. Flatten arrays in the JSON document using `com.ibm.cloud.cloudant.kafka.connect.transforms.ArrayFlatten`. Note that this transform
-   is only suitable for use with Map record values and will filter records that do not conform. As such if used in conjunction with the
+   is only suitable for use with Map event values and will filter events that do not conform. As such if used in conjunction with the
    `MapToStruct` transform, this `ArrayFlatten` operation must precede `MapToStruct` in the SMT pipeline.
    The `delimiter` configuration property may be used to customize the delimiter, which defaults to `.`.
     ```
@@ -73,7 +73,7 @@ The examples below demonstrate modifying records produced by the Cloudant source
     ```
 
 1. Convert schemaless `java.util.Map` values to `org.apache.kafka.connect.data.Struct` with an inferred schema. This transform is designed
-   to improve compatibility with other connectors and converters that requires a `Struct` type record. For complex schemas a schema registry
+   to improve compatibility with other connectors and converters that requires a `Struct` type event. For complex schemas a schema registry
    should be used.
     ```
     transforms=MapToStruct

@@ -8,6 +8,8 @@ These connectors can stream events:
 - **from** Cloudant (source connector) to Kafka topic(s)
 - **to** Cloudant (sink connector) from Kafka topic(s)
 
+_Note:_ the connectors are also compatible with Apache CouchDB.
+
 ## Pre-release
 
 **Note**: this README file is for a pre-release version of the
@@ -81,15 +83,15 @@ The `connect-standalone` or `connect-distributed` configuration files contain de
 
 ### Connector configuration
 
-The `cloudant-source-example` and `cloudant-sink-example` properties files contain the minimum required to get started.
-For a full reference explaining all the connector options, see [here (source)](docs/configuration-reference-source.md) and
+The [`cloudant-changes-source-example`](docs/connect-cloudant-changes-source-example.properties) and [`cloudant-sink-example`](docs/connect-cloudant-sink-example.properties) properties files contain the minimum required to get started.
+For a full reference explaining all the connector options, see [here (source)](docs/configuration-reference-changes-source.md) and
 [here (sink)](docs/configuration-reference-sink.md).
 
 #### Authentication
 
 In order to read from or write to Cloudant, some authentication properties need to be configured. These properties are common to both the source and sink connector, and are detailed in the configuration reference, linked above.
 
-A number of different authentication methods are supported. IAM authentication is the default and recommended method; see [locating your service credentials](https://cloud.ibm.com/docs/Cloudant?topic=Cloudant-locating-your-service-credentials) for details on how to find your IAM API key.
+A number of different authentication methods are supported. IBM Cloud IAM-based authentication methods are recommended and the default is to use an IAM API key. See [locating your service credentials](https://cloud.ibm.com/docs/Cloudant?topic=Cloudant-locating-your-service-credentials) for details on how to find your IAM API key.
 
 ### Converter configuration
 
