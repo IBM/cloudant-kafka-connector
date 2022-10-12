@@ -25,8 +25,8 @@ import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.storage.OffsetStorageReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,8 +39,6 @@ public class SourceChangesTask extends org.apache.kafka.connect.source.SourceTas
     private static final Logger LOG = LoggerFactory.getLogger(SourceChangesTask.class);
 
     private static final String DEFAULT_CLOUDANT_LAST_SEQ = "0";
-
-    private static final String OFFSET_KEY = "cloudant.url.and.db";
 
     private SourceChangesConnectorConfig config;
 
@@ -106,7 +104,15 @@ public class SourceChangesTask extends org.apache.kafka.connect.source.SourceTas
         topics = config.getList(InterfaceConst.TOPIC);
         latestSequenceNumber = config.getString(InterfaceConst.LAST_CHANGE_SEQ);
         batchSize = config.getInt(InterfaceConst.BATCH_SIZE);
-        this.documentToSourceRecord = new DocumentToSourceRecord(offset(url, db), SourceChangesTask::offsetValue);
+
+        // Note this is a unique identifier for the Cloudant source.
+        // At present we consider a DB the source partition and
+        // uniquely identify it by URL and name.
+        Map<String, String> sourcePartition = new HashMap<>(2);
+        sourcePartition.put(InterfaceConst.URL, url);
+        sourcePartition.put(InterfaceConst.DB, db);
+
+        this.documentToSourceRecord = new DocumentToSourceRecord(sourcePartition, SourceChangesTask::offsetValue);
 
         if (latestSequenceNumber == null) {
             latestSequenceNumber = DEFAULT_CLOUDANT_LAST_SEQ;
@@ -114,7 +120,7 @@ public class SourceChangesTask extends org.apache.kafka.connect.source.SourceTas
             OffsetStorageReader offsetReader = context.offsetStorageReader();
 
             if (offsetReader != null) {
-                Map<String, Object> offset = offsetReader.offset(offset(url, db));
+                Map<String, Object> offset = offsetReader.offset(sourcePartition);
                 if (offset != null) {
                     latestSequenceNumber = (String) offset.get(InterfaceConst.LAST_CHANGE_SEQ);
                     LOG.info("Start with current offset (last sequence): " +
@@ -127,11 +133,6 @@ public class SourceChangesTask extends org.apache.kafka.connect.source.SourceTas
     @Override
     public void stop() {
         // nothing to do
-    }
-
-    // use the url and db name to form a unique offset key
-    private Map<String, String> offset(String url, String db) {
-        return Collections.singletonMap(OFFSET_KEY, String.format("%s/%s", url, db));
     }
 
     private static Map<String, String> offsetValue(String lastSeqNumber) {
