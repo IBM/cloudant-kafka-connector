@@ -93,7 +93,7 @@ In order to read from or write to Cloudant, some authentication properties need 
 
 A number of different authentication methods are supported. IBM Cloud IAM-based authentication methods are recommended and the default is to use an IAM API key. See [locating your service credentials](https://cloud.ibm.com/docs/Cloudant?topic=Cloudant-locating-your-service-credentials) for details on how to find your IAM API key.
 
-### Converter configuration
+### Converter Configuration
 
 Also present in the `connect-standalone` or `connect-distributed` configuration files are defaults for key and value conversion, which are as follows:
 ```
@@ -106,35 +106,29 @@ value.converter.schemas.enable=true
 Depending on your needs, you may need to change these converter settings.
 For instance, in the sample configuration files, value schemas are disabled on the assumption that users will read and write events which are "raw" JSON and do not have inline schemas.
 
-#### Converter configuration: source connector
+#### Converter Configuration: source connector
 
 For the source connector:
 * Keys are produced as `java.util.Map<String, String>` containing an `_id` entry with the original Cloudant document ID.
 * Values are produced as a (schemaless) `java.util.Map<String, Object>`.
 * These types are compatible with the default `org.apache.kafka.connect.json.JsonConverter` and should be compatible with any other converter that can accept a `Map`.
 * The `schemas.enabled` may be safely used with a `key.converter` if desired.
-* The source connector does not generate schemas for the record values by default. To use `schemas.enable` with the `value.converter` consider using a schema registry or the `MapToStruct` SMT detailed below.
+* The source connector does not generate schemas for the record values by default. To use `schemas.enable` with the `value.converter` consider using a schema registry or the [`MapToStruct` SMT](docs/smt-reference.md).
 
-#### Converter configuration: sink connector
+#### Converter Configuration: sink connector
 
 For the sink connector:
-1. Kafka keys are currently ignored; therefore the key converter settings are not relevant.
-1. We assume that the values in kafka are serialized JSON objects, and therefore `JsonConverter` is supported. If your values contain a schema (`{"schema": {...}, "payload": {...}}`), then set `value.converter.schemas.enable=true`, otherwise set `value.converter.schemas.enable=false`. Any other converter that converts the message values into `org.apache.kafka.connect.data.Struct` or `java.util.Map` types should also work. However, it must be noted that the subsequent serialization of `Map` or `Struct` values to JSON documents in the sink may not match expectations if a schema has not been provided.
-1. Inserting only a single revision of any `_id` is currently supported.  This means it cannot update or delete documents.
-1. The `_rev` field in event values are preserved.  To remove `rev` during data flow, use the `ReplaceField` Single Message Transforms (SMT).
-Example configuration:
-    ```
-    transforms=ReplaceField
-    transforms.ReplaceField.type=org.apache.kafka.connect.transforms.ReplaceField$Value 
-    transforms.ReplaceField.exclude=_rev
-    ```
-    See the [Kafka Connect transforms](https://kafka.apache.org/31/documentation.html#connect_transforms) documentation for more details.
+* Kafka keys are currently ignored; therefore the key converter settings are not relevant.
+* We assume that the values in kafka are serialized JSON objects, and therefore `JsonConverter` is supported. If your values contain a schema (`{"schema": {...}, "payload": {...}}`), then set `value.converter.schemas.enable=true`, otherwise set `value.converter.schemas.enable=false`. Any other converter that converts the message values into `org.apache.kafka.connect.data.Struct` or `java.util.Map` types should also work. However, it must be noted that the subsequent serialization of `Map` or `Struct` values to JSON documents in the sink may not match expectations if a schema has not been provided.
+* Inserting only a single revision of any `_id` is currently supported.  This means it cannot update or delete documents.
+* The `_rev` field in event values are preserved.  To remove `_rev` during data flow, use the [`ReplaceField` SMT](docs/smt-reference.md#removing-_rev-field).
 
 **Note:** The ID of each document written to Cloudant by the sink connector can be configured as follows:
 
-1. From the value of the `cloudant_doc_id` header on the event.  The value passed to this header must be a string and the `header.converter=org.apache.kafka.connect.storage.StringConverter` config is required.  This will overwrite the `_id` field if it already exists.
-1. The value of the `_id` field in the JSON
-1. If no other non-null or non-empty value is available the document will be created with a new UUID.
+* From the value of the `cloudant_doc_id` header on the even, which will overwrite the `_id` field if it already exists.
+  [The Mapping Document IDs section](docs/smt-reference.md#mapping-document-ids) of the SMT reference shows an example of how to use this header to set the ID based on the event key.
+* The value of the `_id` field in the JSON.
+* If no other non-null or non-empty value is available the document will be created with a new UUID.
 
 ### Single Message Transforms
 
