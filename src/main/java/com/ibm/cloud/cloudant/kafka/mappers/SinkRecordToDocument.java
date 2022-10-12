@@ -90,12 +90,11 @@ public class SinkRecordToDocument implements Function<SinkRecord, Document> {
     private Map<String, Object> convertMap(Map<?,?> inMap, Map<String, Object> outMap) {
 
         // iterate over keys and add to map
-        for (Object k : inMap.keySet()) {
-            if (k instanceof String) {
-                Object v = inMap.get(k);
-                outMap.put((String) k, convertItem(v));
+        for (Map.Entry<?, ?> entry : inMap.entrySet()) {
+            if (entry.getKey() instanceof String) {
+                outMap.put((String) entry.getKey(), convertItem(entry.getValue()));
             } else {
-                throw new IllegalArgumentException("unsupported type in map key " + k.getClass());
+                throw new IllegalArgumentException("unsupported type in map key " + entry.getKey().getClass());
             }
         }
         return outMap;
