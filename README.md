@@ -113,7 +113,7 @@ For the source connector:
 * Values are produced as a (schemaless) `java.util.Map<String, Object>`.
 * These types are compatible with the default `org.apache.kafka.connect.json.JsonConverter` and should be compatible with any other converter that can accept a `Map`.
 * The `schemas.enabled` may be safely used with a `key.converter` if desired.
-* The source connector does not generate schemas for the record values by default. To use `schemas.enable` with the `value.converter` consider using a schema registry or the [`MapToStruct` SMT](docs/smt-reference.md).
+* The source connector does not generate schemas for the record values by default. To use `schemas.enable` with the `value.converter` consider using a schema registry or the [`MapToStruct` SMT](docs/smt-reference.md#map-to-struct-conversion).
 
 #### Converter Configuration: sink connector
 

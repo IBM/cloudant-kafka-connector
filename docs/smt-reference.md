@@ -58,7 +58,7 @@ The examples below demonstrate modifying events produced by the Cloudant source 
 
 ### Flattening
 
-For certain use cases, such as sending events to a relational database sink, it may be desirable to flatten nested fields and to derive a schema:
+For certain use cases, such as sending events to a relational database sink, it may be desirable to flatten nested fields:
 
 * Flatten maps in the JSON document using the [Kafka built-in `org.apache.kafka.connect.transforms.ReplaceField$Value`](https://docs.confluent.io/cloud/current/connectors/single-message-transforms.html#flatten)
   ```
@@ -74,6 +74,8 @@ For certain use cases, such as sending events to a relational database sink, it 
   transforms=FlattenArrays
   transforms.FlattenArrays.type=com.ibm.cloud.cloudant.kafka.transforms.ArrayFlatten
   ```
+
+### Map to Struct Conversion
 
 * Convert schemaless `java.util.Map` values to `org.apache.kafka.connect.data.Struct` with an inferred schema. This transform is designed
   to improve compatibility with other connectors and converters that requires a `Struct` type event. For complex schemas a schema registry
