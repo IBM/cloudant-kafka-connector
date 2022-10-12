@@ -40,8 +40,8 @@ public class InterfaceConst {
 
     public static final int DEFAULT_BATCH_SIZE_SOURCE = 1000;
     public static final int BATCH_SIZE_MIN_SOURCE = 1;
-    public static final int BATCH_SIZE_MAX_SOURCE = 20000;
+    public static final int BATCH_SIZE_MAX_SOURCE = 10000;
     public static final int DEFAULT_BATCH_SIZE_SINK = 1000;
     public static final int BATCH_SIZE_MIN_SINK = 1;
-    public static final int BATCH_SIZE_MAX_SINK = 20000;
+    public static final int BATCH_SIZE_MAX_SINK = 2000;
 }
