@@ -165,7 +165,6 @@ public class SinkRecordToDocumentTests {
 
     }
 
-    // TODO test for array of structs
     @SuppressWarnings("unchecked")
     @Test
     public void testConvertArrayOfStructs() {
@@ -186,21 +185,20 @@ public class SinkRecordToDocumentTests {
         list.add(listValue2);
         value.put("struct_array", list);
 
-        // do conversion
-        SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
-        Document converted = mapper.apply(sr);
-
-
-        System.out.println(s);
-        assertEquals(((List<Map<String, Object>>) converted.get("struct_array")).get(0).get("string"), "foo1");
-        assertEquals(((List<Map<String, Object>>) converted.get("struct_array")).get(1).get("string"), "foo2");
-
         // when...
         try {
             value.validate();
         } catch (DataException de) {
             fail("Data invalid according to schema");
         }
+
+        // do conversion
+        SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
+        Document converted = mapper.apply(sr);
+
+        // then...
+        assertEquals(((List<Map<String, Object>>) converted.get("struct_array")).get(0).get("string"), "foo1");
+        assertEquals(((List<Map<String, Object>>) converted.get("struct_array")).get(1).get("string"), "foo2");
     }
 
     @Test
