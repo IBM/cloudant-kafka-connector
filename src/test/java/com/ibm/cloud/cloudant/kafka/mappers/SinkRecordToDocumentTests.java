@@ -22,7 +22,9 @@ import org.apache.kafka.connect.sink.SinkRecord;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.ibm.cloud.cloudant.kafka.mappers.SinkRecordToDocument.HEADER_DOC_ID_KEY;
@@ -161,6 +163,44 @@ public class SinkRecordToDocumentTests {
         assertEquals("foo4", ((Map<String, Object>) converted.get("struct")).get("string_1"));
         assertEquals("foo5", ((Map<String, Object>) ((Map<String, Object>) ((Map<String, Object>) converted.get("struct")).get("map")).get("struct2")).get("string_2"));
 
+    }
+
+    // TODO test for array of structs
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testConvertArrayOfStructs() {
+        // given...
+        Schema s = SchemaBuilder.struct()
+                .field("struct_array", SchemaBuilder.array(SchemaBuilder.struct().field("string", Schema.STRING_SCHEMA).build()).build());
+
+        // build a complex structure according to the above schema:
+        // Struct[struct=Struct{string=foo1},struct=Struct{string=foo1}]
+        Struct value = new Struct(s);
+        ArrayList<Struct> list = new ArrayList<>();
+        Schema innerSchema = s.field("struct_array").schema().valueSchema();
+        Struct listValue1 = new Struct(innerSchema);
+        Struct listValue2 = new Struct(innerSchema);
+        listValue1.put("string", "foo1");
+        listValue2.put("string", "foo2");
+        list.add(listValue1);
+        list.add(listValue2);
+        value.put("struct_array", list);
+
+        // do conversion
+        SinkRecord sr = new SinkRecord("test", 13, null, "0001", s, value, 0);
+        Document converted = mapper.apply(sr);
+
+
+        System.out.println(s);
+        assertEquals(((List<Map<String, Object>>) converted.get("struct_array")).get(0).get("string"), "foo1");
+        assertEquals(((List<Map<String, Object>>) converted.get("struct_array")).get(1).get("string"), "foo2");
+
+        // when...
+        try {
+            value.validate();
+        } catch (DataException de) {
+            fail("Data invalid according to schema");
+        }
     }
 
     @Test
