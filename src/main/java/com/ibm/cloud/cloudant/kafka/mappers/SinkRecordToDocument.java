@@ -21,10 +21,12 @@ import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.header.Header;
 import org.apache.kafka.connect.sink.SinkRecord;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class SinkRecordToDocument implements Function<SinkRecord, Document> {
 
@@ -41,6 +43,7 @@ public class SinkRecordToDocument implements Function<SinkRecord, Document> {
             return Collections.emptyMap();
         }
         // we can convert from a struct or a map - assume a map when a value schema is not provided
+        // NB arrays not supported at top level - they are not valid json
         Schema.Type schemaType = record.valueSchema() == null ? Schema.Type.MAP : record.valueSchema().type();
         Map<String, Object> toReturn = new HashMap<>();
         switch (schemaType) {
@@ -78,7 +81,7 @@ public class SinkRecordToDocument implements Function<SinkRecord, Document> {
         // iterate fields and add to map
         for (Field f : schema.fields()) {
             Object value = struct.get(f);
-            outMap.put(f.name(), getField(f.schema().type(), value));
+            outMap.put(f.name(), convertItemFromStruct(f.schema().type(), value));
         }
         return outMap;
     }
@@ -86,30 +89,28 @@ public class SinkRecordToDocument implements Function<SinkRecord, Document> {
     // convert kafka map to map by adding key/values to passed in map, and returning it
     private Map<String, Object> convertMap(Map<?,?> inMap, Map<String, Object> outMap) {
 
-        for (Object k : inMap.keySet()) {
-            if (k instanceof String) {
-                Object v = inMap.get(k);
-                if (v instanceof Map) {
-                    outMap.put((String) k, convertMap((Map<?,?>) v, new HashMap<>()));
-                } else if (v instanceof Struct) {
-                    outMap.put((String) k, convertStruct((Struct) v, new HashMap<>()));
-                } else {
-                    // assume that JSON serialiser knows how to deal with it
-                    outMap.put((String) k, v);
-                }
+        // iterate over keys and add to map
+        for (Map.Entry<?, ?> entry : inMap.entrySet()) {
+            if (entry.getKey() instanceof String) {
+                outMap.put((String) entry.getKey(), convertItem(entry.getValue()));
             } else {
-                throw new IllegalArgumentException("unsupported type in map key " + k.getClass());
+                throw new IllegalArgumentException("unsupported type in map key " + entry.getKey().getClass());
             }
         }
         return outMap;
     }
 
+    // could be an array, list, or collection: convert each item in turn and return list
+    private Collection<?> convertCollection(Collection<?> c) {
+        return c.stream().map(this::convertItem).collect(Collectors.toList());
+    }
+
+    // helper for convertStruct
     // get field value, recursing if necessary for struct types
-    private Object getField(Type type, Object value) {
+    private Object convertItemFromStruct(Type type, Object value) {
 
         switch (type) {
             // primitive types: just return value (JSON serialiser will deal with conversion later)
-            case ARRAY:
             case BOOLEAN:
             case BYTES:
             case FLOAT32:
@@ -125,10 +126,27 @@ public class SinkRecordToDocument implements Function<SinkRecord, Document> {
                 return convertMap((Map<?,?>) value, new HashMap<>());
             case STRUCT:
                 return convertStruct((Struct) value, new HashMap<>());
+            // array case:
+            case ARRAY:
+                return convertCollection((Collection<?>) value);
             default:
                 throw new IllegalArgumentException("unknown type " + type);
         }
 
+    }
+
+    // helper for convertMap, convertCollection
+    private Object convertItem(Object value) {
+        if (value instanceof Map) {
+            return convertMap((Map<?,?>) value, new HashMap<>());
+        } else if (value instanceof Struct) {
+            return convertStruct((Struct) value, new HashMap<>());
+        } else if (value instanceof Collection) {
+            return convertCollection((Collection<?>) value);
+        } else {
+            // assume that JSON serialiser knows how to deal with it
+            return value;
+        }
     }
 
     private String getHeaderForDocId(SinkRecord record) {
