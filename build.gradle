@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 // Kafka version
@@ -118,4 +117,25 @@ tasks.withType(Test) {
     systemProperties = System.getProperties()
     // Make sure it is UTF-8 for tests
     systemProperty "file.encoding", "UTF-8"
+}
+
+// Signatory config props
+def signingProps = ['signing_keyId', 'signing_password', 'signing_secretKeyRingFile'];
+// Load signatory config by translating underscore project props to dotted form
+signingProps.each { propName ->
+    ext.(propName.replace('_', '.').toString()) = findProperty(propName);
+}
+
+// Only sign when a key is provided by env var
+tasks.withType(Sign) {
+    onlyIf { 
+        signingProps.every {propName -> 
+            System.env["ORG_GRADLE_PROJECT_${propName}"] != null
+        }
+    }
+}
+
+signing {
+    // When signing, sign the jar
+    sign jar
 }
