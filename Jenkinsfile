@@ -17,8 +17,10 @@
 def prefixlessTag(tag) {
     return tag.replaceFirst('v','')
 }
-def uploadUrl
+def jarUploadUrl
 def jarName
+def ascUploadUrl
+def ascName
 
 pipeline {
     agent {
@@ -28,7 +30,12 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh './gradlew clean assemble'
+                withCredentials([
+                    usernamePassword(credentialsId: 'signing-creds', passwordVariable: 'ORG_GRADLE_PROJECT_signing_password', usernameVariable: 'ORG_GRADLE_PROJECT_signing_keyId'),
+                    file(credentialsId: 'signing-key', variable: 'ORG_GRADLE_PROJECT_signing_secretKeyRingFile')
+                ]) {
+                    sh './gradlew clean assemble'
+                }
             }
         }
 
@@ -80,10 +87,12 @@ pipeline {
                             wrapAsMultipart: false
                 script {
                     jarName = "cloudant-kafka-connector-${prefixlessTag(TAG_NAME)}.jar"
+                    ascName = "${jarName}.asc"
                     // Process the release response to get the asset upload_url
                     def responseJson = readJSON file: 'release_response.json'
                     // Replace the path parameter template with a name
-                    uploadUrl = responseJson.upload_url.replace('{?name,label}',"?name=${jarName}")
+                    jarUploadUrl = responseJson.upload_url.replace('{?name,label}',"?name=${jarName}")
+                    ascUploadUrl = responseJson.upload_url.replace('{?name,label}',"?name=${ascName}")
                 }
                 // Upload the asset to the release
                 httpRequest authentication: 'gh-sdks-automation',
@@ -91,7 +100,16 @@ pipeline {
                             httpMode: 'POST',
                             timeout: 60,
                             uploadFile: "build/libs/${jarName}",
-                            url: uploadUrl,
+                            url: jarUploadUrl,
+                            validResponseCodes: '201',
+                            wrapAsMultipart: false
+                // Upload the sig to the release
+                httpRequest authentication: 'gh-sdks-automation',
+                            customHeaders: [[name: 'Accept', value: 'application/vnd.github+json'],[name: 'Content-Type', value: 'application/pgp-signature']],
+                            httpMode: 'POST',
+                            timeout: 60,
+                            uploadFile: "build/libs/${ascName}",
+                            url: ascUploadUrl,
                             validResponseCodes: '201',
                             wrapAsMultipart: false
             }
