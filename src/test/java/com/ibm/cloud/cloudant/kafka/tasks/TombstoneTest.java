@@ -21,7 +21,9 @@ import com.ibm.cloud.cloudant.v1.model.Change;
 import com.ibm.cloud.cloudant.v1.model.ChangesResult;
 import com.ibm.cloud.cloudant.v1.model.ChangesResultItem;
 import com.ibm.cloud.cloudant.v1.model.Document;
+import org.apache.kafka.connect.connector.ConnectorContext;
 import org.apache.kafka.connect.source.SourceRecord;
+import org.apache.kafka.connect.source.SourceTaskContext;
 import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.api.easymock.PowerMock;
@@ -51,6 +53,8 @@ public class TombstoneTest {
         ChangesResult mockChangesResult = PowerMock.createMock(ChangesResult.class);
         ChangesResultItem mockChangesResultItem = PowerMock.createMock(ChangesResultItem.class);
         Change mockChange = PowerMock.createMock(Change.class);
+        SourceTaskContext mockContext = PowerMock.createMock(SourceTaskContext.class);
+
         // NB document not mocked
         String id = "123";
         Document document = new Document();
@@ -66,11 +70,13 @@ public class TombstoneTest {
         expect(mockChangesResultItem.getId()).andReturn(id);
         expect(mockChangesResultItem.getDoc()).andReturn(document);
         expect(mockChangesResultItem.isDeleted()).andReturn(Boolean.TRUE);
+        expect(mockContext.offsetStorageReader()).andReturn(null);
         
         // force the task to use our mock client
         ClientManagerUtils.addClientToCache(connectionName, mockCloudant);
         // setup task with some minimal config
         SourceChangesTask sourceChangesTask = new SourceChangesTask();
+        sourceChangesTask.initialize(mockContext);
         Map<String, String> configMap = new HashMap<>();
         configMap.put("name", connectionName);
         configMap.put("cloudant.since", "1000");
@@ -86,6 +92,7 @@ public class TombstoneTest {
         replay(mockChangesResult);
         replay(mockChange);
         replay(mockChangesResultItem);
+        replay(mockContext);
         sourceChangesTask.start(configMap);
         List<SourceRecord> records = sourceChangesTask.poll();
 
