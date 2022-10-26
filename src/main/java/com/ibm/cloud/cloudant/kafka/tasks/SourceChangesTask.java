@@ -114,20 +114,16 @@ public class SourceChangesTask extends org.apache.kafka.connect.source.SourceTas
 
         this.documentToSourceRecord = new DocumentToSourceRecord(sourcePartition, SourceChangesTask::offsetValue);
 
-        if (latestSequenceNumber == null) {
-            latestSequenceNumber = DEFAULT_CLOUDANT_LAST_SEQ;
-
-            OffsetStorageReader offsetReader = context.offsetStorageReader();
-
-            if (offsetReader != null) {
-                Map<String, Object> offset = offsetReader.offset(sourcePartition);
-                if (offset != null) {
-                    latestSequenceNumber = (String) offset.get(InterfaceConst.LAST_CHANGE_SEQ);
-                    LOG.info("Start with current offset (last sequence): " +
-                            latestSequenceNumber);
-                }
+        // if we have a stored `cloudant.since` value, use this in preference to the default or user-supplied option
+        OffsetStorageReader offsetReader = context.offsetStorageReader();
+        if (offsetReader != null) {
+            Map<String, Object> offset = offsetReader.offset(sourcePartition);
+            if (offset != null) {
+                LOG.info("Retrieving latestSequenceNumber from OffsetStorageReader");
+                latestSequenceNumber = (String) offset.get(InterfaceConst.LAST_CHANGE_SEQ);
             }
         }
+        LOG.info("Start with latestSequenceNumber=" + latestSequenceNumber);
     }
 
     @Override
