@@ -62,6 +62,8 @@ public class SourceChangesTask extends org.apache.kafka.connect.source.SourceTas
 
         // the changes feed for initial processing (not continuous yet)
         PostChangesOptions postChangesOptions = new PostChangesOptions.Builder()
+                .feed(PostChangesOptions.Feed.LONGPOLL)
+                .timeout(60 * 1000)
                 .db(db)
                 .includeDocs(true)
                 .since(latestSequenceNumber)
@@ -86,9 +88,7 @@ public class SourceChangesTask extends org.apache.kafka.connect.source.SourceTas
                         }
                     })).collect(Collectors.toList());
 
-            LOG.info("Return " + records.size() / topics.size() + " records with last offset "
-                    + latestSequenceNumber);
-
+            LOG.debug("Return " + records.size() + " records with last offset " + latestSequenceNumber);
             return records;
         }
 
