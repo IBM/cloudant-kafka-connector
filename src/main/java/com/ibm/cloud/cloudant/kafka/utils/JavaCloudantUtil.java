@@ -83,10 +83,10 @@ public class JavaCloudantUtil {
             // error can happen if db exists
             // pass in error message e.g. "Error during creation of database <dbname>"
             if (sre.getStatusCode() == 412) {
-                LOG.info(String.format("Tried to create database %s but it already exists.", dbName));
+                LOG.info("Tried to create database {} but it already exists.", dbName);
             } else {
-                LOG.error(String.format("Error during creation of database %s.  Error code: %d Error response: %s",
-                        dbName, sre.getStatusCode(), sre.getMessage()));
+                LOG.error("Error during creation of database {}.  Error code: {} Error response: {}",
+                        dbName, sre.getStatusCode(), sre.getMessage());
                 sre.printStackTrace();
             }
         }

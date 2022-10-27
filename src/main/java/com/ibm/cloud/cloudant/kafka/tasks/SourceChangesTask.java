@@ -56,7 +56,7 @@ public class SourceChangesTask extends org.apache.kafka.connect.source.SourceTas
     public List<SourceRecord> poll() throws InterruptedException {
         Cloudant service = CachedClientManager.getInstance(config.originalsStrings());
 
-        LOG.debug("Process lastSeq: " + latestSequenceNumber);
+        LOG.debug("Process lastSeq: {}", latestSequenceNumber);
 
         // the changes feed for initial processing (not continuous yet)
         PostChangesOptions postChangesOptions = new PostChangesOptions.Builder()
@@ -70,7 +70,7 @@ public class SourceChangesTask extends org.apache.kafka.connect.source.SourceTas
         ChangesResult cloudantChangesResult = service.postChanges(postChangesOptions).execute().getResult();
 
         if (cloudantChangesResult != null) {
-            LOG.debug("Got " + cloudantChangesResult.getResults().size() + " changes");
+            LOG.debug("Got {} changes", cloudantChangesResult.getResults().size());
             latestSequenceNumber = cloudantChangesResult.getLastSeq();
 
             // process the results into the array to be returned
@@ -121,7 +121,7 @@ public class SourceChangesTask extends org.apache.kafka.connect.source.SourceTas
                 latestSequenceNumber = (String) offset.get(InterfaceConst.LAST_CHANGE_SEQ);
             }
         }
-        LOG.info("Start with latestSequenceNumber=" + latestSequenceNumber);
+        LOG.info("Start with latestSequenceNumber={}", latestSequenceNumber);
     }
 
     @Override

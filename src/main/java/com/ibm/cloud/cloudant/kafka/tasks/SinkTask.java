@@ -58,7 +58,7 @@ public class SinkTask extends org.apache.kafka.connect.sink.SinkTask {
         if (accumulatedSinkRecords == null) {
             accumulatedSinkRecords = new LinkedList<>();
         }
-        LOG.info("Thread[" + Thread.currentThread().getId() + "].sinkRecords = " + sinkRecords.size());
+        LOG.info("Thread[{}].sinkRecords = {}", Thread.currentThread().getId(), sinkRecords.size());
         accumulatedSinkRecords.addAll(sinkRecords);
     }
 
@@ -83,7 +83,7 @@ public class SinkTask extends org.apache.kafka.connect.sink.SinkTask {
 
         List<Document> documentList = new ArrayList<>();
         if (accumulatedSinkRecords != null && !accumulatedSinkRecords.isEmpty()) {
-            LOG.info(String.format("flush called with %d documents to %s", accumulatedSinkRecords.size(), config.getString(InterfaceConst.URL)));
+            LOG.info("flush called with {} documents to {}", accumulatedSinkRecords.size(), config.getString(InterfaceConst.URL));
             // Note: _rev is preserved
             accumulatedSinkRecords.stream()
                     .map(mapper) // Convert ConnectRecord to Map
@@ -93,10 +93,10 @@ public class SinkTask extends org.apache.kafka.connect.sink.SinkTask {
                 // break down accumulated records into batches to send to cloudant
                 // NB a failure in _any_ batch will currently cause all accumulated records to be marked as uncommitted
                 int nBatches = documentList.size() / batchSize + (documentList.size() % batchSize == 0 ? 0 : 1);
-                LOG.info(String.format("flush called with %d batches to %s", nBatches, config.getString(InterfaceConst.URL)));
+                LOG.info("flush called with {} batches to {}", nBatches, config.getString(InterfaceConst.URL));
                 for (int b = 0; b < nBatches; b++) {
                     List<Document> documentSublist = documentList.subList(b * batchSize, Math.min(documentList.size(), (b + 1) * batchSize));
-                    LOG.info(String.format("Calling batchWrite with %d documents to %s", documentSublist.size(), config.getString(InterfaceConst.URL)));
+                    LOG.info("Calling batchWrite with {} documents to {}", documentSublist.size(), config.getString(InterfaceConst.URL));
                     List<DocumentResult> writeResults = JavaCloudantUtil.batchWrite(config.originalsStrings(), documentSublist);
                     boolean someFailed = writeResults.stream().anyMatch(doc -> doc.isOk() == null || !doc.isOk());
                     if (reporter != null && someFailed) {

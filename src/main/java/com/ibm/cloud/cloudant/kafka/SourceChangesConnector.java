@@ -59,7 +59,7 @@ public class SourceChangesConnector extends SourceConnector {
     @Override
     public List<Map<String, String>> taskConfigs(int maxTasks) {
         if (maxTasks > 1) {
-            LOG.warn(String.format("tasks.max requested was %d, but only 1 task supported", maxTasks));
+            LOG.warn("tasks.max requested was {}, but only 1 task supported", maxTasks);
         }
         return Collections.nCopies(maxTasks, new HashMap<>(configProperties));
     }
