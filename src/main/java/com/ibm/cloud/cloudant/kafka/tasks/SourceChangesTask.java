@@ -88,7 +88,7 @@ public class SourceChangesTask extends org.apache.kafka.connect.source.SourceTas
                         }
                     })).collect(Collectors.toList());
 
-            LOG.debug("Return " + records.size() + " records with last offset " + latestSequenceNumber);
+            LOG.debug("Return {} records with last offset {}", records.size(), latestSequenceNumber);
             return records;
         }
 
