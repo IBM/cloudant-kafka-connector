@@ -12,7 +12,7 @@ Cloudant database name (for sink connector it will be created if it does not exi
 * Type: `string`
 
 ## `cloudant.since`
-Last update sequence identifier to resume from. Identified sequence number is included in the result set. See "last_seq" parameter in Cloudant _changes API documentation for details.
+The sequence ID from which to start processing the changes feed. Defaults to starting from the beginning of the changes feed. Ignored if the connector is restarting, in which case the last committed offset will be used. Valid values are "0" (all changes from beginning of the changes feed), "now" (all changes from current point in time), or a Cloudant _changes sequence ID.
 
 * Type: `string`
 * Default: `0`
