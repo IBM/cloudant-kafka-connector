@@ -38,8 +38,6 @@ public class SourceChangesTask extends org.apache.kafka.connect.source.SourceTas
 
     private static final Logger LOG = LoggerFactory.getLogger(SourceChangesTask.class);
 
-    private static final String DEFAULT_CLOUDANT_LAST_SEQ = "0";
-
     private SourceChangesConnectorConfig config;
 
     private String url = null;
