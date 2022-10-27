@@ -68,7 +68,7 @@ public class SinceOptionTest {
     // test no offset storage reader value, value from config map is used:
     // - configure cloudant.since to CLOUDANT_SINCE in config map
     // - configure offset storage reader to return null
-    // - expect CLOUDANT_SINCE to be used in _changes request, which is value from offset storage reader
+    // - expect CLOUDANT_SINCE to be used in _changes request, which is value from config option
     @Test
     public void testNoOffsetStorageReaderValueAndOptionSpecified() throws Exception {
         Map<String, String> configMap = new HashMap<>(CONFIG_MAP);
@@ -79,7 +79,7 @@ public class SinceOptionTest {
     // test no offset storage reader value, value from config map is used:
     // - don't configure cloudant.since in config map
     // - configure offset storage reader to return null
-    // - expect "0" (LAST_SEQ_NUM_DEFAULT) to be used in _changes request, which is value from offset storage reader
+    // - expect "0" (LAST_SEQ_NUM_DEFAULT) to be used in _changes request, which is default value with no config or stored offset
     @Test
     public void testNoOffsetStorageReaderValueAndNoOptionSpecified() throws Exception {
         Map<String, String> configMap = new HashMap<>(CONFIG_MAP);
