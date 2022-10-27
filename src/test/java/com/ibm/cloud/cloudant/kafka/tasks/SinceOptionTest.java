@@ -107,6 +107,8 @@ public class SinceOptionTest {
         document.setId(ID);
         // these options are used in the `expect` call the line below to ensure that we are matching the correct "since" value
         PostChangesOptions options = new PostChangesOptions.Builder()
+                .feed(PostChangesOptions.Feed.LONGPOLL)
+                .timeout(60 * 1000)
                 .db(DB_NAME)
                 .includeDocs(true)
                 .since(sinceValueExpectedInRequest)
