@@ -105,7 +105,7 @@ public class MapToStruct implements Transformation<SourceRecord> {
             // If there are no elements to test, or if the only values are nulls.
             // For these cases we just call it an optional string and move on.
             arraySchema = NULL_VALUE_SCHEMA;
-            LOG.warn(String.format(ResourceBundleUtil.get(MessageKey.CLOUDANT_STRUCT_UNDETECTABLE_ARRAY)));
+            LOG.warn(ResourceBundleUtil.get(MessageKey.CLOUDANT_STRUCT_UNDETECTABLE_ARRAY));
         } else if (schemas.size() > 1) {
             // If there are multiple schemas then throw an exception because mixed type arrays are not supported by Struct
             throw new DataException(String.format(ResourceBundleUtil.get(MessageKey.CLOUDANT_STRUCT_MIXED_TYPE_ARRAY), ArrayFlatten.class.getName()));
