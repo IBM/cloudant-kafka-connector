@@ -22,6 +22,7 @@ import com.ibm.cloud.cloudant.v1.model.ChangesResult;
 import com.ibm.cloud.cloudant.v1.model.ChangesResultItem;
 import com.ibm.cloud.cloudant.v1.model.Document;
 import org.apache.kafka.connect.connector.ConnectorContext;
+import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTaskContext;
 import org.junit.Assert;
@@ -102,8 +103,8 @@ public class TombstoneTest {
         Assert.assertEquals(2, records.size());
         Assert.assertNotNull(records.get(0).value());
         Assert.assertNull(records.get(1).value());
-        Assert.assertEquals(Collections.singletonMap(CloudantConst.CLOUDANT_DOC_ID, id), records.get(0).key());
-        Assert.assertEquals(Collections.singletonMap(CloudantConst.CLOUDANT_DOC_ID, id), records.get(1).key());
+        Assert.assertEquals(id, ((Struct)records.get(0).key()).get(CloudantConst.CLOUDANT_DOC_ID));
+        Assert.assertEquals(id, ((Struct)records.get(1).key()).get(CloudantConst.CLOUDANT_DOC_ID));
     }
 
 }
