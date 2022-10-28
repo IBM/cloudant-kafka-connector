@@ -32,10 +32,10 @@ import com.ibm.cloud.cloudant.v1.model.Document;
 public class DocumentToSourceRecord implements BiFunction<String, ChangesResultItem, SourceRecord> {
 
     // Record key schema is {"_id": doc_id, "cloudant.url": url, "cloudant.db": db}
-    private static final Schema RECORD_KEY_SCHEMA = SchemaBuilder.struct()
+    public static final Schema RECORD_KEY_SCHEMA = SchemaBuilder.struct()
             .field(CloudantConst.CLOUDANT_DOC_ID, Schema.STRING_SCHEMA)
-            .field(InterfaceConst.URL, Schema.STRING_SCHEMA)
-            .field(InterfaceConst.DB, Schema.STRING_SCHEMA)
+            .field(InterfaceConst.DB, Schema.OPTIONAL_STRING_SCHEMA)
+            .field(InterfaceConst.URL, Schema.OPTIONAL_STRING_SCHEMA)
             .build();
     // Record value is Map<String, Object>
     // We can't use map(Schema.STRING_SCHEMA, null) as no schema (null) is not permitted for Kafka Connect's Map schema values.
@@ -88,8 +88,8 @@ public class DocumentToSourceRecord implements BiFunction<String, ChangesResultI
         RECORD_KEY_SCHEMA,
         new Struct(RECORD_KEY_SCHEMA)
                 .put(CloudantConst.CLOUDANT_DOC_ID, changesResultItem.getId())
-                .put(InterfaceConst.URL, partition.get(InterfaceConst.URL))
-                .put(InterfaceConst.DB, partition.get(InterfaceConst.DB)),
+                .put(InterfaceConst.DB, partition.get(InterfaceConst.DB))
+                .put(InterfaceConst.URL, partition.get(InterfaceConst.URL)),
                 RECORD_VALUE_SCHEMA,
         documentToMap(changesResultItem.getDoc()));
     }
