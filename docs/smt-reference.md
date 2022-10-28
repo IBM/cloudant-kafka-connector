@@ -60,10 +60,10 @@ The examples below demonstrate modifying events produced by the Cloudant source 
 
 For certain use cases, such as sending events to a relational database sink, it may be desirable to flatten nested fields:
 
-* Flatten maps in the JSON document using the [Kafka built-in `org.apache.kafka.connect.transforms.ReplaceField$Value`](https://docs.confluent.io/cloud/current/connectors/single-message-transforms.html#flatten)
+* Flatten maps in the JSON document using the [Kafka built-in `org.apache.kafka.connect.transforms.Flatten$Value`](https://kafka.apache.org/documentation/#org.apache.kafka.connect.transforms.Flatten)
   ```
   transforms=FlattenMaps
-  transforms.FlattenMaps.type=org.apache.kafka.connect.transforms.Flatten
+  transforms.FlattenMaps.type=org.apache.kafka.connect.transforms.Flatten$Value
   ```
 
 * Flatten arrays in the JSON document using `com.ibm.cloud.cloudant.kafka.transforms.ArrayFlatten`. Note that this transform
