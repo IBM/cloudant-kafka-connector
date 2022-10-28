@@ -49,7 +49,8 @@ public class IsDesignDocumentTest {
 
     @Test(expected = DataException.class)
     public void testKeyNoId() {
-        isDDoc.test(wrapInRecord(RECORD_KEY_SCHEMA, new Struct(RECORD_KEY_SCHEMA).put("foo", "bar")));
+        // Struct.put will throw exception, no need to call isDDoc.test()
+        new Struct(RECORD_KEY_SCHEMA).put("foo", "bar");
     }
 
     @Test
