@@ -54,11 +54,7 @@ public class IsDesignDocument implements Predicate<SourceRecord> {
         // will throw DataException if not valid
         key.validate();
         String id = key.getString(CLOUDANT_DOC_ID);
-        if (id == null) {
-            throw new DataException(String.format(ResourceBundleUtil.get(MessageKey.CLOUDANT_KEY_NO_ID), CLOUDANT_DOC_ID));
-        } else {
-            return id.startsWith(CLOUDANT_DESIGN_PREFIX);
-        }
+        return id.startsWith(CLOUDANT_DESIGN_PREFIX);
     }
 
     @Override
