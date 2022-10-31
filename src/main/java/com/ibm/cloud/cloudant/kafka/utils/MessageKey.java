@@ -71,6 +71,4 @@ public class MessageKey {
     public static final String CLOUDANT_STRUCT_UNHANDLED_TYPE = "CloudantStructUnhandledType";
     public static final String CLOUDANT_STRUCT_UNKNOWN_TYPE = "CloudantStructUnknownType";
 
-    public static final String CLOUDANT_KEY_NO_ID =	"CloudantKeyNoId";
-
 }

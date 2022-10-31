@@ -109,10 +109,13 @@ For instance, in the sample configuration files, value schemas are disabled on t
 #### Converter Configuration: source connector
 
 For the source connector:
-* Keys are produced as `java.util.Map<String, String>` containing an `_id` entry with the original Cloudant document ID.
+* Keys are produced as a `org.apache.kafka.connect.data.Struct` containing:
+  * `_id`: the original Cloudant document ID
+  * `cloudant.db`: the name of the Cloudant database the event originated from
+  * `cloudant.url`: the URL of the Cloudant instance the event originated from.
 * Values are produced as a (schemaless) `java.util.Map<String, Object>`.
-* These types are compatible with the default `org.apache.kafka.connect.json.JsonConverter` and should be compatible with any other converter that can accept a `Map`.
-* The `schemas.enabled` may be safely used with a `key.converter` if desired.
+* These types are compatible with the default `org.apache.kafka.connect.json.JsonConverter` and should be compatible with any other converter that can accept a `Struct` or `Map`.
+* The `schemas.enable` may be safely used with a `key.converter` if desired.
 * The source connector does not generate schemas for the record values by default. To use `schemas.enable` with the `value.converter` consider using a schema registry or the [`MapToStruct` SMT](docs/smt-reference.md#map-to-struct-conversion).
 
 #### Converter Configuration: sink connector

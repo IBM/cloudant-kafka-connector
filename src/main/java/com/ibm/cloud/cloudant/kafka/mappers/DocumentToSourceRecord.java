@@ -18,8 +18,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+
+import com.ibm.cloud.cloudant.kafka.utils.InterfaceConst;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
+import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import com.ibm.cloud.cloudant.kafka.utils.CloudantConst;
 import com.ibm.cloud.cloudant.kafka.utils.NumberSafeMap;
@@ -28,8 +31,12 @@ import com.ibm.cloud.cloudant.v1.model.Document;
 
 public class DocumentToSourceRecord implements BiFunction<String, ChangesResultItem, SourceRecord> {
 
-    // Record key schema is Map<String, String>
-    private static final Schema RECORD_KEY_SCHEMA = SchemaBuilder.map(Schema.STRING_SCHEMA, Schema.STRING_SCHEMA).build();
+    // Record key schema is {"_id": doc_id, "cloudant.url": url, "cloudant.db": db}
+    public static final Schema RECORD_KEY_SCHEMA = SchemaBuilder.struct()
+            .field(CloudantConst.CLOUDANT_DOC_ID, Schema.STRING_SCHEMA)
+            .field(InterfaceConst.DB, Schema.OPTIONAL_STRING_SCHEMA)
+            .field(InterfaceConst.URL, Schema.OPTIONAL_STRING_SCHEMA)
+            .build();
     // Record value is Map<String, Object>
     // We can't use map(Schema.STRING_SCHEMA, null) as no schema (null) is not permitted for Kafka Connect's Map schema values.
     // So we just use a `null` and the map should be inferred from its Java class.
@@ -75,13 +82,16 @@ public class DocumentToSourceRecord implements BiFunction<String, ChangesResultI
 
     @Override
     public SourceRecord apply(String topic, ChangesResultItem changesResultItem) {
-        return new SourceRecord(partition, 
-        offsetFunction.apply(changesResultItem.getSeq()),
-        topic,
-        RECORD_KEY_SCHEMA,
-        Collections.singletonMap(CloudantConst.CLOUDANT_DOC_ID, changesResultItem.getId()),
-        RECORD_VALUE_SCHEMA,
-        documentToMap(changesResultItem.getDoc()));
+        return new SourceRecord(partition,
+                offsetFunction.apply(changesResultItem.getSeq()),
+                topic,
+                RECORD_KEY_SCHEMA,
+                new Struct(RECORD_KEY_SCHEMA)
+                        .put(CloudantConst.CLOUDANT_DOC_ID, changesResultItem.getId())
+                        .put(InterfaceConst.DB, partition.get(InterfaceConst.DB))
+                        .put(InterfaceConst.URL, partition.get(InterfaceConst.URL)),
+                RECORD_VALUE_SCHEMA,
+                documentToMap(changesResultItem.getDoc()));
     }
 
     Map<String, Object> documentToMap(Document document) {
