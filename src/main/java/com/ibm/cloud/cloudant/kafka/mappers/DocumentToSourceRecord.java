@@ -82,16 +82,16 @@ public class DocumentToSourceRecord implements BiFunction<String, ChangesResultI
 
     @Override
     public SourceRecord apply(String topic, ChangesResultItem changesResultItem) {
-        return new SourceRecord(partition, 
-        offsetFunction.apply(changesResultItem.getSeq()),
-        topic,
-        RECORD_KEY_SCHEMA,
-        new Struct(RECORD_KEY_SCHEMA)
-                .put(CloudantConst.CLOUDANT_DOC_ID, changesResultItem.getId())
-                .put(InterfaceConst.DB, partition.get(InterfaceConst.DB))
-                .put(InterfaceConst.URL, partition.get(InterfaceConst.URL)),
+        return new SourceRecord(partition,
+                offsetFunction.apply(changesResultItem.getSeq()),
+                topic,
+                RECORD_KEY_SCHEMA,
+                new Struct(RECORD_KEY_SCHEMA)
+                        .put(CloudantConst.CLOUDANT_DOC_ID, changesResultItem.getId())
+                        .put(InterfaceConst.DB, partition.get(InterfaceConst.DB))
+                        .put(InterfaceConst.URL, partition.get(InterfaceConst.URL)),
                 RECORD_VALUE_SCHEMA,
-        documentToMap(changesResultItem.getDoc()));
+                documentToMap(changesResultItem.getDoc()));
     }
 
     Map<String, Object> documentToMap(Document document) {
