@@ -1,6 +1,6 @@
 # Cloudant Kafka Connector
 
-[![Release](https://img.shields.io/github/v/release/IBM/cloudant-kafka-connector?sort=semver)](https://github.com/IBM/cloudant-kafka-connector/releases/latest)
+[![Release](https://img.shields.io/github/v/release/IBM/cloudant-kafka-connector?include_prereleases)](https://github.com/IBM/cloudant-kafka-connector/releases/latest)
 
 This project includes [Apache Kafka](https://kafka.apache.org/) [Connect](https://kafka.apache.org/documentation.html#connect) source and sink connectors for IBM Cloudant.
 
