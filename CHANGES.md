@@ -9,10 +9,10 @@
   See README for details.
 - [BREAKING CHANGE] Source connector flatten, schema generation and omit design documents options have been replaced by
   message transforms. See README for details.
-- [BREAKING CHANGE] Source connector now emits `java.util.Map` (not `String`) record values by default. See README for
+- [BREAKING CHANGE] Source connector now emits `java.util.Map` (not `String`) event values by default. See README for
   details.
-- [BREAKING CHANGE] Source connector now emits `org.apache.kafka.connect.source.SourceRecord` (not `String`) record keys
-  by default. See README for details.
+- [BREAKING CHANGE] Source connector now emits `org.apache.kafka.connect.data.Struct` (not `String`) event keys. See
+  README for details.
 - [BREAKING CHANGE] Source connector now emits tombstone events for deleted documents.
   See [single message transforms](README.md#single-message-transforms) section in README for details.
 - [BREAKING CHANGE] Converter support for sink connector has changed. See README for details.
