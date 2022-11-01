@@ -1,6 +1,6 @@
 # Cloudant Kafka Connector
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.cloudant/kafka-connect-cloudant.svg)](http://search.maven.org/#search|ga|1|g:"com.cloudant"%20AND%20a:"kafka-connect-cloudant")
+[![Release](https://img.shields.io/github/v/release/IBM/cloudant-kafka-connector?sort=semver)](https://github.com/IBM/cloudant-kafka-connector/releases/latest)
 
 This project includes [Apache Kafka](https://kafka.apache.org/) [Connect](https://kafka.apache.org/documentation.html#connect) source and sink connectors for IBM Cloudant.
 
@@ -9,14 +9,6 @@ These connectors can stream events:
 - **to** Cloudant (sink connector) from Kafka topic(s)
 
 _Note:_ the connectors are also compatible with Apache CouchDB.
-
-## Pre-release
-
-**Note**: this README file is for a pre-release version of the
-connector. This means it refers to configuration options and features
-which are different to the currently released version. For information
-about the currently released version, please see the [README
-here](https://github.com/IBM/cloudant-kafka-connector/blob/0.100.2-kafka-1.0.0/README.md).
 
 ## Release Status
 
