@@ -2,7 +2,7 @@
 
 - [FIXED] README and documentation have been extensively rewritten.
 - [BREAKING CHANGE] Rename source connector. Properties files should be updated to
-  use `connector.class=com.ibm.cloud.cloudant.kafka.SinkConnector`.
+  use `connector.class=com.ibm.cloud.cloudant.kafka.SourceChangesConnector`.
 - [BREAKING CHANGE] Rename sink connector. Properties files should be updated to
   use `connector.class=com.ibm.cloud.cloudant.kafka.SinkConnector`.
 - [BREAKING CHANGE] Configuration parameters have changed for url, database, authentication, and last change sequence.
