@@ -1,3 +1,4 @@
+apply plugin: 'distribution'
 apply plugin: 'java'
 apply plugin: 'signing'
 
@@ -95,17 +96,27 @@ jar.dependsOn generateClientPropertiesFile
 
 // modify the jar task to pull in required dependencies and add the client properties file
 jar {
-    duplicatesStrategy(duplicatesStrategy.EXCLUDE)
     into "META-INF", { 
         from generateClientPropertiesFile.clientPropsPath
         from 'LICENSE'
     }
-    from {
-        configurations.bundledImplementation.collect {
-            it.isDirectory() ? it : zipTree(it)
+}
+
+distributions {
+    main {
+        contents {
+            from 'README.md'
+            from 'LICENSE'
+            from('docs') {
+                into 'docs'
+            }
+            from configurations.bundledImplementation
+            from jar
         }
     }
 }
+// Produce only a zip
+distTar.enabled = false
 
 test {
     // Exclude the performance tests
@@ -136,6 +147,6 @@ tasks.withType(Sign) {
 }
 
 signing {
-    // When signing, sign the jar
-    sign jar
+    // When signing, sign the distribution zip
+    sign distZip
 }
