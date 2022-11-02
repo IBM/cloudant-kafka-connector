@@ -17,8 +17,8 @@
 def prefixlessTag(tag) {
     return tag.replaceFirst('v','')
 }
-def jarUploadUrl
-def jarName
+def zipUploadUrl
+def zipName
 def ascUploadUrl
 def ascName
 
@@ -86,21 +86,21 @@ pipeline {
                             validResponseCodes: '201',
                             wrapAsMultipart: false
                 script {
-                    jarName = "cloudant-kafka-connector-${prefixlessTag(TAG_NAME)}.jar"
-                    ascName = "${jarName}.asc"
+                    zipName = "cloudant-kafka-connector-${prefixlessTag(TAG_NAME)}.zip"
+                    ascName = "${zipName}.asc"
                     // Process the release response to get the asset upload_url
                     def responseJson = readJSON file: 'release_response.json'
                     // Replace the path parameter template with a name
-                    jarUploadUrl = responseJson.upload_url.replace('{?name,label}',"?name=${jarName}")
+                    zipUploadUrl = responseJson.upload_url.replace('{?name,label}',"?name=${zipName}")
                     ascUploadUrl = responseJson.upload_url.replace('{?name,label}',"?name=${ascName}")
                 }
                 // Upload the asset to the release
                 httpRequest authentication: 'gh-sdks-automation',
-                            customHeaders: [[name: 'Accept', value: 'application/vnd.github+json'],[name: 'Content-Type', value: 'application/java-archive']],
+                            customHeaders: [[name: 'Accept', value: 'application/vnd.github+json'],[name: 'Content-Type', value: 'application/zip']],
                             httpMode: 'POST',
                             timeout: 60,
-                            uploadFile: "build/libs/${jarName}",
-                            url: jarUploadUrl,
+                            uploadFile: "build/distributions/${zipName}",
+                            url: zipUploadUrl,
                             validResponseCodes: '201',
                             wrapAsMultipart: false
                 // Upload the sig to the release
@@ -108,7 +108,7 @@ pipeline {
                             customHeaders: [[name: 'Accept', value: 'application/vnd.github+json'],[name: 'Content-Type', value: 'application/pgp-signature']],
                             httpMode: 'POST',
                             timeout: 60,
-                            uploadFile: "build/libs/${ascName}",
+                            uploadFile: "build/distributions/${ascName}",
                             url: ascUploadUrl,
                             validResponseCodes: '201',
                             wrapAsMultipart: false
