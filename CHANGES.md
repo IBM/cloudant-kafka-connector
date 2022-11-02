@@ -1,17 +1,33 @@
-# UNRELEASED
-- [FIXED] README to align with the 2.8.0 Kafka version.
-- [BREAKING CHANGE] Refactor package names
-- [BREAKING CHANGE] Source and sink connector moves and renames
-- [BREAKING CHANGE] Source connector flatten, schema generation and omit design documents options have been replaced by message transforms. See README for details.
-- [BREAKING CHANGE] Source connector now emits `java.util.Map` (not `String`) record values by default. See README for details.
-- [BREAKING CHANGE] Source connector now emits tombstone events for deleted documents. See [single message transforms](README.md#single-message-transforms) section in README for details.
+# 0.200.0 (2022-11-01)
+
+- [FIXED] README and documentation have been extensively rewritten.
+- [BREAKING CHANGE] Rename source connector. Properties files should be updated to
+  use `connector.class=com.ibm.cloud.cloudant.kafka.SourceChangesConnector`.
+- [BREAKING CHANGE] Rename sink connector. Properties files should be updated to
+  use `connector.class=com.ibm.cloud.cloudant.kafka.SinkConnector`.
+- [BREAKING CHANGE] Configuration parameters have changed for url, database, authentication, and last change sequence.
+  See README for details.
+- [BREAKING CHANGE] Source connector flatten, schema generation and omit design documents options have been replaced by
+  message transforms. See README for details.
+- [BREAKING CHANGE] Source connector now emits `java.util.Map` (not `String`) event values by default. See README for
+  details.
+- [BREAKING CHANGE] Source connector now emits `org.apache.kafka.connect.data.Struct` (not `String`) event keys. See
+  README for details.
+- [BREAKING CHANGE] Source connector now emits tombstone events for deleted documents.
+  See [single message transforms](README.md#single-message-transforms) section in README for details.
+- [BREAKING CHANGE] Converter support for sink connector has changed. See README for details.
+- [BREAKING CHANGE] Preserve `_rev` field message values in sink connector.
+  See [sink connector config](README.md#converter-configuration-sink-connector) section in README for more details.
+- [BREAKING CHANGE] Semantics of `batch.size` configuration parameter changed: for sink connector this value no longer
+  affects when `flush()` is called.
+- [BREAKING CHANGE] Sink connector will correctly honour `errors.tolerance`, `errors.log.enable`,
+  and `errors.deadletterqueue.topic.name` configuration parameters.
+  See [the sample sink properties file](docs/connect-cloudant-sink-example.properties) for a recommended example of how
+  to configure these to continue processing when non-fatal errors occur.
+- [BREAKING CHANGE] Renamed from `kafka-connect-cloudant` to `cloudant-kafka-connector` and packaged as zipped directory instead of uber jar. See README for installation details.
 - [BREAKING CHANGE] Publish releases to https://github.com/IBM/cloudant-kafka-connector/releases.
-- [BREAKING CHANGE] Rename package from `com.ibm.cloudant.kafka` to `com.ibm.cloud.cloudant.kafka`. Existing `connector.class` property values must be updated to use the new package.
-- [BREAKING CHANGE] Rename module from `kafka-connect-cloudant` to `cloudant-kafka-connector`.
-- [BREAKING CHANGE] Converter support for sink connector has changed. See README.md for details.
-- [BREAKING CHANGE] Configuration parameters have changed for url, database, authentication, and last change sequence. See README.md for details.
-- [BREAKING CHANGE] Preserve `_rev` field message values in sink connector.  See [sink connector config](README.md#converter-configuration-sink-connector) section in README for more details.
-- [UPGRADED] Connector now supports all authentication types via the `cloudant.auth.type` configuration parameter. When using an authentication type of "iam", the API key is configured via the `cloudant.apikey` configuration parameter.
+- [UPGRADED] Connector now supports all authentication types via the `cloudant.auth.type` configuration parameter. When
+  using an authentication type of "iam", the API key is configured via the `cloudant.apikey` configuration parameter.
 - [UPGRADED] Upgraded Gradle distribution from 4.5.1 to 7.4
 - [UPGRADED] Upgraded Kafka Connect API to 3.2.1.
 - [UPGRADED] Refactored to use the new `cloudant-java-sdk` library.

@@ -1,6 +1,6 @@
 # Cloudant Kafka Connector
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.cloudant/kafka-connect-cloudant.svg)](http://search.maven.org/#search|ga|1|g:"com.cloudant"%20AND%20a:"kafka-connect-cloudant")
+[![Release](https://img.shields.io/github/v/release/IBM/cloudant-kafka-connector?include_prereleases)](https://github.com/IBM/cloudant-kafka-connector/releases/latest)
 
 This project includes [Apache Kafka](https://kafka.apache.org/) [Connect](https://kafka.apache.org/documentation.html#connect) source and sink connectors for IBM Cloudant.
 
@@ -9,14 +9,6 @@ These connectors can stream events:
 - **to** Cloudant (sink connector) from Kafka topic(s)
 
 _Note:_ the connectors are also compatible with Apache CouchDB.
-
-## Pre-release
-
-**Note**: this README file is for a pre-release version of the
-connector. This means it refers to configuration options and features
-which are different to the currently released version. For information
-about the currently released version, please see the [README
-here](https://github.com/IBM/cloudant-kafka-connector/blob/0.100.2-kafka-1.0.0/README.md).
 
 ## Release Status
 
@@ -28,10 +20,19 @@ Experimental
 
 ### Quick Start
 
-1. Download the jar from the [releases page](https://github.com/IBM/cloudant-kafka-connector/releases). The jar file contains the plugin and the non-Kafka dependencies needed to run.
-2. Copy the jar to the `libs` directory _or_ the
-[configured `plugin.path`](https://kafka.apache.org/documentation.html#connectconfigs_plugin.path) of your Kafka installation.
-3. Edit the [source](docs/connect-cloudant-changes-source-example.properties) or [sink](docs/connect-cloudant-sink-example.properties) example properties files and save this to the `config` directory of your Kafka installation.
+1. Download the zip from the [releases page](https://github.com/IBM/cloudant-kafka-connector/releases). The zip file
+   contains the plugin jar and the non-Kafka dependencies needed to run.
+2. Configure the [Kafka connect plugin path](https://kafka.apache.org/documentation.html#connectconfigs_plugin.path) for
+   your Kafka distribution, for example: `plugin.path=/kafka/connect`.
+   - This will be configured in either `connect-standalone.properties` or `connect-distributed.properties` in
+     the `config` directory of your Kafka installation.
+   - If you're not sure which to use, edit `connect-standalone.properties` and follow the standalone execution
+     instructions below.
+2. Unzip and move to the plugin path configured earlier, for example:
+   `unzip cloudant-kafka-connector-x.y.z.zip; mv cloudant-kafka-connector-x.y.z /kafka/connect`.
+3. Edit the [source](docs/connect-cloudant-changes-source-example.properties)
+   or [sink](docs/connect-cloudant-sink-example.properties) example properties files and save this to the `config`
+   directory of your Kafka installation.
 4. Start Kafka.
 5. Start the connector (see below).
 
@@ -116,7 +117,7 @@ For the source connector:
 * Values are produced as a (schemaless) `java.util.Map<String, Object>`.
 * These types are compatible with the default `org.apache.kafka.connect.json.JsonConverter` and should be compatible with any other converter that can accept a `Struct` or `Map`.
 * The `schemas.enable` may be safely used with a `key.converter` if desired.
-* The source connector does not generate schemas for the record values by default. To use `schemas.enable` with the `value.converter` consider using a schema registry or the [`MapToStruct` SMT](docs/smt-reference.md#map-to-struct-conversion).
+* The source connector does not generate schemas for the event values by default. To use `schemas.enable` with the `value.converter` consider using a schema registry or the [`MapToStruct` SMT](docs/smt-reference.md#map-to-struct-conversion).
 
 #### Converter Configuration: sink connector
 
