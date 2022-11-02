@@ -24,7 +24,7 @@
   and `errors.deadletterqueue.topic.name` configuration parameters.
   See [the sample sink properties file](docs/connect-cloudant-sink-example.properties) for a recommended example of how
   to configure these to continue processing when non-fatal errors occur.
-- [BREAKING CHANGE] Rename jar from `kafka-connect-cloudant` to `cloudant-kafka-connector`.
+- [BREAKING CHANGE] Renamed from `kafka-connect-cloudant` to `cloudant-kafka-connector` and packaged as zipped directory instead of uber jar. See README for installation details.
 - [BREAKING CHANGE] Publish releases to https://github.com/IBM/cloudant-kafka-connector/releases.
 - [UPGRADED] Connector now supports all authentication types via the `cloudant.auth.type` configuration parameter. When
   using an authentication type of "iam", the API key is configured via the `cloudant.apikey` configuration parameter.
