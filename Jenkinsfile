@@ -75,7 +75,7 @@ pipeline {
                             requestBody: """
                                 {
                                     "tag_name": "${TAG_NAME}",
-                                    "name": "${prefixlessTag(TAG_NAME)} (${new Date(TAG_TIMESTAMP as long).format('yyyy-MM-dd')})"
+                                    "name": "${prefixlessTag(TAG_NAME)} (${new Date(TAG_TIMESTAMP as long).format('yyyy-MM-dd')})",
                                     "draft": false,
                                     "prerelease": true,
                                     "generate_release_notes": true
