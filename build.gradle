@@ -12,11 +12,16 @@ ext.isReleaseVersion = !version.toUpperCase(Locale.ENGLISH).endsWith("-SNAPSHOT"
 ext.kafkaConnectorPropertyFileName = 'com.ibm.cloud.cloudant.kafka.client.properties'
 
 repositories {
-    mavenLocal()
-    mavenCentral()
-    maven {
-        // Confluent repo
-        url 'https://packages.confluent.io/maven/'
+    if (System.env.ARTIFACTORY_URL != null) {
+        maven {
+            url "${System.env.ARTIFACTORY_URL}/cloudant-sdks-maven-virtual"
+            credentials {
+                username System.env.ARTIFACTORY_CREDS_USR
+                password System.env.ARTIFACTORY_CREDS_PSW
+            }
+        }
+    } else {
+        mavenCentral()
     }
 }
 
