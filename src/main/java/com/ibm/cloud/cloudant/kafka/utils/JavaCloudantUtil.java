@@ -73,6 +73,17 @@ public class JavaCloudantUtil {
 		return resList;
 	}
 
+    public static String getETag(Map<String, String> props, Document doc) {
+        Cloudant service = CachedClientManager.getInstance(props);
+        HeadDocumentOptions options = new HeadDocumentOptions.Builder().db(props.get(InterfaceConst.DB)).docId((String)doc.get(CloudantConst.CLOUDANT_DOC_ID)).latest(true).build();
+        List<String> headersEtag = service.headDocument(options).execute().getHeaders().values("ETag");
+        if (headersEtag.isEmpty()) {
+            // TODO
+            throw new RuntimeException("ETag not found");
+        }
+        return headersEtag.get(0);
+    }
+
     public static void createTargetDb(Cloudant service, String dbName) {
         PutDatabaseOptions dbOptions = new PutDatabaseOptions.Builder()
                 .db(dbName)

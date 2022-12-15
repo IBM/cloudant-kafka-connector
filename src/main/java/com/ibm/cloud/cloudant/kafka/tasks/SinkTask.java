@@ -13,12 +13,15 @@
  */
 package com.ibm.cloud.cloudant.kafka.tasks;
 
+import com.ibm.cloud.cloudant.kafka.utils.CloudantConst;
 import com.ibm.cloud.cloudant.kafka.utils.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.utils.JavaCloudantUtil;
 import com.ibm.cloud.cloudant.kafka.SinkConnector;
 import com.ibm.cloud.cloudant.kafka.mappers.SinkRecordToDocument;
 import com.ibm.cloud.cloudant.v1.model.Document;
 import com.ibm.cloud.cloudant.v1.model.DocumentResult;
+import com.ibm.cloud.cloudant.v1.model.Revisions;
+import com.ibm.cloud.sdk.core.service.exception.NotFoundException;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.ErrantRecordReporter;
@@ -32,6 +35,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SinkTask extends org.apache.kafka.connect.sink.SinkTask {
 
@@ -47,6 +52,10 @@ public class SinkTask extends org.apache.kafka.connect.sink.SinkTask {
 
     // will be constructed on-demand
     private List<SinkRecord> accumulatedSinkRecords = null;
+
+    private static Pattern etagPattern = Pattern.compile("^\"(\\d+)-(.+)\"$");
+
+
 
     @Override
     public String version() {
@@ -97,7 +106,27 @@ public class SinkTask extends org.apache.kafka.connect.sink.SinkTask {
                 for (int b = 0; b < nBatches; b++) {
                     List<Document> documentSublist = documentList.subList(b * batchSize, Math.min(documentList.size(), (b + 1) * batchSize));
                     LOG.info("Calling batchWrite with {} documents to {}", documentSublist.size(), config.getString(InterfaceConst.URL));
-                    List<DocumentResult> writeResults = JavaCloudantUtil.batchWrite(config.originalsStrings(), documentSublist);
+                    Map<String, String> props = config.originalsStrings();
+                    for (Document d : documentSublist) {
+                        if (d.get(CloudantConst.CLOUDANT_DOC_ID) != null) {
+                            try {
+                                String etag = JavaCloudantUtil.getETag(props, d);
+                                Matcher m = etagPattern.matcher(etag);
+                                if (m.matches()) {
+                                    // etag should be in form <prefix>-<hash>
+                                    int prefix = Integer.parseInt(m.group(1));
+                                    String rev = m.group(2);
+                                    d.setRevisions(new Revisions.Builder().start(prefix).addIds(rev).build());
+                                } else {
+                                    LOG.error("Unusual etag? {}", etag);
+                                }
+                            } catch (NotFoundException nfe) {
+                                // must be a new document, no need to create revision history
+                                LOG.debug("No existing rev found for {}", d.get(CloudantConst.CLOUDANT_DOC_ID));
+                            }
+                        }
+                    }
+                    List<DocumentResult> writeResults = JavaCloudantUtil.batchWrite(props, documentSublist);
                     boolean someFailed = writeResults.stream().anyMatch(doc -> doc.isOk() == null || !doc.isOk());
                     if (reporter != null && someFailed) {
                         // logging not needed - user can enable `errors.log.enable` if required
