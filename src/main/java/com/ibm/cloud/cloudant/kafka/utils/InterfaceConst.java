@@ -33,6 +33,9 @@ public class InterfaceConst {
 
     public final static String LAST_CHANGE_SEQ = "cloudant.since";
 
+    public final static String DESIGN_DOC = "cloudant.design.doc";
+    public final static String VIEW_NAME = "cloudant.view.name";
+
     public final static String TOPIC = "topics";
 
     public final static String TASKS_MAX = "tasks.max";

@@ -37,6 +37,8 @@ public class MessageKey {
     public static final String CLOUDANT_CONNECTION_CLIENT_SECRET_DOC = "CloudantConnectClientSecretDoc";
     public static final String CLOUDANT_BATCH_SIZE_SOURCE_DOC = "CloudantBatchSizeSourceDoc";
     public static final String CLOUDANT_BATCH_SIZE_SINK_DOC = "CloudantBatchSizeSinkDoc";
+    public static final String CLOUDANT_DESIGN_DOC_DOC = "CloudantDesignDocDoc";
+    public static final String CLOUDANT_VIEW_NAME_DOC = "CloudantViewNameDoc";
 
     public static final String CLOUDANT_CONNECTION_URL_DISP = "CloudantConnectUrlDisp";
     public static final String CLOUDANT_CONNECTION_DB_DISP = "CloudantConnectDbDisp";
@@ -56,6 +58,8 @@ public class MessageKey {
     public static final String CLOUDANT_LAST_SEQ_NUM_DOC = "CloudantLastSeqNumDoc";
     public static final String CLOUDANT_LAST_SEQ_NUM_DISP = "CloudantLastSeqNumDisp";
     public static final String CLOUDANT_BATCH_SIZE_DISP = "CloudantBatchSizeDisp";
+    public static final String CLOUDANT_DESIGN_DOC_DISP = "CloudantDesignDocDisp";
+    public static final String CLOUDANT_VIEW_NAME_DISP = "CloudantViewNameDisp";
 
     public static final String KAFKA_TOPIC_LIST_DOC = "KafkaTopicListDoc";
     public static final String KAFKA_TOPIC_LIST_DISP = "KafkaTopicListDisp";
