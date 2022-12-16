@@ -18,15 +18,38 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.Function;
 import org.junit.Test;
-import com.ibm.cloud.cloudant.kafka.mappers.DocumentToSourceRecord.MetaProperty;
+import com.ibm.cloud.cloudant.kafka.mappers.DocumentBasedRecord.MetaProperty;
 import com.ibm.cloud.cloudant.v1.model.Document;
 
 
 public class DocumentToSourceRecordTest {
     
     // We don't need real offset functions for this test, just return empty maps
-    DocumentToSourceRecord mapper = new DocumentToSourceRecord(Collections.emptyMap(), (s) -> Collections.emptyMap());
+    DocumentBasedRecord<Document> mapper = new DocumentBasedRecord<Document>("https://test.example", "mytestdb"){
+
+        @Override
+        Document getDocumentFromItem(Document item) {
+            return item;
+        }
+        @Override
+        String getDocIdFromItem(Document item) {
+            return item.getId();
+        }
+        @Override
+        protected Function<Document, Map<String, Object>> offsetFunction() {
+            return (item) -> {
+                return Collections.emptyMap();
+            };
+        }
+        @Override
+        protected Function<Document, Map<String, String>> partitionFunction() {
+            return (item) -> {
+                return Collections.emptyMap();
+            };
+        };
+    };
 
 
     private void assertMetadata(Document expected, Map<String, Object> actual) {

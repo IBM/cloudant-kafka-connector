@@ -45,7 +45,7 @@ public class ConnectorConfig extends AbstractConfig {
             Authenticator.AUTHTYPE_VPC
     );
     protected static final String NULL_DEFAULT = null; // null default indicates it could be optional (depending on other config options)
-    protected static final String LAST_SEQ_NUM_DEFAULT = "0";
+
 
     public static final ConfigDef CONFIG_DEF = baseConfigDef();
 

@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.ibm.cloud.cloudant.kafka.tasks.ConnectorConfig.LAST_SEQ_NUM_DEFAULT;
+import static com.ibm.cloud.cloudant.kafka.tasks.SourceChangesConnectorConfig.LAST_SEQ_NUM_DEFAULT;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;

@@ -11,32 +11,20 @@
  * either express or implied. See the License for the specific language governing permissions
  * and limitations under the License.
  */
+
 package com.ibm.cloud.cloudant.kafka.mappers;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Function;
-
-import com.ibm.cloud.cloudant.kafka.utils.InterfaceConst;
 import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.SchemaBuilder;
-import org.apache.kafka.connect.data.Struct;
-import org.apache.kafka.connect.source.SourceRecord;
-import com.ibm.cloud.cloudant.kafka.utils.CloudantConst;
+import org.apache.kafka.connect.data.SchemaAndValue;
 import com.ibm.cloud.cloudant.kafka.utils.NumberSafeMap;
-import com.ibm.cloud.cloudant.v1.model.ChangesResultItem;
 import com.ibm.cloud.cloudant.v1.model.Document;
 
-public class DocumentToSourceRecord implements BiFunction<String, ChangesResultItem, SourceRecord> {
+abstract class DocumentBasedRecord<I> extends DocumentIdKeyBasedRecord<I> {
 
-    // Record key schema is {"_id": doc_id, "cloudant.url": url, "cloudant.db": db}
-    public static final Schema RECORD_KEY_SCHEMA = SchemaBuilder.struct()
-            .field(CloudantConst.CLOUDANT_DOC_ID, Schema.STRING_SCHEMA)
-            .field(InterfaceConst.DB, Schema.OPTIONAL_STRING_SCHEMA)
-            .field(InterfaceConst.URL, Schema.OPTIONAL_STRING_SCHEMA)
-            .build();
     // Record value is Map<String, Object>
     // We can't use map(Schema.STRING_SCHEMA, null) as no schema (null) is not permitted for Kafka Connect's Map schema values.
     // So we just use a `null` and the map should be inferred from its Java class.
@@ -72,26 +60,17 @@ public class DocumentToSourceRecord implements BiFunction<String, ChangesResultI
         }
     }
 
-    private final Map<String, String> partition;
-    private final Function<String, Map<String, String>> offsetFunction;
-
-    public DocumentToSourceRecord(Map<String, String> partition, Function<String, Map<String, String>> offsetFunction) {
-        this.partition = partition;
-        this.offsetFunction = offsetFunction;
+    protected DocumentBasedRecord(String url, String database) {
+        super(url, database);
     }
+    
+    abstract Document getDocumentFromItem(I item);
 
     @Override
-    public SourceRecord apply(String topic, ChangesResultItem changesResultItem) {
-        return new SourceRecord(partition,
-                offsetFunction.apply(changesResultItem.getSeq()),
-                topic,
-                RECORD_KEY_SCHEMA,
-                new Struct(RECORD_KEY_SCHEMA)
-                        .put(CloudantConst.CLOUDANT_DOC_ID, changesResultItem.getId())
-                        .put(InterfaceConst.DB, partition.get(InterfaceConst.DB))
-                        .put(InterfaceConst.URL, partition.get(InterfaceConst.URL)),
-                RECORD_VALUE_SCHEMA,
-                documentToMap(changesResultItem.getDoc()));
+    protected Function<I, SchemaAndValue> valueFunction() {
+        return (item) -> {
+            return new SchemaAndValue(RECORD_VALUE_SCHEMA, documentToMap(getDocumentFromItem(item)));
+        };
     }
 
     Map<String, Object> documentToMap(Document document) {

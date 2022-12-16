@@ -13,7 +13,7 @@
  */
 package com.ibm.cloud.cloudant.kafka.transforms.predicates;
 
-import static com.ibm.cloud.cloudant.kafka.mappers.DocumentToSourceRecord.RECORD_KEY_SCHEMA;
+import static com.ibm.cloud.cloudant.kafka.mappers.DocumentIdKeyBasedRecord.RECORD_KEY_SCHEMA;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import java.util.Collections;

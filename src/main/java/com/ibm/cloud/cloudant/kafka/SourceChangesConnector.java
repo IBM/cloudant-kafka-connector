@@ -13,47 +13,16 @@
  */
 package com.ibm.cloud.cloudant.kafka;
 
-import com.ibm.cloud.cloudant.kafka.utils.JavaCloudantUtil;
-import com.ibm.cloud.cloudant.kafka.caching.CachedClientManager;
 import com.ibm.cloud.cloudant.kafka.tasks.SourceChangesConnectorConfig;
-import com.ibm.cloud.cloudant.kafka.validators.ConfigValidator;
 import com.ibm.cloud.cloudant.kafka.tasks.SourceChangesTask;
-import org.apache.kafka.common.config.Config;
-import org.apache.kafka.common.config.ConfigDef;
-import org.apache.kafka.connect.connector.Task;
-import org.apache.kafka.connect.source.SourceConnector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SourceChangesConnector extends SourceConnector {
+public class SourceChangesConnector extends AbstractSourceConnector<SourceChangesTask> {
 
-    private static Logger LOG = LoggerFactory.getLogger(SourceChangesConnector.class);
-
-    private Map<String, String> configProperties;
-
-    @Override
-    public ConfigDef config() {
-        return SourceChangesConnectorConfig.CONFIG_DEF;
-    }
-
-    @Override
-    public void start(Map<String, String> props) {
-        configProperties = props;
-    }
-
-    @Override
-    public void stop() {
-        CachedClientManager.removeInstance(configProperties);
-    }
-
-    @Override
-    public Class<? extends Task> taskClass() {
-        return SourceChangesTask.class;
+    public SourceChangesConnector() {
+        super(SourceChangesTask.class, SourceChangesConnectorConfig.CONFIG_DEF);
     }
 
     @Override
@@ -61,18 +30,7 @@ public class SourceChangesConnector extends SourceConnector {
         if (maxTasks > 1) {
             LOG.warn("tasks.max requested was {}, but only 1 task supported", maxTasks);
         }
-        return Collections.nCopies(maxTasks, new HashMap<>(configProperties));
+        // Should this have been 1??
+        return super.taskConfigs(maxTasks);
     }
-
-    @Override
-    public String version() {
-        return JavaCloudantUtil.VERSION;
-    }
-
-    @Override
-    public Config validate(Map<String, String> connectorConfigs) {
-        ConfigValidator validator = new ConfigValidator(connectorConfigs, config());
-        return validator.validate();
-    }
-
 }

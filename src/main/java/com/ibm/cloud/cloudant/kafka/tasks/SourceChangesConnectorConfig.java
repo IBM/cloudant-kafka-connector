@@ -26,6 +26,7 @@ import java.util.Map;
 public class SourceChangesConnectorConfig extends ConnectorConfig {
 
     public static final ConfigDef CONFIG_DEF = baseConfigDef();
+    protected static final String LAST_SEQ_NUM_DEFAULT = "0";
 
     public static ConfigDef baseConfigDef() {
 
