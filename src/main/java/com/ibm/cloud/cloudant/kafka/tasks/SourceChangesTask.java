@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2022 IBM Corp. All rights reserved.
+ * Copyright © 2016, 2023 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -61,7 +61,7 @@ public class SourceChangesTask extends org.apache.kafka.connect.source.SourceTas
         // the changes feed for initial processing (not continuous yet)
         PostChangesOptions postChangesOptions = new PostChangesOptions.Builder()
                 .feed(PostChangesOptions.Feed.LONGPOLL)
-                .timeout(60 * 1000)
+                .timeout(60 * 1000L)
                 .db(db)
                 .includeDocs(true)
                 .since(latestSequenceNumber)

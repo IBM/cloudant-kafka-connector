@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 IBM Corp. All rights reserved.
+ * Copyright © 2022, 2023 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -81,7 +81,7 @@ public class NumberSafeMap extends HashMap<String, Object> {
                 BigDecimal::toBigIntegerExact,
                 (n) -> {
                     float f = n.floatValue();
-                    if (f != Float.NEGATIVE_INFINITY && f != Float.POSITIVE_INFINITY && n.equals(new BigDecimal(f))) {
+                    if (f != Float.NEGATIVE_INFINITY && f != Float.POSITIVE_INFINITY && n.equals(BigDecimal.valueOf(f))) {
                         // Exactly representable by float
                         return f;
                     } else {
