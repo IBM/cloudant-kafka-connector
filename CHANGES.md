@@ -1,3 +1,6 @@
+# UNRELEASED
+- [BREAKING CHANGE] Stop sink connector on target database creation failure.
+
 # 0.200.0 (2022-11-01)
 
 - [FIXED] README and documentation have been extensively rewritten.
