@@ -1,6 +1,9 @@
-apply plugin: 'distribution'
-apply plugin: 'java'
-apply plugin: 'signing'
+plugins {
+    id "distribution"
+    id "java"
+    id "signing"
+    id "org.sonarqube" version "3.5.0.2730"
+}
 
 // Kafka version
 def kafkaVersion = '3.2.1'
