@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2022 IBM Corp. All rights reserved.
+ * Copyright © 2016, 2023 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -13,15 +13,21 @@
  */
 package com.ibm.cloud.cloudant.kafka;
 
+import com.ibm.cloud.cloudant.kafka.caching.CachedClientManager;
+import com.ibm.cloud.cloudant.kafka.caching.ClientManagerUtils;
 import com.ibm.cloud.cloudant.kafka.utils.InterfaceConst;
 import com.ibm.cloud.cloudant.kafka.utils.ConnectorUtils;
+import com.ibm.cloud.cloudant.v1.Cloudant;
 import junit.framework.TestCase;
 import org.apache.kafka.connect.connector.ConnectorContext;
 import org.junit.Assert;
 import org.powermock.api.easymock.PowerMock;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.reflect.Whitebox;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author holger
@@ -49,6 +55,15 @@ public class SourceChangesConnectorTest extends TestCase {
      * Test method for {@link SourceChangesConnector#stop()}.
      */
     public void testStop() {
+        Map<String, Cloudant> clientCache = new ConcurrentHashMap<>();
+        Whitebox.setInternalState(CachedClientManager.class, "clientCache", clientCache);
+        ClientManagerUtils.addClientToCache(sourceProperties.get("name"), PowerMock.createMock(Cloudant.class));
+
+        Assert.assertFalse(clientCache.isEmpty());
+        connector.start(sourceProperties);
+        Assert.assertFalse(clientCache.isEmpty());
+        connector.stop();
+        Assert.assertTrue(clientCache.isEmpty());
     }
 
 

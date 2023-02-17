@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2022 IBM Corp. All rights reserved.
+ * Copyright © 2016, 2023 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -87,7 +87,7 @@ public class SinkTaskTest extends TestCase {
      * {@link SinkTask#put(java.util.Collection)}.
      */
     public void testReplicateSinkRecordSchema() {
-        List<JsonObject> result = testPutCollectionOfSinkRecord();
+        List<JsonObject> result = putCollectionOfSinkRecord();
 
         Gson gson = new Gson();
 
@@ -102,7 +102,7 @@ public class SinkTaskTest extends TestCase {
         assertTrue(result.contains(doc3Expected));
     }
 
-    private List<JsonObject> testPutCollectionOfSinkRecord() {
+    private List<JsonObject> putCollectionOfSinkRecord() {
 
         // Get the current update sequence
         String dbName = targetProperties.get(InterfaceConst.DB);
