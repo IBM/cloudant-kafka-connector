@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 IBM Corp. All rights reserved.
+ * Copyright © 2022, 2023 IBM Corp. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -144,7 +144,7 @@ public class NumberSafeMapTest {
 
     @Test
     public void testFloatNumberMin() {
-        Map<String, Object> testMap = makeMap(new BigDecimal(Float.MIN_VALUE).negate().toString());
+        Map<String, Object> testMap = makeMap(BigDecimal.valueOf(Float.MIN_VALUE).negate().toString());
         assertExpectedType(testMap, Float.class);
         convert(testMap);
     }
@@ -163,21 +163,21 @@ public class NumberSafeMapTest {
      */
     @Test
     public void testFloatNormalNumber() {
-        Map<String, Object> testMap = makeMap(new BigDecimal(Float.MIN_NORMAL).toString());
+        Map<String, Object> testMap = makeMap(BigDecimal.valueOf(Float.MIN_NORMAL).toString());
         assertExpectedType(testMap, Float.class);
         convert(testMap);
     }
 
     @Test
     public void testDoubleNumberMin() {
-        Map<String, Object> testMap = makeMap(new BigDecimal(Double.MIN_VALUE).toString());
+        Map<String, Object> testMap = makeMap(BigDecimal.valueOf(Double.MIN_VALUE).toString());
         assertExpectedType(testMap, Double.class);
         convert(testMap);
     }
 
     @Test
     public void testDoubleNumber() {
-        Map<String, Object> testMap = makeMap(new BigDecimal(Math.PI).toString());
+        Map<String, Object> testMap = makeMap(BigDecimal.valueOf(Math.PI).toString());
         assertExpectedType(testMap, Double.class);
         convert(testMap);
     }
@@ -189,7 +189,7 @@ public class NumberSafeMapTest {
      */
     @Test
     public void testDoubleNormalNumber() {
-        Map<String, Object> testMap = makeMap(new BigDecimal(Double.MIN_NORMAL).toString());
+        Map<String, Object> testMap = makeMap(BigDecimal.valueOf(Double.MIN_NORMAL).toString());
         assertExpectedType(testMap, Double.class);
         convert(testMap);
     }
