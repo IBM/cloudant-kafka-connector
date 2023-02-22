@@ -1,5 +1,6 @@
 # UNRELEASED
 - [BREAKING CHANGE] Stop sink connector on target database creation failure.
+- [UPGRADED] Upgraded `cloudant-java-sdk` to 0.4.3.
 
 # 0.200.0 (2022-11-01)
 
