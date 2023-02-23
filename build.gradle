@@ -6,7 +6,7 @@ plugins {
 }
 
 // Kafka version
-def kafkaVersion = '3.2.1'
+def kafkaVersion = '3.4.0'
 
 group = 'com.ibm.cloud'
 version = new File(rootDir, 'VERSION').text.trim()
