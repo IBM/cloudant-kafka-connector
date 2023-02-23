@@ -1,6 +1,7 @@
 # UNRELEASED
 - [BREAKING CHANGE] Stop sink connector on target database creation failure.
 - [UPGRADED] Upgraded `cloudant-java-sdk` to 0.4.3.
+- [UPGRADED] Upgraded Kafka to 3.4.0.
 
 # 0.200.0 (2022-11-01)
 
