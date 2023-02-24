@@ -66,7 +66,7 @@ pipeline {
             }
             steps {
                 withSonarQubeEnv(installationName: 'SonarQubeServer') {
-                    sh "./gradlew sonarqube -Dsonar.projectKey=cloudant-kafka-connector -Dsonar.branch.name=${env.BRANCH_NAME}"
+                    sh "./gradlew sonar -Dsonar.qualitygate.wait=true -Dsonar.projectKey=cloudant-kafka-connector -Dsonar.branch.name=${env.BRANCH_NAME}"
                 }
             }
         }
