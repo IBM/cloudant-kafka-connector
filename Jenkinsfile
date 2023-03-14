@@ -25,7 +25,7 @@ def ascName
 pipeline {
     agent {
         kubernetes {
-            yaml kubePodTemplate(name: 'full_jnlp.yaml')
+            yaml kubePodTemplate(name: 'thin_jnlp.yaml')
         }
     }
 
