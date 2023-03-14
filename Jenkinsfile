@@ -24,7 +24,9 @@ def ascName
 
 pipeline {
     agent {
-        label 'sdks-executor'
+        kubernetes {
+            yaml kubePodTemplate(name: 'thin.yaml')
+        }
     }
 
     environment {
