@@ -70,6 +70,18 @@ For example:
 
 Any number of connector configurations can be passed to the executing script.
 
+## Build process
+
+Kafka builds and releases are done within Jenkins.  The base pipeline uses a Kube pod template as an agent to start the build.  This agent includes:
+- IBM Java Semeru image pulled from Artifactory
+- Jenkins agent image pulled from Artifactory
+- Packages below installed from Red Hat microdnf package manager
+  - shadow-utils, git, tar, unzip, jq, findutils
+
+During the library build stage, `gradle` is required to assemble the project.  For the QA and testing stage, `gradle test` is executed.
+
+During the release stage, the `httpRequest` Jenkins plugin runs requests against the GitHub API to create a tag and upload both the packaged library (in `zip` form) and the `asc` signature for the release.
+
 
 ## Configuration
 
