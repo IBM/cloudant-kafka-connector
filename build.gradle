@@ -4,7 +4,7 @@ plugins {
     id "signing"
     id "org.sonarqube" version "3.5.0.2730"
 }
-
+// Gradle 8+ supported
 // Kafka version
 def kafkaVersion = '3.4.0'
 
@@ -55,6 +55,9 @@ targetCompatibility = 1.8
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
+
+// Enable PowerMock with JDK 17+
+test { jvmArgs "--add-opens", "java.base/java.lang=ALL-UNNAMED" }
 
 //
 // Generate client.properties
