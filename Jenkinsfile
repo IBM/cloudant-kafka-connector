@@ -25,7 +25,7 @@ def ascName
 pipeline {
     agent {
         kubernetes {
-            yaml kubePodTemplate(name: 'thin.yaml')
+            yaml kubePodTemplate(name: 'full_jnlp.yaml')
         }
     }
 
@@ -41,7 +41,7 @@ pipeline {
                     usernamePassword(credentialsId: 'signing-creds', passwordVariable: 'ORG_GRADLE_PROJECT_signing_password', usernameVariable: 'ORG_GRADLE_PROJECT_signing_keyId'),
                     file(credentialsId: 'signing-key', variable: 'ORG_GRADLE_PROJECT_signing_secretKeyRingFile')
                 ]) {
-                    sh './gradlew clean assemble'
+                    sh 'gradle clean assemble'
                 }
             }
         }
@@ -50,7 +50,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'testServerIamApiKey',
                         variable: 'APIKEY')]) {
-                    sh './gradlew -Dcloudant.url=$SDKS_TEST_SERVER_URL -Dcloudant.auth.url=$SDKS_TEST_IAM_URL -Dcloudant.apikey=$APIKEY test'
+                    sh 'gradle -Dcloudant.url=$SDKS_TEST_SERVER_URL -Dcloudant.auth.url=$SDKS_TEST_IAM_URL -Dcloudant.apikey=$APIKEY test'
                 }
             }
             post {
@@ -68,7 +68,7 @@ pipeline {
             }
             steps {
                 withSonarQubeEnv(installationName: 'SonarQubeServer') {
-                    sh "./gradlew sonar -Dsonar.qualitygate.wait=true -Dsonar.projectKey=cloudant-kafka-connector -Dsonar.branch.name=${env.BRANCH_NAME}"
+                    sh "gradle sonar -Dsonar.qualitygate.wait=true -Dsonar.projectKey=cloudant-kafka-connector -Dsonar.branch.name=${env.BRANCH_NAME}"
                 }
             }
         }
