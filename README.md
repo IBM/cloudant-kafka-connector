@@ -149,3 +149,7 @@ INFO level logging is configured by default to the console. To change log levels
 and add log settings like
 
 `log4j.logger.com.ibm.cloud.cloudant.kafka=DEBUG, stdout`
+
+## Release Process
+
+For developers, the release process can be found [here](docs/releasing.md)
