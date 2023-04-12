@@ -1,7 +1,6 @@
 plugins {
     id "distribution"
     id "java"
-    id "signing"
     id "org.sonarqube" version "4.0.0.2929"
 }
 // Gradle 8+ supported
@@ -107,7 +106,7 @@ jar.dependsOn generateClientPropertiesFile
 
 // modify the jar task to pull in required dependencies and add the client properties file
 jar {
-    into "META-INF", { 
+    into "META-INF", {
         from generateClientPropertiesFile.clientPropsPath
         from 'LICENSE'
     }
@@ -141,23 +140,22 @@ tasks.withType(Test) {
     systemProperty "file.encoding", "UTF-8"
 }
 
-// Signatory config props
-def signingProps = ['signing_keyId', 'signing_password', 'signing_secretKeyRingFile'];
-// Load signatory config by translating underscore project props to dotted form
-signingProps.each { propName ->
-    ext.(propName.replace('_', '.').toString()) = findProperty(propName);
-}
-
-// Only sign when a key is provided by env var
-tasks.withType(Sign) {
-    onlyIf { 
-        signingProps.every {propName -> 
-            System.env["ORG_GRADLE_PROJECT_${propName}"] != null
-        }
+task signDistZip(group: 'Other', description: 'Signs the archive produced by the \'distZip\' task.') {
+    onlyIf {
+        System.env["CODE_SIGNING_PFX_FILE"] != null
     }
-}
-
-signing {
-    // When signing, sign the distribution zip
-    sign distZip
+    doLast {
+        def zipName = distZip.archiveFile.get().asFile
+        ant.signjar(
+            jar: zipName,
+            tsaurl: 'http://timestamp.digicert.com',
+            storetype: 'PKCS11',
+            keystore: 'NONE',
+            storepass: null,
+            providerclass: 'sun.security.pkcs11.SunPKCS11',
+            providerarg: '/home/jenkins/garasignconfig.txt',
+            alias: 'PRD0002797key',
+            preservelastmodified: 'true'
+        )
+    }
 }

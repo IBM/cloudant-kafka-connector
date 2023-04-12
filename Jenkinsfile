@@ -19,8 +19,6 @@ def prefixlessTag(tag) {
 }
 def zipUploadUrl
 def zipName
-def ascUploadUrl
-def ascName
 
 pipeline {
     agent {
@@ -37,11 +35,26 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                withCredentials([
-                    usernamePassword(credentialsId: 'signing-creds', passwordVariable: 'ORG_GRADLE_PROJECT_signing_password', usernameVariable: 'ORG_GRADLE_PROJECT_signing_keyId'),
-                    file(credentialsId: 'signing-key', variable: 'ORG_GRADLE_PROJECT_signing_secretKeyRingFile')
-                ]) {
-                    sh 'gradle clean assemble'
+                sh 'gradle clean assemble'
+                container('signing') {
+                    withCredentials([certificate(credentialsId: 'cldtsdks-ciso-signing', keystoreVariable: 'CODE_SIGNING_PFX_FILE', passwordVariable: 'CODE_SIGNING_P12_PASSWORD')
+                    ]) {
+                        sh '''
+                            #!/bin/bash -e
+                            # Configure the client
+                            setup-garasign-client
+                            # Load GPG key from the server
+                            GrsGPGLoader
+                            # Place config in an expected location
+                            # warning: don't change EOF indentation!
+                            awk '$1=$1' << EOF > /home/jenkins/garasignconfig.txt
+                                name = GaraSign
+                                library = /usr/local/lib/Garantir/GRS/libgrsp11.so
+                                slotListIndex = 0
+EOF
+                          '''
+                          sh 'gradle signDistZip'
+                    }
                 }
             }
         }
@@ -74,7 +87,7 @@ pipeline {
         }
 
         // Publish tags
-        stage('Publish release') {    
+        stage('Publish release') {
             // Publish releases for semver tags that equal the verison in the file
             when {
                 allOf {

@@ -21,7 +21,8 @@ Experimental
 ### Quick Start
 
 1. Download the zip from the [releases page](https://github.com/IBM/cloudant-kafka-connector/releases). The zip file
-   contains the plugin jar and the non-Kafka dependencies needed to run.
+   contains the plugin jar and the non-Kafka dependencies needed to run. The zip file is signed and the signature
+   can be verified by running `jarsigner -verify cloudant-kafka-connector-x.y.z.zip` command.
 2. Configure the [Kafka connect plugin path](https://kafka.apache.org/documentation.html#connectconfigs_plugin.path) for
    your Kafka distribution, for example: `plugin.path=/kafka/connect`.
    - This will be configured in either `connect-standalone.properties` or `connect-distributed.properties` in
@@ -73,7 +74,7 @@ Any number of connector configurations can be passed to the executing script.
 
 ## Configuration
 
-As outlined above, the Cloudant Kafka connector can be configured in standalone or distributed mode according to 
+As outlined above, the Cloudant Kafka connector can be configured in standalone or distributed mode according to
 the [Kafka Connector documentation](https://kafka.apache.org/documentation.html#connect_configuring).
 
 The `connect-standalone` or `connect-distributed` configuration files contain default values which are necessary for all connectors, such as:
