@@ -23,7 +23,7 @@ def zipName
 pipeline {
     agent {
         kubernetes {
-            yaml kubePodTemplate(name: 'gauge.yaml')
+            yaml kubePodTemplate(name: 'full_jnlp.yaml')
         }
     }
 
