@@ -1,11 +1,9 @@
 plugins {
     id "distribution"
     id "java"
-    id "org.sonarqube" version "4.0.0.2929"
+    alias(libs.plugins.sq)
 }
 // Gradle 8+ supported
-// Kafka version
-def kafkaVersion = '3.4.0'
 
 group = 'com.ibm.cloud'
 version = new File(rootDir, 'VERSION').text.trim()
@@ -34,17 +32,11 @@ configurations {
 }
 
 dependencies {
-    implementation group: 'com.ibm.cloud', name: 'cloudant', version: '0.4.3'
-    compileOnly group: 'org.apache.kafka', name: 'connect-api', version: "${kafkaVersion}"
-    compileOnly group: 'org.apache.kafka', name: 'connect-json', version: "${kafkaVersion}"
-    compileOnly group: 'org.apache.kafka', name: 'connect-transforms', version: "${kafkaVersion}"
-    compileOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
-    testImplementation group: 'org.powermock', name: 'powermock-api-easymock', version: '1.6.4'
-    testImplementation group: 'org.easymock', name: 'easymock', version: '3.4'
-    testImplementation group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.2'
+    implementation(libs.cloudant)
+    compileOnly(libs.bundles.kafkaProvided)
+    testImplementation(libs.bundles.testDeps)
     // for logging output when running tests
-    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.36'
+    testRuntimeOnly(libs.slf4jSimple)
 }
 
 // Java versions

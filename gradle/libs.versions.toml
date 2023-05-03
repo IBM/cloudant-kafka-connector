@@ -1,0 +1,22 @@
+[versions]
+kafka = "3.4.0"
+slf4j = "1.7.36"
+
+[libraries]
+cloudant = { module = "com.ibm.cloud:cloudant", version = "0.4.3" }
+kafkaConnectApi = { module = "org.apache.kafka:connect-api", version.ref = "kafka" }
+kafkaConnectJson = { module = "org.apache.kafka:connect-json", version.ref = "kafka" }
+kafkaConnectTransforms = { module = "org.apache.kafka:connect-transforms", version.ref = "kafka" }
+slf4jApi = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4jSimple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+junit = { module = "junit:junit", version = "4.12" }
+powermock = { module = "org.powermock:powermock-api-easymock", version = "1.6.4" }
+easymock = { module = "org.easymock:easymock", version = "3.4" }
+junitBench = { module = "com.carrotsearch:junit-benchmarks", version = "0.7.2" }
+
+[bundles]
+kafkaProvided = ["kafkaConnectApi", "kafkaConnectJson", "kafkaConnectTransforms", "slf4jApi"]
+testDeps =[ "junit", "powermock", "easymock", "junitBench"]
+
+[plugins]
+sq = { id = "org.sonarqube", version = "4.0.0.2929" }
