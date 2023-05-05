@@ -11,7 +11,7 @@ slf4jApi = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 slf4jSimple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 junit = { module = "junit:junit", version = "4.12" }
 powermock = { module = "org.powermock:powermock-api-easymock", version = "1.6.4" }
-easymock = { module = "org.easymock:easymock", version = "3.4" }
+easymock = { module = "org.easymock:easymock", version = "5.1.0" }
 junitBench = { module = "com.carrotsearch:junit-benchmarks", version = "0.7.2" }
 
 [bundles]
