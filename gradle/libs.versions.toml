@@ -1,6 +1,6 @@
 [versions]
 kafka = "3.4.0"
-slf4j = "1.7.36"
+slf4j = "2.0.7"
 
 [libraries]
 cloudant = { module = "com.ibm.cloud:cloudant", version = "0.4.3" }
