@@ -9,7 +9,7 @@ kafkaConnectJson = { module = "org.apache.kafka:connect-json", version.ref = "ka
 kafkaConnectTransforms = { module = "org.apache.kafka:connect-transforms", version.ref = "kafka" }
 slf4jApi = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 slf4jSimple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
-junit = { module = "junit:junit", version = "4.12" }
+junit = { module = "junit:junit", version = "4.13.2" }
 powermock = { module = "org.powermock:powermock-api-easymock", version = "1.6.4" }
 easymock = { module = "org.easymock:easymock", version = "3.4" }
 junitBench = { module = "com.carrotsearch:junit-benchmarks", version = "0.7.2" }
