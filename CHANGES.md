@@ -1,4 +1,14 @@
+## 0.200.2 (2023-05-08)
+
+- [UPGRADED] Update SonarQube to support Gradle 8 (#158)
+- [UPGRADED] Switch from GPG to CISO signing solution (#161)
+- [UPGRADED] Bump com.ibm.cloud:cloudant from 0.4.3 to 0.5.1 (#167)
+- [UPGRADED] Bump junit:junit from 4.12 to 4.13.2 (#166)
+- [UPGRADED] Bump org.powermock:powermock-api-easymock (#168)
+- [UPGRADED] Bump org.easymock:easymock from 3.4 to 4.3 (#170)
+
 # 0.200.1 (2023-02-23)
+
 - [BREAKING CHANGE] Stop sink connector on target database creation failure.
 - [UPGRADED] Upgraded `cloudant-java-sdk` to 0.4.3.
 - [UPGRADED] Upgraded Kafka to 3.4.0.
