@@ -1,4 +1,9 @@
+## 0.200.2 (2023-05-08)
+
+- [UPGRADED] Bump com.ibm.cloud:cloudant from 0.4.3 to 0.5.1 (#167)
+
 # 0.200.1 (2023-02-23)
+
 - [BREAKING CHANGE] Stop sink connector on target database creation failure.
 - [UPGRADED] Upgraded `cloudant-java-sdk` to 0.4.3.
 - [UPGRADED] Upgraded Kafka to 3.4.0.
