@@ -3,7 +3,7 @@ kafka = "3.5.0"
 slf4j = "1.7.36"
 
 [libraries]
-cloudant = { module = "com.ibm.cloud:cloudant", version = "0.5.2" }
+cloudant = { module = "com.ibm.cloud:cloudant", version = "0.5.3" }
 kafkaConnectApi = { module = "org.apache.kafka:connect-api", version.ref = "kafka" }
 kafkaConnectJson = { module = "org.apache.kafka:connect-json", version.ref = "kafka" }
 kafkaConnectTransforms = { module = "org.apache.kafka:connect-transforms", version.ref = "kafka" }
