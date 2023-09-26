@@ -1,3 +1,7 @@
+# 0.200.4 (2023-09-26)
+
+- [UPGRADED] Upgraded com.ibm.cloud:cloudant from 0.6.0 to 0.7.0.
+
 # 0.200.3 (2023-09-04)
 
 - [UPGRADED] Upgraded com.ibm.cloud:cloudant from 0.5.1 to 0.6.0.
