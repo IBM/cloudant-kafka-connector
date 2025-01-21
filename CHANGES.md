@@ -1,3 +1,6 @@
+# 0.200.8 (2025-01-21)
+- [UPGRADED] Upgraded com.ibm.cloud:cloudant from 0.9.3 to 0.10.0.
+
 # 0.200.7 (2024-11-12)
 - [UPGRADED] Upgraded com.ibm.cloud:cloudant from 0.8.3 to 0.9.3.
 - [UPGRADED] Upgraded Kafka from 3.6.1 to 3.9.0.
