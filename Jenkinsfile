@@ -33,6 +33,12 @@ pipeline {
     }
 
     stages {
+        stage('Detect Secrets') {
+            steps {
+                detectSecrets()
+            }
+        }
+
         stage('Build') {
             steps {
                 sh 'gradle clean assemble'
