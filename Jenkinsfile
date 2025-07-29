@@ -67,12 +67,21 @@ pipeline {
         }
 
         stage('SonarQube analysis') {
+            when {
+                anyOf {
+                    changeRequest()
+                    expression { env.BRANCH_IS_PRIMARY }
+                }
+                not {
+                    changeRequest branch: 'dependabot*', comparator: 'GLOB'
+                }
+            }
             environment {
                 scannerHome = tool 'SonarQubeScanner'
             }
             steps {
                 withSonarQubeEnv(installationName: 'SonarQubeServer') {
-                    sh "gradle sonar -Dsonar.qualitygate.wait=true -Dsonar.projectKey=cloudant-kafka-connector -Dsonar.branch.name=${env.BRANCH_NAME}"
+                    sh 'gradle sonar -Dsonar.qualitygate.wait=true -Dsonar.projectKey=cloudant-kafka-connector'
                 }
             }
         }
