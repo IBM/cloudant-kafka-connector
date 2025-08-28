@@ -19,4 +19,4 @@ kafkaProvided = ["kafkaConnectApi", "kafkaConnectJson", "kafkaConnectTransforms"
 testDeps =[ "junit", "powermock", "easymock", "junitBench"]
 
 [plugins]
-sq = { id = "org.sonarqube", version = "6.2.0.5505" }
+sq = { id = "org.sonarqube", version = "6.3.1.5724" }
