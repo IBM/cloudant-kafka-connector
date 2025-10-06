@@ -14,10 +14,10 @@ ext.kafkaConnectorPropertyFileName = 'com.ibm.cloud.cloudant.kafka.client.proper
 repositories {
     if (System.env.ARTIFACTORY_URL != null) {
         maven {
-            url "${System.env.ARTIFACTORY_URL}/cloudant-sdks-maven-virtual"
+            url = "${System.env.ARTIFACTORY_URL}/cloudant-sdks-maven-virtual"
             credentials {
-                username System.env.ARTIFACTORY_CREDS_USR
-                password System.env.ARTIFACTORY_CREDS_PSW
+                username = System.env.ARTIFACTORY_CREDS_USR
+                password = System.env.ARTIFACTORY_CREDS_PSW
             }
         }
     } else {
@@ -39,12 +39,10 @@ dependencies {
     testRuntimeOnly(libs.slf4jSimple)
 }
 
-// Java versions
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-// Always UTF-8
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
+    // Build with Java 8 compatibility
+    options.release = 8
+    // Always UTF-8
     options.encoding = 'UTF-8'
 }
 
