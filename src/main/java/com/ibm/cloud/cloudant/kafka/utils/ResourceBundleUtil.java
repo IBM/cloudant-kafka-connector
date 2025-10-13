@@ -29,7 +29,7 @@ public class ResourceBundleUtil {
     public static ResourceBundle getRb() {
 
         if (rb == null) {
-            Locale locale = new Locale("en", "US");
+            Locale locale = Locale.US;
             rb = ResourceBundle.getBundle("message", locale);
         }
 
