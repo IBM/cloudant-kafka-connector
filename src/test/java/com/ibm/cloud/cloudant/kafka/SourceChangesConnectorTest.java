@@ -22,7 +22,6 @@ import junit.framework.TestCase;
 import org.apache.kafka.connect.connector.ConnectorContext;
 import org.junit.Assert;
 import org.powermock.api.easymock.PowerMock;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.reflect.Whitebox;
 
 import java.util.List;
