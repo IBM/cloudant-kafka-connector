@@ -1,13 +1,13 @@
 # Database
 
 ## `cloudant.url`
-Cloudant database connection URL (eg `https://<uuid>.cloudantnosqldb.appdomain.cloud`)
+Cloudant database connection URL (for example `https://~replace-with-cloudant-host~.cloudantnosqldb.appdomain.cloud`)
 
 * Type: `string`
 * Valid Values: `<any URL>`
 
 ## `cloudant.db`
-Cloudant database name (for sink connector it will be created if it does not exist)
+Cloudant database name (sink connector creates this database if it does not exist)
 
 * Type: `string`
 
@@ -19,7 +19,7 @@ Kafka topic list
 * Type: `list`
 
 ## `batch.size`
-Size of batches to send to Cloudant _bulk_docs endpoint
+Size of batches to send to Cloudant `_bulk_docs` endpoint
 
 * Type: `int`
 * Default: `1000`
@@ -70,7 +70,7 @@ Cloudant CR token filename, for use with "container" authentication
 * Type: `string`
 
 ## `cloudant.iam.profile.crn`
-Clouant IAM profile CRN, for use with "vpc" authentication
+Cloudant IAM profile CRN, for use with "vpc" authentication
 
 * Type: `string`
 

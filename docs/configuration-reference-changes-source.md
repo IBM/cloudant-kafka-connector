@@ -1,18 +1,18 @@
 # Database
 
 ## `cloudant.url`
-Cloudant database connection URL (eg `https://<uuid>.cloudantnosqldb.appdomain.cloud`)
+Cloudant database connection URL (for example `https://~replace-with-cloudant-host~.cloudantnosqldb.appdomain.cloud`)
 
 * Type: `string`
 * Valid Values: `<any URL>`
 
 ## `cloudant.db`
-Cloudant database name (for sink connector it will be created if it does not exist)
+Cloudant database name (sink connector creates this database if it does not exist)
 
 * Type: `string`
 
 ## `cloudant.since`
-The sequence ID from which to start processing the changes feed. Defaults to starting from the beginning of the changes feed. Ignored if the connector is restarting, in which case the last committed offset will be used. Valid values are "0" (all changes from beginning of the changes feed), "now" (all changes from current point in time), or a Cloudant _changes sequence ID.
+The sequence ID from which to start processing the changes feed. Defaults to starting from the beginning of the changes feed. Ignored if the connector is restarting, in which case the last committed offset is used. Valid values are `0` (all changes from beginning of the changes feed), `now` (all changes from current point in time), or a Cloudant `_changes` sequence ID.
 
 * Type: `string`
 * Default: `0`
@@ -25,7 +25,7 @@ Kafka topic list
 * Type: `list`
 
 ## `batch.size`
-Size of batches to retrieve from Cloudant _changes endpoint
+Size of batches to retrieve from Cloudant `_changes` endpoint
 
 * Type: `int`
 * Default: `1000`
@@ -76,7 +76,7 @@ Cloudant CR token filename, for use with "container" authentication
 * Type: `string`
 
 ## `cloudant.iam.profile.crn`
-Clouant IAM profile CRN, for use with "vpc" authentication
+Cloudant IAM profile CRN, for use with "vpc" authentication
 
 * Type: `string`
 
