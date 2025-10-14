@@ -18,6 +18,11 @@ Experimental
 
 **Note**: The below instructions assume an installation of Kafka at `$KAFKA_HOME`.
 
+### Prerequisites
+
+* Kafka Connect `4.x` requires Java `17`.
+* Connection to a Kafka broker with minimum version `2.1`.
+
 ### Quick Start
 
 1. Download the zip from the [releases page](https://github.com/IBM/cloudant-kafka-connector/releases). The zip file
