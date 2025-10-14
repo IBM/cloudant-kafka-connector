@@ -18,12 +18,9 @@ import java.util.Map;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
-import org.apache.kafka.connect.errors.DataException;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.transforms.predicates.Predicate;
 import org.apache.kafka.connect.transforms.util.Requirements;
-import com.ibm.cloud.cloudant.kafka.utils.MessageKey;
-import com.ibm.cloud.cloudant.kafka.utils.ResourceBundleUtil;
 
 import static com.ibm.cloud.cloudant.kafka.utils.CloudantConst.CLOUDANT_DESIGN_PREFIX;
 import static com.ibm.cloud.cloudant.kafka.utils.CloudantConst.CLOUDANT_DOC_ID;
@@ -43,7 +40,6 @@ public class IsDesignDocument implements Predicate<SourceRecord> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean test(SourceRecord record) {
         Schema schema = record.keySchema();
         Object recordKey = record.key();

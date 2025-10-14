@@ -21,7 +21,6 @@ import com.ibm.cloud.cloudant.v1.model.Change;
 import com.ibm.cloud.cloudant.v1.model.ChangesResult;
 import com.ibm.cloud.cloudant.v1.model.ChangesResultItem;
 import com.ibm.cloud.cloudant.v1.model.Document;
-import org.apache.kafka.connect.connector.ConnectorContext;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTaskContext;
