@@ -3,7 +3,7 @@ plugins {
     id "java"
     alias(libs.plugins.sq)
 }
-// Gradle 8+ supported
+// Gradle 9+ supported
 
 group = 'com.ibm.cloud'
 version = new File(rootDir, 'VERSION').text.trim()
@@ -40,8 +40,8 @@ dependencies {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    // Build with Java 8 compatibility
-    options.release = 8
+    // Build with Java 17 compatibility (minimum for Kafka Connect 4.x)
+    options.release = 17
     // Always UTF-8
     options.encoding = 'UTF-8'
 }
