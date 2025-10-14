@@ -1,5 +1,5 @@
 [versions]
-kafka = "3.9.1"
+kafka = "4.1.0"
 slf4j = "1.7.36"
 
 [libraries]
