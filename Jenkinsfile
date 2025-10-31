@@ -24,7 +24,7 @@ pipeline {
     agent {
         kubernetes {
             // Temporarily pin the agent until sb361 signing issue is resolved
-            yaml kubePodTemplate(name: 'full_jnlp.yaml', full_jnlp: 'sdks-full-agent:java-21')
+            yaml kubePodTemplate(name: 'full_jnlp.yaml', full_jnlp: 'sdks-pinned-agent:java-21')
         }
     }
 
