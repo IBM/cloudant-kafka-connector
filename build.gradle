@@ -107,7 +107,8 @@ task signDistZip(group: 'Other', description: 'Signs the archive produced by the
             providerclass: 'sun.security.pkcs11.SunPKCS11',
             providerarg: '/home/jenkins/garasignconfig.txt',
             alias: 'PRD0002797key',
-            preservelastmodified: 'true'
+            preservelastmodified: 'true',
+            verbose: true
         )
     }
 }

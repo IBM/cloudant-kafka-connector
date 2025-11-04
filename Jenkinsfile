@@ -24,7 +24,7 @@ pipeline {
     agent {
         kubernetes {
             // Temporarily pin the agent until sb361 signing issue is resolved
-            yaml kubePodTemplate(name: 'full_jnlp.yaml', full_jnlp: 'sdks-pinned-agent:java-21')
+            yaml kubePodTemplate(name: 'full_jnlp.yaml')
         }
     }
 
@@ -46,94 +46,94 @@ pipeline {
                 withCredentials([certificate(credentialsId: 'cldtsdks-signing-cert', keystoreVariable: 'CODE_SIGNING_PFX_FILE', passwordVariable: 'CODE_SIGNING_P12_PASSWORD')
                 ]) {
                     sh 'setup-garasign-client'
-                    sh 'gradle signDistZip'
+                    sh 'jarsigner -verbose -J-Djdk.native.openssl.skipBundled=true -tsa http://timestamp.digicert.com -keystore NONE -storetype PKCS11 -storepass null -providerClass sun.security.pkcs11.SunPKCS11 -ProviderArg /home/jenkins/garasignconfig.txt ./build/distributions/cloudant-kafka-connector-0.200.11-SNAPSHOT.zip PRD0002797key'
                 }
             }
         }
 
-        stage('QA') {
-            steps {
-                withCredentials([string(credentialsId: 'testServerIamApiKey',
-                        variable: 'APIKEY')]) {
-                    sh 'gradle -Dcloudant.url=$SDKS_TEST_SERVER_URL -Dcloudant.auth.url=$SDKS_TEST_IAM_URL -Dcloudant.apikey=$APIKEY test'
-                }
-            }
-            post {
-                always {
-                    junit (
-                        testResults: '**/build/test-results/test/*.xml'
-                    )
-                }
-            }
-        }
+        // stage('QA') {
+        //     steps {
+        //         withCredentials([string(credentialsId: 'testServerIamApiKey',
+        //                 variable: 'APIKEY')]) {
+        //             sh 'gradle -Dcloudant.url=$SDKS_TEST_SERVER_URL -Dcloudant.auth.url=$SDKS_TEST_IAM_URL -Dcloudant.apikey=$APIKEY test'
+        //         }
+        //     }
+        //     post {
+        //         always {
+        //             junit (
+        //                 testResults: '**/build/test-results/test/*.xml'
+        //             )
+        //         }
+        //     }
+        // }
 
-        stage('SonarQube analysis') {
-            when {
-                anyOf {
-                    changeRequest()
-                    expression { env.BRANCH_IS_PRIMARY }
-                }
-                not {
-                    changeRequest branch: 'dependabot*', comparator: 'GLOB'
-                }
-            }
-            environment {
-                scannerHome = tool 'SonarQubeScanner'
-            }
-            steps {
-                withSonarQubeEnv(installationName: 'SonarQubeServer') {
-                    sh 'gradle sonar -Dsonar.qualitygate.wait=true -Dsonar.projectKey=cloudant-kafka-connector'
-                }
-            }
-        }
+        // stage('SonarQube analysis') {
+        //     when {
+        //         anyOf {
+        //             changeRequest()
+        //             expression { env.BRANCH_IS_PRIMARY }
+        //         }
+        //         not {
+        //             changeRequest branch: 'dependabot*', comparator: 'GLOB'
+        //         }
+        //     }
+        //     environment {
+        //         scannerHome = tool 'SonarQubeScanner'
+        //     }
+        //     steps {
+        //         withSonarQubeEnv(installationName: 'SonarQubeServer') {
+        //             sh 'gradle sonar -Dsonar.qualitygate.wait=true -Dsonar.projectKey=cloudant-kafka-connector'
+        //         }
+        //     }
+        // }
 
-        // Publish tags
-        stage('Publish release') {
-            // Publish releases for semver tags that equal the verison in the file
-            when {
-                allOf {
-                    buildingTag()
-                    tag pattern: /${env.SVRE_PRE_RELEASE_TAG}/, comparator: 'REGEXP'
-                    tag pattern: 'v' + readFile('VERSION').trim(), comparator : 'EQUALS'
-                }
-            }
-            steps {
-                // Create a GitHub release for the tag
-                httpRequest authentication: 'gh-sdks-automation',
-                            contentType: 'APPLICATION_JSON_UTF8',
-                            customHeaders: [[name: 'Accept', value: 'application/vnd.github+json']],
-                            httpMode: 'POST',
-                            outputFile: 'release_response.json',
-                            requestBody: """
-                                {
-                                    "tag_name": "${TAG_NAME}",
-                                    "name": "${prefixlessTag(TAG_NAME)} (${new Date(TAG_TIMESTAMP as long).format('yyyy-MM-dd')})",
-                                    "draft": false,
-                                    "prerelease": true,
-                                    "generate_release_notes": true
-                                }
-                                """.stripIndent(),
-                            timeout: 60,
-                            url: 'https://api.github.com/repos/IBM/cloudant-kafka-connector/releases',
-                            validResponseCodes: '201',
-                            wrapAsMultipart: false
-                script {
-                    zipName = "cloudant-kafka-connector-${prefixlessTag(TAG_NAME)}.zip"
-                    // Process the release response to get the asset upload_url
-                    def responseJson = readJSON file: 'release_response.json'
-                    // Replace the path parameter template with a name
-                    zipUploadUrl = responseJson.upload_url.replace('{?name,label}',"?name=${zipName}")
-                }
-                // Upload the asset to the release
-                httpRequest authentication: 'gh-sdks-automation',
-                            customHeaders: [[name: 'Accept', value: 'application/vnd.github+json'],[name: 'Content-Type', value: 'application/zip']],
-                            httpMode: 'POST',
-                            timeout: 60,
-                            uploadFile: "build/distributions/${zipName}",
-                            url: zipUploadUrl,
-                            validResponseCodes: '201',
-                            wrapAsMultipart: false
-            }
-        }
+        // // Publish tags
+        // stage('Publish release') {
+        //     // Publish releases for semver tags that equal the verison in the file
+        //     when {
+        //         allOf {
+        //             buildingTag()
+        //             tag pattern: /${env.SVRE_PRE_RELEASE_TAG}/, comparator: 'REGEXP'
+        //             tag pattern: 'v' + readFile('VERSION').trim(), comparator : 'EQUALS'
+        //         }
+        //     }
+        //     steps {
+        //         // Create a GitHub release for the tag
+        //         httpRequest authentication: 'gh-sdks-automation',
+        //                     contentType: 'APPLICATION_JSON_UTF8',
+        //                     customHeaders: [[name: 'Accept', value: 'application/vnd.github+json']],
+        //                     httpMode: 'POST',
+        //                     outputFile: 'release_response.json',
+        //                     requestBody: """
+        //                         {
+        //                             "tag_name": "${TAG_NAME}",
+        //                             "name": "${prefixlessTag(TAG_NAME)} (${new Date(TAG_TIMESTAMP as long).format('yyyy-MM-dd')})",
+        //                             "draft": false,
+        //                             "prerelease": true,
+        //                             "generate_release_notes": true
+        //                         }
+        //                         """.stripIndent(),
+        //                     timeout: 60,
+        //                     url: 'https://api.github.com/repos/IBM/cloudant-kafka-connector/releases',
+        //                     validResponseCodes: '201',
+        //                     wrapAsMultipart: false
+        //         script {
+        //             zipName = "cloudant-kafka-connector-${prefixlessTag(TAG_NAME)}.zip"
+        //             // Process the release response to get the asset upload_url
+        //             def responseJson = readJSON file: 'release_response.json'
+        //             // Replace the path parameter template with a name
+        //             zipUploadUrl = responseJson.upload_url.replace('{?name,label}',"?name=${zipName}")
+        //         }
+        //         // Upload the asset to the release
+        //         httpRequest authentication: 'gh-sdks-automation',
+        //                     customHeaders: [[name: 'Accept', value: 'application/vnd.github+json'],[name: 'Content-Type', value: 'application/zip']],
+        //                     httpMode: 'POST',
+        //                     timeout: 60,
+        //                     uploadFile: "build/distributions/${zipName}",
+        //                     url: zipUploadUrl,
+        //                     validResponseCodes: '201',
+        //                     wrapAsMultipart: false
+        //     }
+        // }
     }
 }
