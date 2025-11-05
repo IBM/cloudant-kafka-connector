@@ -92,22 +92,23 @@ tasks.withType(Test) {
     systemProperty "file.encoding", "UTF-8"
 }
 
-task signDistZip(group: 'Other', description: 'Signs the archive produced by the \'distZip\' task.') {
+task signDistZip(type: Exec, group: 'Other', description: 'Signs the archive produced by the \'distZip\' task.') {
     onlyIf {
         System.env["CODE_SIGNING_PFX_FILE"] != null
     }
-    doLast {
-        def zipName = distZip.archiveFile.get().asFile
-        ant.signjar(
-            jar: zipName,
-            tsaurl: 'http://timestamp.digicert.com',
-            storetype: 'PKCS11',
-            keystore: 'NONE',
-            storepass: null,
-            providerclass: 'sun.security.pkcs11.SunPKCS11',
-            providerarg: '/home/jenkins/garasignconfig.txt',
-            alias: 'PRD0002797key',
-            preservelastmodified: 'true'
-        )
-    }
+    def zip = distZip.archiveFile.get().asFile
+    inputs.file(zip)
+    outputs.file(zip)
+    executable 'jarsigner'
+    // For newer Java versions skip the bundled openssl and use the system one
+    // https://github.com/eclipse-openj9/openj9/issues/22541
+    args '-J-Djdk.native.openssl.skipBundled=true',
+        '-tsa', 'http://timestamp.digicert.com',
+        '-keystore', 'NONE',
+        '-storetype', 'PKCS11',
+        '-storepass', 'null',
+        '-providerClass', 'sun.security.pkcs11.SunPKCS11',
+        '-providerArg', '/home/jenkins/garasignconfig.txt',
+        zip,
+        'PRD0002797key'
 }
