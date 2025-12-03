@@ -1,5 +1,5 @@
-# 0.300.0 (Unreleased)
-- [UPGRADED] Upgraded com.ibm.cloud:cloudant from 0.10.8 to 0.10.9.
+# 0.300.0 (2025-12-03)
+- [UPGRADED] Upgraded com.ibm.cloud:cloudant from 0.10.8 to 0.10.13.
 - [UPGRADED] Upgraded Kafka from 3.9.1 to 4.1.0
 - [BREAKING CHANGE] Minimum for Kafka 4.x is Java 17.
 - [BREAKING CHANGE] Minimum broker version for Kafka Connect 4.x is 2.1.
