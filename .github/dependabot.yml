@@ -9,3 +9,5 @@ updates:
       separator: "-"
     cooldown:
       default-days: 4
+      exclude:
+        - "com.ibm.cloud:cloudant"
