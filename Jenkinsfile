@@ -17,8 +17,6 @@
 def prefixlessTag(tag) {
     return tag.replaceFirst('v','')
 }
-def zipUploadUrl
-def zipName
 
 pipeline {
     agent {
@@ -97,41 +95,18 @@ pipeline {
                 }
             }
             steps {
-                // Create a GitHub release for the tag
-                httpRequest authentication: 'gh-sdks-automation',
-                            contentType: 'APPLICATION_JSON_UTF8',
-                            customHeaders: [[name: 'Accept', value: 'application/vnd.github+json']],
-                            httpMode: 'POST',
-                            outputFile: 'release_response.json',
-                            requestBody: """
-                                {
-                                    "tag_name": "${TAG_NAME}",
-                                    "name": "${prefixlessTag(TAG_NAME)} (${new Date(TAG_TIMESTAMP as long).format('yyyy-MM-dd')})",
-                                    "draft": false,
-                                    "prerelease": true,
-                                    "generate_release_notes": true
-                                }
-                                """.stripIndent(),
-                            timeout: 60,
-                            url: 'https://api.github.com/repos/IBM/cloudant-kafka-connector/releases',
-                            validResponseCodes: '201',
-                            wrapAsMultipart: false
-                script {
-                    zipName = "cloudant-kafka-connector-${prefixlessTag(TAG_NAME)}.zip"
-                    // Process the release response to get the asset upload_url
-                    def responseJson = readJSON file: 'release_response.json'
-                    // Replace the path parameter template with a name
-                    zipUploadUrl = responseJson.upload_url.replace('{?name,label}',"?name=${zipName}")
-                }
-                // Upload the asset to the release
-                httpRequest authentication: 'gh-sdks-automation',
-                            customHeaders: [[name: 'Accept', value: 'application/vnd.github+json'],[name: 'Content-Type', value: 'application/zip']],
-                            httpMode: 'POST',
-                            timeout: 60,
-                            uploadFile: "build/distributions/${zipName}",
-                            url: zipUploadUrl,
-                            validResponseCodes: '201',
-                            wrapAsMultipart: false
+                publishGitHubRelease(
+                    tag: env.TAG_NAME,
+                    title: "${prefixlessTag(TAG_NAME)} (${new Date(TAG_TIMESTAMP as long).format('yyyy-MM-dd')})",
+                    preRelease: true,
+                    assets: [
+                        [
+                            name: "cloudant-kafka-connector-${prefixlessTag(TAG_NAME)}.zip",
+                            path: "build/distributions/cloudant-kafka-connector-${prefixlessTag(TAG_NAME)}.zip",
+                            contentType: 'application/zip'
+                        ]
+                    ]
+                )
             }
         }
     }
